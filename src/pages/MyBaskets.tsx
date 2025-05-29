@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowLeft } from 'lucide-react';
+import { Plus, ArrowLeft, Clock, CheckCircle, Lock } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { BasketCard } from '@/components/BasketCard';
@@ -114,19 +114,22 @@ export const MyBaskets = () => {
     switch (status) {
       case 'pending':
         return (
-          <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 text-xs">
-            Pending Review
+          <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 text-xs flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            Pending
           </Badge>
         );
       case 'approved':
         return (
-          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 text-xs">
-            Approved
+          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 text-xs flex items-center gap-1">
+            <CheckCircle className="w-3 h-3" />
+            Live
           </Badge>
         );
       case 'private':
         return (
-          <Badge className="bg-blue-500 text-white border-0 text-xs">
+          <Badge className="bg-blue-500 text-white border-0 text-xs flex items-center gap-1">
+            <Lock className="w-3 h-3" />
             Private
           </Badge>
         );
