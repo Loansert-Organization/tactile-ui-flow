@@ -150,11 +150,11 @@ const Step3 = () => {
   const navigate = useNavigate();
   const [allowAnonymous, setAllowAnonymous] = useState(true);
   return <div className="flex-1 flex flex-col">
-      <GlassCard className="p-6 flex-1">
+      <GlassCard className="p-4">
         <h2 className="text-2xl font-bold mb-2">Anonymity Settings</h2>
-        <p className="text-gray-400 mb-6">Set default contribution visibility</p>
+        <p className="text-gray-400 mb-4">Set default contribution visibility</p>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div className="flex items-center justify-between p-4 rounded-lg bg-white/5">
             <div>
               <h3 className="font-semibold">Allow Anonymous Contributions</h3>
