@@ -17,7 +17,7 @@ import { GettingStarted } from "@/pages/GettingStarted";
 import { SplashScreen } from "@/pages/SplashScreen";
 import { CodeAssignment } from "@/pages/CodeAssignment";
 import { JoinByCode } from "@/pages/JoinByCode";
-import { CreateBasketWizard } from "@/pages/CreateBasketWizard";
+import CreateBasketWizard from "@/pages/CreateBasketWizard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
