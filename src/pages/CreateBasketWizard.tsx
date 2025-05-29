@@ -381,16 +381,6 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
           </div>
 
           <div className="space-y-6">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-r from-teal-500/20 to-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3 neuro-button">
-                <Users className="w-8 h-8 text-teal-300" />
-              </div>
-              <h2 className="text-lg font-semibold bg-gradient-to-r from-teal-400 to-blue-400 bg-clip-text text-transparent">
-                Basic Information
-              </h2>
-              <p className="text-gray-400 text-sm mt-1">Tell us about your savings goal</p>
-            </div>
-
             <div className="space-y-4">
               {/* Profile Image Upload */}
               <div className="text-center">
@@ -592,7 +582,7 @@ const Step2 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
 
           {basketData.contributionType === 'recurring' && (
             <div>
-              <label className="block text-sm font-medium mb-3 text-gray-200">Contribution Frequency</label>
+              <label className="block text-sm font-medium mb-2 text-gray-200">Contribution Frequency</label>
               <select 
                 value={basketData.frequency}
                 onChange={(e) => updateBasketData?.('frequency', e.target.value)}
