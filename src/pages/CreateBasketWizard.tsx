@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
@@ -653,23 +652,6 @@ const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
               />
             </div>
           )}
-
-          <div className="glass-input p-4 rounded-lg">
-            <h3 className="font-medium mb-2 text-gray-200">Summary</h3>
-            <div className="space-y-1 text-sm text-gray-300">
-              <p>Name: {basketData.name}</p>
-              <p>Goal: RWF {basketData.goal}</p>
-              <p>Type: {basketData.contributionType === 'one-off' ? 'One-off contributions' : 'Recurring contributions'}</p>
-              {basketData.contributionType === 'recurring' && (
-                <>
-                  <p>Frequency: {basketData.frequency}</p>
-                  <p>Duration: {basketData.duration} months</p>
-                </>
-              )}
-              <p>Privacy: {basketData.privacy}</p>
-              <p>Display: {basketData.anonymity}</p>
-            </div>
-          </div>
 
           <Button 
             onClick={(e) => { handlePress(e); onNext?.(); }}
