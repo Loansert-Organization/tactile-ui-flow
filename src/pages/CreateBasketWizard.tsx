@@ -71,6 +71,19 @@ const Step1 = () => {
 
   const isValid = formData.name && formData.description && formData.goal;
 
+  const formatNumber = (value: string) => {
+    // Remove all non-digits
+    const cleanValue = value.replace(/\D/g, '');
+    // Add commas for thousands
+    return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  const handleGoalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const formattedValue = formatNumber(value);
+    setFormData({ ...formData, goal: formattedValue });
+  };
+
   return (
     <div className="flex-1 flex flex-col">
       <GlassCard className="p-6 flex-1">
@@ -105,10 +118,10 @@ const Step1 = () => {
           <div>
             <label className="block text-sm font-medium mb-2">Goal Amount (RWF) *</label>
             <input
-              type="number"
+              type="text"
               value={formData.goal}
-              onChange={(e) => setFormData({ ...formData, goal: e.target.value })}
-              placeholder="50000"
+              onChange={handleGoalChange}
+              placeholder="50,000"
               className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-pink-500"
             />
           </div>
