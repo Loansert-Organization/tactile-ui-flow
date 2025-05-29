@@ -90,9 +90,6 @@ export const BasketParticipants = () => {
                       <Crown className="w-4 h-4 text-yellow-500" />
                     )}
                   </div>
-                  <div className="text-sm text-gray-400">
-                    {participant.contributions} contributions • Joined {new Date(participant.joinedAt).toLocaleDateString()}
-                  </div>
                 </div>
               </div>
               
