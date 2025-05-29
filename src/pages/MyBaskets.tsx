@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Plus, Search, Filter } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { BasketCard } from '@/components/BasketCard';
@@ -27,14 +27,6 @@ export const MyBaskets = () => {
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold gradient-text">My Baskets</h1>
-          <div className="flex gap-2">
-            <button className="p-2 rounded-lg hover:bg-white/10 transition-colors">
-              <Search className="w-5 h-5" />
-            </button>
-            <button className="p-2 rounded-lg hover:bg-white/10 transition-colors">
-              <Filter className="w-5 h-5" />
-            </button>
-          </div>
         </div>
 
         {/* Tabs */}
