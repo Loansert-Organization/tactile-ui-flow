@@ -36,8 +36,14 @@ export const ShareButton = ({
   };
 
   const handleShare = async () => {
+    console.log('Share button clicked');
+    console.log('Basket name:', basketName);
+    console.log('Basket URL:', basketURL);
+    
     const message = `Hey! Join my Basket "${basketName}" and add your support via MOMO: ${basketURL}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    
+    console.log('WhatsApp URL:', whatsappUrl);
     
     // Show opening toast
     toast({
@@ -46,11 +52,21 @@ export const ShareButton = ({
     });
 
     try {
-      const opened = window.open(whatsappUrl, '_blank');
-      if (!opened) {
-        throw new Error('Window blocked');
+      // Try multiple approaches to open WhatsApp
+      console.log('Attempting to open WhatsApp...');
+      
+      // First try: direct window.open
+      const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      
+      if (!opened || opened.closed || typeof opened.closed == 'undefined') {
+        console.log('Window.open failed, trying location.href');
+        // Fallback: try location.href
+        window.location.href = whatsappUrl;
+      } else {
+        console.log('WhatsApp opened successfully');
       }
     } catch (error) {
+      console.error('Error opening WhatsApp:', error);
       toast({
         title: "Couldn't open WhatsApp",
         description: "Please try again or share the link manually",
