@@ -1,15 +1,14 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Users, Settings, Share2, Target, Calendar, ArrowLeft, Plus, Banknote, Coins } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
-import { ContributionModal } from '@/components/ContributionModal';
 import { ContributionSuccessModal } from '@/components/ContributionSuccessModal';
 
 export const BasketOverview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [showContributionModal, setShowContributionModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [contributedAmount, setContributedAmount] = useState(0);
 
@@ -159,7 +158,7 @@ export const BasketOverview = () => {
         <div className="grid grid-cols-2 gap-4">
           <GradientButton
             variant="primary"
-            onClick={() => setShowContributionModal(true)}
+            onClick={() => navigate(`/basket/${id}/contribute`)}
             className="flex items-center justify-center gap-2"
           >
             <Plus className="w-5 h-5" />
@@ -194,13 +193,6 @@ export const BasketOverview = () => {
           </GlassCard>
         </div>
       </div>
-
-      <ContributionModal
-        isOpen={showContributionModal}
-        onClose={() => setShowContributionModal(false)}
-        basketName={basket.name}
-        onSuccess={handleContributionSuccess}
-      />
 
       <ContributionSuccessModal
         isOpen={showSuccessModal}

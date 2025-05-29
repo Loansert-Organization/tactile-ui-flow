@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +11,7 @@ import { Chat } from "@/pages/Chat";
 import { BasketOverview } from "@/pages/BasketOverview";
 import { BasketParticipants } from "@/pages/BasketParticipants";
 import { BasketSettings } from "@/pages/BasketSettings";
+import { ContributionPage } from "@/pages/ContributionPage";
 import { MyBaskets } from "@/pages/MyBaskets";
 import { InviteLanding } from "@/pages/InviteLanding";
 import { GettingStarted } from "@/pages/GettingStarted";
@@ -45,6 +47,7 @@ const App = () => (
                     <Route path="/basket/:id" element={<BasketOverview />} />
                     <Route path="/basket/:id/participants" element={<BasketParticipants />} />
                     <Route path="/basket/:id/settings" element={<BasketSettings />} />
+                    <Route path="/basket/:id/contribute" element={<ContributionPage />} />
                     <Route path="/notifications" element={<div className="p-4 pb-24"><h1>Notifications - Coming Soon</h1></div>} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
