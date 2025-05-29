@@ -16,6 +16,7 @@ import { MyBaskets } from "@/pages/MyBaskets";
 import CreateBasketWizard from "@/pages/CreateBasketWizard";
 import NotFound from "./pages/NotFound";
 import { BasketProvider } from "@/contexts/BasketContext";
+import { MyBasketsProvider } from "@/contexts/MyBasketsContext";
 
 const queryClient = new QueryClient();
 
@@ -25,33 +26,35 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BasketProvider>
-        <BrowserRouter>
-          <div className="min-h-screen flex flex-col">
-            <Routes>
-              {/* Standalone routes (no header/nav) */}
-              <Route path="/create/*" element={<CreateBasketWizard />} />
-              
-              {/* Main app routes (with header only) */}
-              <Route path="/*" element={
-                <>
-                  <AppHeader />
-                  <main className="flex-1">
-                    <Routes>
-                      <Route path="/" element={<Feed />} />
-                      <Route path="/baskets/mine" element={<MyBaskets />} />
-                      <Route path="/basket/:id" element={<BasketOverview />} />
-                      <Route path="/basket/:id/join" element={<BasketDetailNonMember />} />
-                      <Route path="/basket/:id/participants" element={<BasketParticipants />} />
-                      <Route path="/basket/:id/settings" element={<BasketSettings />} />
-                      <Route path="/basket/:id/contribute" element={<ContributionPage />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </main>
-                </>
-              } />
-            </Routes>
-          </div>
-        </BrowserRouter>
+        <MyBasketsProvider>
+          <BrowserRouter>
+            <div className="min-h-screen flex flex-col">
+              <Routes>
+                {/* Standalone routes (no header/nav) */}
+                <Route path="/create/*" element={<CreateBasketWizard />} />
+                
+                {/* Main app routes (with header only) */}
+                <Route path="/*" element={
+                  <>
+                    <AppHeader />
+                    <main className="flex-1">
+                      <Routes>
+                        <Route path="/" element={<Feed />} />
+                        <Route path="/baskets/mine" element={<MyBaskets />} />
+                        <Route path="/basket/:id" element={<BasketOverview />} />
+                        <Route path="/basket/:id/join" element={<BasketDetailNonMember />} />
+                        <Route path="/basket/:id/participants" element={<BasketParticipants />} />
+                        <Route path="/basket/:id/settings" element={<BasketSettings />} />
+                        <Route path="/basket/:id/contribute" element={<ContributionPage />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </main>
+                  </>
+                } />
+              </Routes>
+            </div>
+          </BrowserRouter>
+        </MyBasketsProvider>
       </BasketProvider>
     </TooltipProvider>
   </QueryClientProvider>
