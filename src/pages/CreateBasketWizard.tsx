@@ -19,7 +19,6 @@ interface BasketData {
   privacy: 'public' | 'private';
   anonymity: 'anonymous' | 'named';
   contributionType: 'recurring' | 'one-off';
-  inviteCode: string;
   profileImage: string | null;
 }
 
@@ -36,7 +35,6 @@ const CreateBasketWizard = () => {
     privacy: 'private',
     anonymity: 'named',
     contributionType: 'recurring',
-    inviteCode: '',
     profileImage: null
   });
 
@@ -62,10 +60,6 @@ const CreateBasketWizard = () => {
   };
 
   const handleComplete = () => {
-    // Generate invite code
-    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    setBasketData(prev => ({ ...prev, inviteCode: code }));
-    
     // Enhanced confetti effect
     const triggerConfetti = () => {
       const colors = ['#ff006e', '#ff8500', '#06ffa5', '#0099ff', '#8b5cf6', '#ec4899'];
@@ -536,7 +530,7 @@ const Step2 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
                   <Lock className="w-5 h-5" />
                   <div className="text-left">
                     <p className="font-medium">Private</p>
-                    <p className="text-xs text-gray-400">Invite-only basket</p>
+                    <p className="text-xs text-gray-400">Share via URL link only</p>
                   </div>
                 </div>
               </button>
@@ -714,20 +708,17 @@ const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
 );
 
 const Step4 = ({ basketData, onBack, handlePress }: StepProps) => {
-  const copyInviteCode = () => {
-    navigator.clipboard.writeText(basketData.inviteCode || 'ABC123');
-    toast.success('📋 Invite code copied to clipboard!');
-  };
-
   const shareBasket = () => {
+    const basketUrl = `${window.location.origin}/basket/1`; // Use actual basket ID in production
     if (navigator.share) {
       navigator.share({
         title: basketData.name,
         text: `Join my savings basket: ${basketData.name}`,
-        url: `${window.location.origin}/invite/${basketData.inviteCode || 'ABC123'}`
+        url: basketUrl
       });
     } else {
-      copyInviteCode();
+      navigator.clipboard.writeText(basketUrl);
+      toast.success('📋 Basket link copied to clipboard!');
     }
   };
 
@@ -748,22 +739,7 @@ const Step4 = ({ basketData, onBack, handlePress }: StepProps) => {
               <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent mb-2">
                 Basket Created!
               </h1>
-              <p className="text-gray-400">Your savings basket is ready. Invite others to join!</p>
-            </div>
-
-            <div className="glass-input p-4 rounded-lg">
-              <h3 className="font-medium mb-3 text-gray-200">Invitation Code</h3>
-              <div className="flex items-center gap-2 p-3 bg-white/10 rounded-lg">
-                <code className="flex-1 text-lg font-mono text-center text-orange-300">
-                  {basketData.inviteCode || 'ABC123'}
-                </code>
-                <button
-                  onClick={copyInviteCode}
-                  className="p-2 hover:bg-white/10 rounded neuro-button"
-                >
-                  📋
-                </button>
-              </div>
+              <p className="text-gray-400">Your savings basket is ready. Share the link to invite others!</p>
             </div>
 
             <div className="space-y-3">
@@ -772,7 +748,7 @@ const Step4 = ({ basketData, onBack, handlePress }: StepProps) => {
                 className="w-full bg-gradient-to-r from-teal-500 to-blue-500 neuro-button text-white font-semibold py-3 text-base"
               >
                 <Share2 className="w-4 h-4 mr-2" />
-                Share Basket
+                Share Basket Link
               </Button>
 
               <Button

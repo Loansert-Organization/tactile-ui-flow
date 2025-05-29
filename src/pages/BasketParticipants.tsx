@@ -26,7 +26,7 @@ export const BasketParticipants = () => {
   const totalContributedAmount = 325000; // This should match the basket's totalContributions
 
   const handleShareBasket = async () => {
-    const basketUrl = `${window.location.origin}/invite/${id}`;
+    const basketUrl = `${window.location.origin}/basket/${id}`;
     await navigator.clipboard.writeText(basketUrl);
     toast({
       title: "Copied!",
