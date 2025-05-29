@@ -100,7 +100,6 @@ export const BasketParticipants = () => {
                 <div className="text-lg font-bold gradient-text">
                   RWF {totalContributedAmount.toLocaleString()}
                 </div>
-                <div className="text-xs text-gray-400">Total Amount</div>
               </div>
             </div>
           </GlassCard>
