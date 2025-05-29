@@ -53,7 +53,7 @@ export const Feed = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6 p-4 pb-24">
+      <div className="space-y-6 p-4">
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
             <GlassCard key={i} className="p-6 space-y-4">
@@ -77,7 +77,7 @@ export const Feed = () => {
 
   if (error) {
     return (
-      <div className="p-4 pb-24">
+      <div className="p-4">
         <GlassCard className="p-6 text-center">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">Failed to load baskets</h3>
@@ -93,7 +93,7 @@ export const Feed = () => {
 
   if (nonMemberBaskets.length === 0) {
     return (
-      <div className="p-4 pb-24">
+      <div className="p-4">
         <EmptyState
           title="No Public Baskets"
           description="There are no public baskets available to join at the moment. Check back later!"
@@ -107,7 +107,7 @@ export const Feed = () => {
 
   return (
     <div 
-      className="space-y-6 p-4 pb-24"
+      className="space-y-6 p-4"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >

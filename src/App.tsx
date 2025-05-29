@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppHeader } from "@/components/layout/AppHeader";
-import { BottomNav } from "@/components/layout/BottomNav";
 import { Feed } from "@/pages/Feed";
 import { Chat } from "@/pages/Chat";
 import { BasketOverview } from "@/pages/BasketOverview";
@@ -32,7 +31,7 @@ const App = () => (
               {/* Standalone routes (no header/nav) */}
               <Route path="/create/*" element={<CreateBasketWizard />} />
               
-              {/* Main app routes (with header/nav) */}
+              {/* Main app routes (with header only) */}
               <Route path="/*" element={
                 <>
                   <AppHeader />
@@ -48,7 +47,6 @@ const App = () => (
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </main>
-                  <BottomNav />
                 </>
               } />
             </Routes>

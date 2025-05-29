@@ -22,7 +22,7 @@ export const MyBaskets = () => {
   const baskets = activeTab === 'joined' ? joinedBaskets : createdBaskets;
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen">
       {/* Header */}
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
