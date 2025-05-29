@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Phone } from 'lucide-react';
@@ -111,7 +112,6 @@ export const ContributionPage = () => {
                   className="w-full pl-14 pr-4 py-4 text-lg rounded-lg bg-gray-100/10 border border-white/10 text-gray-400 cursor-not-allowed"
                 />
               </div>
-              <p className="text-xs text-gray-400 mt-2">Set by basket creator</p>
             </div>
 
             {/* Action Buttons */}
@@ -148,3 +148,4 @@ export const ContributionPage = () => {
     </div>
   );
 };
+
