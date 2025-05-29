@@ -14,10 +14,6 @@ import { BasketSettings } from "@/pages/BasketSettings";
 import { ContributionPage } from "@/pages/ContributionPage";
 import { MyBaskets } from "@/pages/MyBaskets";
 import CreateBasketWizard from "@/pages/CreateBasketWizard";
-import Splash from "@/pages/Splash";
-import Welcome from "@/pages/Welcome";
-import InvitePage from "@/pages/InvitePage";
-import Notifications from "@/pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,10 +27,6 @@ const App = () => (
         <div className="min-h-screen flex flex-col">
           <Routes>
             {/* Standalone routes (no header/nav) */}
-            <Route path="/splash" element={<Splash />} />
-            <Route path="/welcome" element={<Welcome />} />
-            <Route path="/invite/:code" element={<InvitePage />} />
-            <Route path="/notifications" element={<Notifications />} />
             <Route path="/create/*" element={<CreateBasketWizard />} />
             
             {/* Main app routes (with header/nav) */}
