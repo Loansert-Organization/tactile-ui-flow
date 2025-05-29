@@ -16,7 +16,6 @@ import { MyBaskets } from "@/pages/MyBaskets";
 import CreateBasketWizard from "@/pages/CreateBasketWizard";
 import Splash from "@/pages/Splash";
 import Welcome from "@/pages/Welcome";
-import Join from "@/pages/Join";
 import InvitePage from "@/pages/InvitePage";
 import Notifications from "@/pages/Notifications";
 import NotFound from "./pages/NotFound";
@@ -34,7 +33,6 @@ const App = () => (
             {/* Standalone routes (no header/nav) */}
             <Route path="/splash" element={<Splash />} />
             <Route path="/welcome" element={<Welcome />} />
-            <Route path="/join" element={<Join />} />
             <Route path="/invite/:code" element={<InvitePage />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/create/*" element={<CreateBasketWizard />} />
