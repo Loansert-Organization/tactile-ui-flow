@@ -398,23 +398,29 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
                 <label className="block text-sm font-medium mb-3 text-gray-200">
                   Basket Profile Image
                 </label>
-                <div className="flex flex-col items-center gap-3">
-                  <Avatar className="w-20 h-20">
-                    <AvatarImage src={basketData.profileImage || undefined} alt="Basket profile" />
-                    <AvatarFallback className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-orange-500 text-white">
-                      {basketData.name ? basketData.name.charAt(0) : <Camera className="w-8 h-8" />}
-                    </AvatarFallback>
-                  </Avatar>
-                  <label className="cursor-pointer">
+                <div className="flex justify-center">
+                  <label className="relative cursor-pointer group">
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleImageUpload}
                       className="hidden"
                     />
-                    <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors neuro-button">
-                      <Upload className="w-4 h-4" />
-                      <span className="text-sm">Upload Image</span>
+                    <Avatar className="w-20 h-20">
+                      <AvatarImage src={basketData.profileImage || undefined} alt="Basket profile" />
+                      <AvatarFallback className="bg-gradient-to-r from-pink-500 to-orange-500 text-white">
+                        {basketData.name ? (
+                          <span className="text-2xl font-bold">{basketData.name.charAt(0)}</span>
+                        ) : (
+                          <Camera className="w-8 h-8" />
+                        )}
+                      </AvatarFallback>
+                    </Avatar>
+                    {/* Edit icon overlay */}
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center border-2 border-white/20 group-hover:scale-110 transition-transform">
+                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
                     </div>
                   </label>
                 </div>
