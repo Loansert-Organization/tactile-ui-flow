@@ -166,12 +166,12 @@ export const BasketCard = ({
               <span>Private Basket</span>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="flex gap-3">
               {/* Primary Action */}
               <GradientButton
                 variant="primary"
                 size="md"
-                className="w-full"
+                className="flex-1"
                 onClick={handlePrimaryAction}
                 loading={isJoining}
               >
@@ -182,7 +182,7 @@ export const BasketCard = ({
               <GradientButton
                 variant="secondary"
                 size="md"
-                className="w-full"
+                className="flex-1"
                 onClick={handleSecondaryAction}
               >
                 {isMember ? 'View Members' : 'View Details'}
