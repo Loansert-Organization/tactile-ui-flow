@@ -50,29 +50,8 @@ export const BasketCard = ({
   const handleJoinBasket = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     
-    try {
-      await joinBasket({
-        id,
-        name,
-        description,
-        progress,
-        goal,
-        currentAmount,
-        participants,
-        daysLeft
-      });
-      
-      setIsJoined(true);
-      
-      // Navigate to My Baskets after a short delay to show the animation
-      setTimeout(() => {
-        onJoinSuccess?.();
-        navigate('/baskets/mine');
-      }, 1000);
-      
-    } catch (error) {
-      console.error('Failed to join basket:', error);
-    }
+    // Navigate to contribution page instead of joining directly
+    navigate(`/basket/${id}/contribute`);
   };
 
   const handlePrimaryAction = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -83,7 +62,7 @@ export const BasketCard = ({
       // For members: "Contribute More" - show contribution modal
       setShowContributionModal(true);
     } else {
-      // For non-members: Join the basket
+      // For non-members: Navigate to contribution screen
       await handleJoinBasket(e);
     }
   };
