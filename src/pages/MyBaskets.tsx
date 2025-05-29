@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, ArrowLeft, Clock, CheckCircle, Lock } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -148,7 +147,7 @@ export const MyBaskets = () => {
                 myContribution={basket.myContribution}
                 daysLeft={basket.daysLeft}
               />
-              <div className="absolute top-4 right-4 z-10">
+              <div className="absolute top-2 right-2 z-10">
                 {getStatusBadge(basket.status)}
               </div>
             </div>
