@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Check, Share2 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
@@ -9,14 +10,18 @@ interface ContributionSuccessModalProps {
   onClose: () => void;
   amount: number;
   basketName: string;
+  basketId?: string;
 }
 
 export const ContributionSuccessModal = ({ 
   isOpen, 
   onClose, 
   amount, 
-  basketName 
+  basketName,
+  basketId 
 }: ContributionSuccessModalProps) => {
+  const navigate = useNavigate();
+  
   if (!isOpen) return null;
 
   const handleShare = () => {
@@ -31,6 +36,13 @@ export const ContributionSuccessModal = ({
     
     // Open WhatsApp in a new window
     window.open(whatsappUrl, '_blank');
+  };
+
+  const handleContinue = () => {
+    onClose();
+    if (basketId) {
+      navigate(`/basket/${basketId}`);
+    }
   };
 
   return (
@@ -67,7 +79,7 @@ export const ContributionSuccessModal = ({
           <GradientButton
             variant="primary"
             className="w-full"
-            onClick={onClose}
+            onClick={handleContinue}
           >
             Continue
           </GradientButton>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Users, Settings, Share2, Target, Calendar, ArrowLeft, Plus, Banknote, Coins } from 'lucide-react';
@@ -199,6 +198,7 @@ export const BasketOverview = () => {
         onClose={() => setShowSuccessModal(false)}
         amount={contributedAmount}
         basketName={basket.name}
+        basketId={id}
       />
     </div>
   );
