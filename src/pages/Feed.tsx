@@ -7,75 +7,25 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { useSwipeGesture } from '@/hooks/useInteractions';
-
-// Dummy data for baskets
-const dummyBaskets = [
-  {
-    id: '1',
-    name: 'Arsenal Season Tickets',
-    description: 'Pooling together to get season tickets for the Emirates Stadium. Join us for every home game!',
-    progress: 75,
-    goal: 2000000,
-    currentAmount: 1500000,
-    participants: 12,
-    isPrivate: false
-  },
-  {
-    id: '2',
-    name: 'Weekend Getaway Fund',
-    description: 'Saving up for an amazing weekend trip to Lake Kivu. Beautiful views and great memories await!',
-    progress: 45,
-    goal: 500000,
-    currentAmount: 225000,
-    participants: 8,
-    isPrivate: false
-  },
-  {
-    id: '3',
-    name: 'Private Investment Group',
-    description: 'Exclusive investment opportunities for verified members only.',
-    progress: 90,
-    participants: 5,
-    isPrivate: true
-  },
-  {
-    id: '4',
-    name: 'Community Garden Project',
-    description: 'Building a sustainable community garden in Kimisagara. Growing together, thriving together.',
-    progress: 30,
-    goal: 800000,
-    currentAmount: 240000,
-    participants: 24,
-    isPrivate: false
-  },
-  {
-    id: '5',
-    name: 'Tech Startup Fund',
-    description: 'Supporting local tech innovation. Help us build the next big thing in fintech.',
-    progress: 60,
-    goal: 5000000,
-    currentAmount: 3000000,
-    participants: 35,
-    isPrivate: false
-  }
-];
+import { useBaskets } from '@/contexts/BasketContext';
 
 export const Feed = () => {
-  const [baskets, setBaskets] = useState<typeof dummyBaskets>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const { getNonMemberBaskets } = useBaskets();
 
   const { handleTouchStart, handleTouchEnd } = useSwipeGesture(
     undefined,
     () => handleRefresh()
   );
 
+  const nonMemberBaskets = getNonMemberBaskets();
+
   const loadBaskets = async () => {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      setBaskets(dummyBaskets);
       setError(false);
     } catch (err) {
       setError(true);
@@ -141,14 +91,14 @@ export const Feed = () => {
     );
   }
 
-  if (baskets.length === 0) {
+  if (nonMemberBaskets.length === 0) {
     return (
       <div className="p-4 pb-24">
         <EmptyState
-          title="No Baskets Yet"
-          description="Be the first to create a community basket and start building something amazing together!"
-          actionLabel="Create Your First Basket"
-          onAction={() => console.log('Navigate to create')}
+          title="No Public Baskets"
+          description="There are no public baskets available to join at the moment. Check back later!"
+          actionLabel="Refresh"
+          onAction={handleRefresh}
           icon={<Inbox className="w-10 h-10 text-purple-400" />}
         />
       </div>
@@ -173,13 +123,13 @@ export const Feed = () => {
 
       {/* Feed header */}
       <div className="text-center py-4">
-        <h2 className="text-2xl font-bold gradient-text mb-2">Public Baskets</h2>
-        <p className="text-gray-400">Discover and join community funding initiatives</p>
+        <h2 className="text-2xl font-bold gradient-text mb-2">Discover Baskets</h2>
+        <p className="text-gray-400">Join community funding initiatives</p>
       </div>
 
       {/* Baskets list */}
       <div className="space-y-4">
-        {baskets.map((basket, index) => (
+        {nonMemberBaskets.map((basket, index) => (
           <div 
             key={basket.id}
             className="animate-slide-up"

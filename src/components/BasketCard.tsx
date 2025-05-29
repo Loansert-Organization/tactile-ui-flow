@@ -19,6 +19,8 @@ interface BasketCardProps {
   goal?: number;
   currentAmount?: number;
   participants?: number;
+  isMember: boolean;
+  myContribution: number;
 }
 
 export const BasketCard = ({ 
@@ -29,32 +31,44 @@ export const BasketCard = ({
   progress,
   goal,
   currentAmount,
-  participants = 0
+  participants = 0,
+  isMember,
+  myContribution
 }: BasketCardProps) => {
   const [isJoining, setIsJoining] = useState(false);
-  const [hasJoined, setHasJoined] = useState(true); // Set to true for "My Baskets" screen
   const [showContributionModal, setShowContributionModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [contributedAmount, setContributedAmount] = useState(0);
   const { handlePress } = usePressFeedback();
   const navigate = useNavigate();
 
-  const handleJoin = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handlePrimaryAction = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (isPrivate) return;
 
-    if (hasJoined) {
-      // Navigate to basket details if already joined
-      navigate(`/basket/${id}`);
-    } else {
-      // Show contribution modal for new baskets
+    if (isMember) {
+      // For members: "Contribute More" - show contribution modal
       setShowContributionModal(true);
+    } else {
+      // For non-members: "Join Basket" - navigate to non-member detail
+      navigate(`/basket/${id}/join`);
+    }
+  };
+
+  const handleSecondaryAction = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    
+    if (isMember) {
+      // For members: "View Members" - navigate to participants
+      navigate(`/basket/${id}/participants`);
+    } else {
+      // For non-members: "View Details" - navigate to non-member detail
+      navigate(`/basket/${id}/join`);
     }
   };
 
   const handleContributionSuccess = (amount: number) => {
     setContributedAmount(amount);
-    setHasJoined(true);
     setShowSuccessModal(true);
     toast({
       title: "Payment Successful!",
@@ -63,7 +77,7 @@ export const BasketCard = ({
   };
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!hasJoined) return;
+    if (!isMember) return; // Non-members can't click through to full details
     handlePress(e);
     navigate(`/basket/${id}`);
   };
@@ -71,8 +85,8 @@ export const BasketCard = ({
   return (
     <>
       <GlassCard 
-        hover 
-        className={`p-6 space-y-4 group ${hasJoined ? 'cursor-pointer' : ''}`}
+        hover={isMember} 
+        className={`p-6 space-y-4 group ${isMember ? 'cursor-pointer' : ''}`}
         onClick={handleCardClick}
         role="article"
         aria-label={`Basket: ${name}`}
@@ -107,6 +121,16 @@ export const BasketCard = ({
         {/* Description */}
         <p className="text-gray-300 text-sm leading-relaxed">{description}</p>
 
+        {/* My Contribution (only show for members or if non-zero) */}
+        {(isMember || myContribution > 0) && (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-400">My Contribution</span>
+            <span className="font-semibold gradient-text-blue">
+              {formatCurrency(myContribution)}
+            </span>
+          </div>
+        )}
+
         {/* Progress */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
@@ -134,7 +158,7 @@ export const BasketCard = ({
           )}
         </div>
 
-        {/* Action Button */}
+        {/* Action Buttons */}
         <div className="pt-2">
           {isPrivate ? (
             <div className="flex items-center justify-center gap-2 text-gray-500 text-sm py-3">
@@ -142,15 +166,28 @@ export const BasketCard = ({
               <span>Private Basket</span>
             </div>
           ) : (
-            <GradientButton
-              variant="primary"
-              size="md"
-              className="w-full"
-              onClick={handleJoin}
-              loading={isJoining}
-            >
-              {hasJoined ? 'View Details' : 'Join Basket'}
-            </GradientButton>
+            <div className="space-y-3">
+              {/* Primary Action */}
+              <GradientButton
+                variant="primary"
+                size="md"
+                className="w-full"
+                onClick={handlePrimaryAction}
+                loading={isJoining}
+              >
+                {isMember ? 'Contribute More' : 'Join Basket'}
+              </GradientButton>
+
+              {/* Secondary Action */}
+              <GradientButton
+                variant="secondary"
+                size="md"
+                className="w-full"
+                onClick={handleSecondaryAction}
+              >
+                {isMember ? 'View Members' : 'View Details'}
+              </GradientButton>
+            </div>
           )}
         </div>
       </GlassCard>

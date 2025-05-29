@@ -6,44 +6,18 @@ import { GradientButton } from '@/components/ui/gradient-button';
 import { BasketCard } from '@/components/BasketCard';
 import { EmptyState } from '@/components/EmptyState';
 import { useNavigate } from 'react-router-dom';
+import { useBaskets } from '@/contexts/BasketContext';
 
 export const MyBaskets = () => {
   const [activeTab, setActiveTab] = useState('joined');
   const navigate = useNavigate();
+  const { getMemberBaskets } = useBaskets();
 
-  // Mock data
-  const joinedBaskets = [
-    {
-      id: '1',
-      name: 'Lakers Championship Ring',
-      description: 'Supporting our team to get that championship ring!',
-      progress: 65,
-      goal: 50000,
-      currentAmount: 32500,
-      participants: 47
-    },
-    {
-      id: '2',
-      name: 'Manchester United Jersey',
-      description: 'Getting the new season jersey for the whole squad',
-      progress: 80,
-      goal: 25000,
-      currentAmount: 20000,
-      participants: 23
-    }
-  ];
-
-  const createdBaskets = [
-    {
-      id: '3',
-      name: 'Warriors Watch Party',
-      description: 'Organizing the ultimate Warriors championship watch party',
-      progress: 45,
-      goal: 15000,
-      currentAmount: 6750,
-      participants: 12
-    }
-  ];
+  const memberBaskets = getMemberBaskets();
+  
+  // For now, we'll treat all member baskets as "joined" since we don't have ownership tracking
+  const joinedBaskets = memberBaskets;
+  const createdBaskets: typeof memberBaskets = []; // Empty for now
 
   const baskets = activeTab === 'joined' ? joinedBaskets : createdBaskets;
 
@@ -111,7 +85,7 @@ export const MyBaskets = () => {
             title={activeTab === 'joined' ? "No Baskets Joined" : "No Baskets Created"}
             description={
               activeTab === 'joined'
-                ? "Join your first basket by entering a code or browsing public baskets"
+                ? "Join your first basket by browsing public baskets on the home screen"
                 : "Create your first basket to start collecting funds for your goal"
             }
             actionLabel={activeTab === 'joined' ? "Browse Public Baskets" : "Create Basket"}
