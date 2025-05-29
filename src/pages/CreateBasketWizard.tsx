@@ -710,15 +710,33 @@ const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
 const Step4 = ({ basketData, onBack, handlePress }: StepProps) => {
   const shareBasket = () => {
     const basketUrl = `${window.location.origin}/basket/1`; // Use actual basket ID in production
-    if (navigator.share) {
-      navigator.share({
-        title: basketData.name,
-        text: `Join my savings basket: ${basketData.name}`,
-        url: basketUrl
+    const message = `Hey! Join my Basket "${basketData.name}" and add your support via MOMO: ${basketUrl}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    
+    console.log('Sharing basket via WhatsApp');
+    console.log('Basket name:', basketData.name);
+    console.log('WhatsApp URL:', whatsappUrl);
+    
+    // Show opening toast
+    toast.success('📱 Opening WhatsApp…', {
+      description: 'Redirecting to WhatsApp to share your basket',
+      duration: 2000,
+    });
+
+    try {
+      // Try to open WhatsApp
+      const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      
+      if (!opened || opened.closed || typeof opened.closed == 'undefined') {
+        // Fallback: try location.href
+        window.location.href = whatsappUrl;
+      }
+    } catch (error) {
+      console.error('Error opening WhatsApp:', error);
+      toast.error("Couldn't open WhatsApp", {
+        description: 'Please try again or share the link manually',
+        duration: 4000,
       });
-    } else {
-      navigator.clipboard.writeText(basketUrl);
-      toast.success('📋 Basket link copied to clipboard!');
     }
   };
 
