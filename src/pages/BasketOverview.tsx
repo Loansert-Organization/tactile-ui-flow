@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Users, Settings, Share2, Target, Calendar, ArrowLeft, Plus } from 'lucide-react';
+import { Users, Settings, Share2, Target, Calendar, ArrowLeft, Plus, Banknote, Coins } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { ContributionModal } from '@/components/ContributionModal';
@@ -20,8 +20,8 @@ export const BasketOverview = () => {
     name: 'Lakers Championship Ring Fund',
     description: 'Supporting our team to get that championship ring! Every contribution counts towards our goal.',
     goal: 50000,
-    currentAmount: 32500,
-    bankBalance: 31800, // Amount actually in the account
+    totalContributions: 32500, // Sum of all member contributions
+    bankBalance: 31800, // Actual amount in the bank account
     participants: 47,
     progress: 65,
     daysLeft: 45,
@@ -110,7 +110,7 @@ export const BasketOverview = () => {
             </div>
 
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">RWF {basket.currentAmount.toLocaleString()}</span>
+              <span className="text-gray-400">RWF {basket.totalContributions.toLocaleString()}</span>
               <div className="flex items-center gap-1 text-gray-400">
                 <Target className="w-4 h-4" />
                 <span>RWF {basket.goal.toLocaleString()}</span>
@@ -125,18 +125,34 @@ export const BasketOverview = () => {
         <h2 className="text-lg font-semibold mb-4">Financial Summary</h2>
         <div className="grid grid-cols-2 gap-4">
           <GlassCard className="p-4 text-center">
+            <div className="flex items-center justify-center mb-2">
+              <Coins className="w-6 h-6 text-blue-400" />
+            </div>
+            <div className="text-2xl font-bold gradient-text mb-1">
+              RWF {basket.totalContributions.toLocaleString()}
+            </div>
+            <div className="text-sm text-gray-400">Total Contributions</div>
+          </GlassCard>
+          <GlassCard className="p-4 text-center">
+            <div className="flex items-center justify-center mb-2">
+              <Banknote className="w-6 h-6 text-green-400" />
+            </div>
             <div className="text-2xl font-bold gradient-text mb-1">
               RWF {basket.bankBalance.toLocaleString()}
             </div>
             <div className="text-sm text-gray-400">Bank Balance</div>
           </GlassCard>
-          <GlassCard className="p-4 text-center">
-            <div className="text-2xl font-bold gradient-text mb-1">
-              RWF {basket.myContribution.toLocaleString()}
-            </div>
-            <div className="text-sm text-gray-400">My Contribution</div>
-          </GlassCard>
         </div>
+      </div>
+
+      {/* My Contribution */}
+      <div className="px-6 mb-6">
+        <GlassCard className="p-4 text-center">
+          <div className="text-2xl font-bold gradient-text mb-1">
+            RWF {basket.myContribution.toLocaleString()}
+          </div>
+          <div className="text-sm text-gray-400">My Contribution</div>
+        </GlassCard>
       </div>
 
       {/* Action Buttons */}
@@ -167,13 +183,13 @@ export const BasketOverview = () => {
         <div className="grid grid-cols-2 gap-4">
           <GlassCard className="p-4 text-center">
             <div className="text-xl font-bold gradient-text mb-1">
-              RWF {Math.round(basket.currentAmount / basket.participants).toLocaleString()}
+              RWF {Math.round(basket.totalContributions / basket.participants).toLocaleString()}
             </div>
             <div className="text-sm text-gray-400">Avg per member</div>
           </GlassCard>
           <GlassCard className="p-4 text-center">
             <div className="text-xl font-bold gradient-text mb-1">
-              RWF {(basket.goal - basket.currentAmount).toLocaleString()}
+              RWF {(basket.goal - basket.totalContributions).toLocaleString()}
             </div>
             <div className="text-sm text-gray-400">Remaining</div>
           </GlassCard>
@@ -191,7 +207,7 @@ export const BasketOverview = () => {
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
         amount={contributedAmount}
-        basketName={basket.name}
+        basketName={name}
       />
     </div>
   );

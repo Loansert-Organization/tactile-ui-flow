@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Lock, Users, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -38,7 +37,7 @@ export const BasketCard = ({
   const { handlePress } = usePressFeedback();
   const navigate = useNavigate();
 
-  const handleJoin = async (e: React.MouseEvent) => {
+  const handleJoin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (isPrivate || hasJoined) return;
 
@@ -55,7 +54,7 @@ export const BasketCard = ({
     });
   };
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!hasJoined) return;
     handlePress(e);
     navigate(`/basket/${id}`);
