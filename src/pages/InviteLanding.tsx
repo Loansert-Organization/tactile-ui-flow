@@ -16,7 +16,7 @@ export const InviteLanding = () => {
   useEffect(() => {
     // Simulate API call to fetch basket details
     const timer = setTimeout(() => {
-      if (code === 'BASKET') {
+      if (code === '1' || code === 'BASKET') {
         setBasket({
           id: '1',
           name: 'Lakers Championship Ring Fund',

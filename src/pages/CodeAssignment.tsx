@@ -26,7 +26,7 @@ export const CodeAssignment = () => {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold gradient-text mb-2">Welcome!</h1>
-          <p className="text-gray-300">Here's your unique code for joining baskets</p>
+          <p className="text-gray-300">Here's your unique identification code</p>
         </div>
 
         <GlassCard className="p-8 text-center">
@@ -34,7 +34,7 @@ export const CodeAssignment = () => {
             <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-purple-pink flex items-center justify-center">
               <span className="text-2xl">🏀</span>
             </div>
-            <h2 className="text-xl font-semibold mb-2">Your Code</h2>
+            <h2 className="text-xl font-semibold mb-2">Your ID Code</h2>
           </div>
 
           <div className="relative">
@@ -55,7 +55,7 @@ export const CodeAssignment = () => {
           </div>
 
           <p className="text-sm text-gray-400 mb-6">
-            Share this code with friends or use it to join baskets
+            This code identifies you within baskets. Use it when joining or for identification purposes.
           </p>
 
           <div className="flex gap-3">

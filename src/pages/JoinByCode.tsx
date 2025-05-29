@@ -44,7 +44,7 @@ export const JoinByCode = () => {
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-xl font-bold ml-4">Join Basket</h1>
+        <h1 className="text-xl font-bold ml-4">Join by Code</h1>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center">
@@ -53,9 +53,9 @@ export const JoinByCode = () => {
             <Users className="w-8 h-8 text-white" />
           </div>
 
-          <h2 className="text-2xl font-bold mb-2">Enter Basket Code</h2>
+          <h2 className="text-2xl font-bold mb-2">Enter Access Code</h2>
           <p className="text-gray-400 mb-8">
-            Enter the 6-digit code shared with you
+            Enter the 6-digit code for special access or identification
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -82,12 +82,12 @@ export const JoinByCode = () => {
               loading={isLoading}
               disabled={code.length !== 6}
             >
-              Join Basket
+              Submit Code
             </GradientButton>
           </form>
 
           <p className="text-gray-500 text-sm mt-6">
-            Need help? Contact the person who shared this code
+            Note: To join baskets, ask friends to share the basket link directly
           </p>
         </GlassCard>
       </div>

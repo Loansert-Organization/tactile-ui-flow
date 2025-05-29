@@ -35,7 +35,7 @@ export const BasketOverview = () => {
   };
 
   const handleShare = () => {
-    // Share functionality
+    // Share functionality is now handled in BasketHeader
   };
 
   const handleSettings = () => {

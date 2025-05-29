@@ -1,8 +1,12 @@
+
 import React from 'react';
 import { Users, Settings, Share2, Target, Calendar } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
+import { toast } from '@/hooks/use-toast';
+
 interface BasketHeaderProps {
   basket: {
+    id?: string;
     name: string;
     description: string;
     goal: number;
@@ -15,11 +19,22 @@ interface BasketHeaderProps {
   onShare: () => void;
   onSettings: () => void;
 }
+
 export const BasketHeader = ({
   basket,
   onShare,
   onSettings
 }: BasketHeaderProps) => {
+  const handleShare = async () => {
+    const basketUrl = `${window.location.origin}/invite/${basket.id}`;
+    await navigator.clipboard.writeText(basketUrl);
+    toast({
+      title: "Copied!",
+      description: "Basket link copied to clipboard",
+    });
+    onShare();
+  };
+
   return <GlassCard className="p-6">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -38,7 +53,7 @@ export const BasketHeader = ({
           </div>
         </div>
         <div className="flex gap-2">
-          <button onClick={onShare} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+          <button onClick={handleShare} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
             <Share2 className="w-5 h-5" />
           </button>
           {basket.isOwner && <button onClick={onSettings} className="p-2 rounded-lg hover:bg-white/10 transition-colors">

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, Users } from 'lucide-react';
+import { ArrowLeft, Crown, Users, Share2 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { toast } from '@/hooks/use-toast';
 
@@ -21,11 +21,12 @@ export const BasketParticipants = () => {
   // Calculate total contributed amount (mock data - in real app this would come from API)
   const totalContributedAmount = 32500; // This should match the basket's totalContributions
 
-  const handleCopyCode = async (code: string) => {
-    await navigator.clipboard.writeText(code);
+  const handleShareBasket = async () => {
+    const basketUrl = `${window.location.origin}/invite/${id}`;
+    await navigator.clipboard.writeText(basketUrl);
     toast({
       title: "Copied!",
-      description: `Code ${code} copied to clipboard`,
+      description: "Basket link copied to clipboard",
     });
   };
 
@@ -108,10 +109,14 @@ export const BasketParticipants = () => {
         <GlassCard className="p-4 text-center">
           <h3 className="font-semibold mb-2">Invite More Friends</h3>
           <p className="text-sm text-gray-400 mb-4">
-            Share your basket code to grow your community
+            Share your basket link to grow your community
           </p>
-          <button className="text-pink-400 font-medium hover:text-pink-300 transition-colors">
-            Share Basket Code
+          <button 
+            onClick={handleShareBasket}
+            className="flex items-center justify-center gap-2 mx-auto text-pink-400 font-medium hover:text-pink-300 transition-colors"
+          >
+            <Share2 className="w-4 h-4" />
+            Share Basket Link
           </button>
         </GlassCard>
       </div>
