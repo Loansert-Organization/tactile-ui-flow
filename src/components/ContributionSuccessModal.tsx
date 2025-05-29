@@ -19,6 +19,20 @@ export const ContributionSuccessModal = ({
 }: ContributionSuccessModalProps) => {
   if (!isOpen) return null;
 
+  const handleShare = () => {
+    // Generate basket link (using current domain + basket invite path)
+    const basketLink = `${window.location.origin}/invite/BASKET`;
+    
+    // Create share message
+    const message = `🎯 Join me in contributing to "${basketName}"! I just contributed RWF ${amount.toLocaleString()} and we're making great progress towards our goal. Every contribution counts! ${basketLink}`;
+    
+    // Create WhatsApp share URL
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    
+    // Open WhatsApp in a new window
+    window.open(whatsappUrl, '_blank');
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
       <GlassCard className="w-full max-w-md p-8 text-center">
@@ -44,6 +58,7 @@ export const ContributionSuccessModal = ({
           <GradientButton
             variant="secondary"
             className="w-full"
+            onClick={handleShare}
           >
             <Share2 className="w-4 h-4 mr-2" />
             Share Achievement
