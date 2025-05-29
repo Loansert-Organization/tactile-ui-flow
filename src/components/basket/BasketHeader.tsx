@@ -57,8 +57,6 @@ export const BasketHeader = ({
         </div>
       </div>
 
-      <p className="text-gray-300 mb-6">{basket.description}</p>
-
       {/* Progress Section */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
