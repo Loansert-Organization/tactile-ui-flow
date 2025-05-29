@@ -363,6 +363,19 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
     }
   };
 
+  const formatNumber = (value: string) => {
+    // Remove all non-digits
+    const cleanValue = value.replace(/\D/g, '');
+    // Add commas for thousands
+    return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  const handleGoalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const formattedValue = formatNumber(value);
+    updateBasketData?.('goal', formattedValue);
+  };
+
   return (
     <div className="wizard-step">
       <GlassCard className="max-w-md mx-auto p-6 mt-20 relative overflow-hidden">
@@ -449,9 +462,9 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
                   Target Goal (RWF)
                 </label>
                 <Input
-                  type="number"
+                  type="text"
                   value={basketData.goal}
-                  onChange={(e) => updateBasketData?.('goal', e.target.value)}
+                  onChange={handleGoalChange}
                   placeholder="1,000"
                   className={`glass-input text-white placeholder:text-gray-400 ${
                     errors.goal ? 'border-red-500 animate-[shake_0.3s_ease-in-out]' : ''
