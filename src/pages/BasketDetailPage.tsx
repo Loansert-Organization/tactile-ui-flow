@@ -15,7 +15,9 @@ import {
   Clock,
   TrendingUp,
   AlertCircle,
-  RefreshCcw
+  RefreshCcw,
+  Lock,
+  Globe
 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
@@ -262,8 +264,18 @@ const BasketDetailPage = () => {
                     <Calendar className="w-4 h-4" />
                     <span>{basketData.daysLeft} days left</span>
                   </div>
-                  <div className="px-2 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs">
-                    {basketData.type === 'private' ? 'Private' : 'Public'}
+                  <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs">
+                    {basketData.type === 'private' ? (
+                      <>
+                        <Lock className="w-3 h-3" />
+                        <span>Private</span>
+                      </>
+                    ) : (
+                      <>
+                        <Globe className="w-3 h-3" />
+                        <span>Public</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
