@@ -1,13 +1,18 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Users, MessageCircle, Settings, Share2, Target, Calendar } from 'lucide-react';
+import { Users, Settings, Share2, Target, Calendar, ArrowLeft, Plus } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
+import { ContributionModal } from '@/components/ContributionModal';
+import { ContributionSuccessModal } from '@/components/ContributionSuccessModal';
 
 export const BasketOverview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [showContributionModal, setShowContributionModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [contributedAmount, setContributedAmount] = useState(0);
 
   // Mock basket data
   const basket = {
@@ -16,16 +21,36 @@ export const BasketOverview = () => {
     description: 'Supporting our team to get that championship ring! Every contribution counts towards our goal.',
     goal: 50000,
     currentAmount: 32500,
+    bankBalance: 31800, // Amount actually in the account
     participants: 47,
     progress: 65,
     daysLeft: 45,
-    isOwner: true
+    isOwner: true,
+    myContribution: 2500
+  };
+
+  const handleContributionSuccess = (amount: number) => {
+    setContributedAmount(amount);
+    setShowSuccessModal(true);
   };
 
   return (
     <div className="min-h-screen pb-24">
+      {/* Header with back button */}
+      <div className="p-6">
+        <div className="flex items-center mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors mr-4"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <h1 className="text-xl font-bold">Basket Details</h1>
+        </div>
+      </div>
+
       {/* Hero Section */}
-      <div className="p-6 bg-gradient-to-br from-purple-900 via-blue-900 to-teal-900">
+      <div className="px-6 mb-6">
         <GlassCard className="p-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -95,55 +120,79 @@ export const BasketOverview = () => {
         </GlassCard>
       </div>
 
-      {/* Action Buttons */}
-      <div className="p-6 space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <GradientButton
-            variant="primary"
-            onClick={() => navigate(`/basket/${id}/chat`)}
-            className="flex items-center justify-center gap-2"
-          >
-            <MessageCircle className="w-5 h-5" />
-            View Chat
-          </GradientButton>
-          <GradientButton
-            variant="secondary"
-            onClick={() => {/* Open contribution modal */}}
-            className="flex items-center justify-center gap-2"
-          >
-            <Target className="w-5 h-5" />
-            Contribute
-          </GradientButton>
-        </div>
-
-        <GradientButton
-          variant="accent"
-          onClick={() => navigate(`/basket/${id}/participants`)}
-          className="w-full flex items-center justify-center gap-2"
-        >
-          <Users className="w-5 h-5" />
-          View Participants ({basket.participants})
-        </GradientButton>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Quick Stats</h2>
+      {/* Financial Summary */}
+      <div className="px-6 mb-6">
+        <h2 className="text-lg font-semibold mb-4">Financial Summary</h2>
         <div className="grid grid-cols-2 gap-4">
           <GlassCard className="p-4 text-center">
             <div className="text-2xl font-bold gradient-text mb-1">
-              RWF {(basket.currentAmount / basket.participants).toLocaleString()}
+              RWF {basket.bankBalance.toLocaleString()}
+            </div>
+            <div className="text-sm text-gray-400">Bank Balance</div>
+          </GlassCard>
+          <GlassCard className="p-4 text-center">
+            <div className="text-2xl font-bold gradient-text mb-1">
+              RWF {basket.myContribution.toLocaleString()}
+            </div>
+            <div className="text-sm text-gray-400">My Contribution</div>
+          </GlassCard>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="px-6 mb-6">
+        <div className="grid grid-cols-2 gap-4">
+          <GradientButton
+            variant="primary"
+            onClick={() => setShowContributionModal(true)}
+            className="flex items-center justify-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            Contribute More
+          </GradientButton>
+          <GradientButton
+            variant="secondary"
+            onClick={() => navigate(`/basket/${id}/participants`)}
+            className="flex items-center justify-center gap-2"
+          >
+            <Users className="w-5 h-5" />
+            View Members
+          </GradientButton>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="px-6">
+        <h2 className="text-lg font-semibold mb-4">Statistics</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <GlassCard className="p-4 text-center">
+            <div className="text-xl font-bold gradient-text mb-1">
+              RWF {Math.round(basket.currentAmount / basket.participants).toLocaleString()}
             </div>
             <div className="text-sm text-gray-400">Avg per member</div>
           </GlassCard>
           <GlassCard className="p-4 text-center">
-            <div className="text-2xl font-bold gradient-text mb-1">
+            <div className="text-xl font-bold gradient-text mb-1">
               RWF {(basket.goal - basket.currentAmount).toLocaleString()}
             </div>
             <div className="text-sm text-gray-400">Remaining</div>
           </GlassCard>
         </div>
       </div>
+
+      <ContributionModal
+        isOpen={showContributionModal}
+        onClose={() => setShowContributionModal(false)}
+        basketName={basket.name}
+        onSuccess={handleContributionSuccess}
+      />
+
+      <ContributionSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        amount={contributedAmount}
+        basketName={basket.name}
+      />
     </div>
   );
 };

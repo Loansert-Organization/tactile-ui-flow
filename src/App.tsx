@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -42,14 +41,11 @@ const App = () => (
                 <main className="flex-1">
                   <Routes>
                     <Route path="/" element={<Feed />} />
-                    <Route path="/chat" element={<Chat />} />
                     <Route path="/baskets/mine" element={<MyBaskets />} />
                     <Route path="/basket/:id" element={<BasketOverview />} />
-                    <Route path="/basket/:id/chat" element={<Chat />} />
                     <Route path="/basket/:id/participants" element={<BasketParticipants />} />
                     <Route path="/basket/:id/settings" element={<BasketSettings />} />
                     <Route path="/notifications" element={<div className="p-4 pb-24"><h1>Notifications - Coming Soon</h1></div>} />
-                    <Route path="/profile" element={<div className="p-4 pb-24"><h1>Profile - Coming Soon</h1></div>} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>
