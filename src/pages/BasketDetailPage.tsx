@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -414,7 +413,7 @@ const MemberCard = ({
     }
   });
 
-  const handleCopyCode = (e: React.MouseEvent) => {
+  const handleCopyCode = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     handlePress(e);
     onCopyCode(member.code);
