@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, Target, Calendar, Lock, Globe } from 'lucide-react';
@@ -6,12 +5,11 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { useBaskets } from '@/contexts/BasketContext';
 import { formatCurrency } from '@/lib/formatters';
-import { toast } from '@/hooks/use-toast';
 
 export const BasketDetailNonMember = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getBasket, joinBasket } = useBaskets();
+  const { getBasket } = useBaskets();
 
   const basket = getBasket(id || '');
 
@@ -30,12 +28,7 @@ export const BasketDetailNonMember = () => {
   }
 
   const handleJoinBasket = () => {
-    joinBasket(basket.id);
-    toast({
-      title: "Welcome to the basket!",
-      description: `You've successfully joined "${basket.name}"`,
-    });
-    navigate(`/basket/${basket.id}`);
+    navigate(`/basket/${basket.id}/contribute`);
   };
 
   const handleBack = () => navigate(-1);
