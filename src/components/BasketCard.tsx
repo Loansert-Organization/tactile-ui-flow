@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Lock, Users, Target, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -154,9 +153,6 @@ export const BasketCard = ({
             </div>
           </div>
         </div>
-
-        {/* Description */}
-        <p className="text-gray-300 text-sm leading-relaxed">{description}</p>
 
         {/* My Contribution (only show for members or if non-zero) */}
         {(isMember || myContribution > 0) && (
