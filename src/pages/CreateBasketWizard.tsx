@@ -46,6 +46,7 @@ const CreateBasketWizard = () => {
       </Routes>
     </div>;
 };
+
 const Step1 = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -105,6 +106,7 @@ const Step1 = () => {
       </GradientButton>
     </div>;
 };
+
 const Step2 = () => {
   const navigate = useNavigate();
   const [privacy, setPrivacy] = useState('public');
@@ -146,6 +148,7 @@ const Step2 = () => {
       </GradientButton>
     </div>;
 };
+
 const Step3 = () => {
   const navigate = useNavigate();
   const [allowAnonymous, setAllowAnonymous] = useState(true);
@@ -189,6 +192,7 @@ const Step3 = () => {
       </GradientButton>
     </div>;
 };
+
 const Step4 = () => {
   const navigate = useNavigate();
   const handleFinish = () => {
@@ -198,12 +202,12 @@ const Step4 = () => {
     }, 1000);
   };
   return <div className="flex-1 flex flex-col">
-      <GlassCard className="p-6 flex-1">
+      <GlassCard className="p-4">
         <h2 className="text-2xl font-bold mb-2">You're All Set!</h2>
-        <p className="text-gray-400 mb-6">Your basket is ready to share</p>
+        <p className="text-gray-400 mb-4">Your basket is ready to share</p>
 
         {/* Basket Preview */}
-        <div className="p-4 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-white/20 mb-6">
+        <div className="p-4 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-white/20 mb-4">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-12 h-12 rounded-xl bg-gradient-purple-pink flex items-center justify-center">
               <span className="text-lg font-bold text-white">L</span>
@@ -216,7 +220,7 @@ const Step4 = () => {
           <p className="text-sm text-gray-300">Supporting our team to get that championship ring!</p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           <GradientButton variant="secondary" className="w-full">
             Share via WhatsApp
           </GradientButton>
@@ -233,4 +237,5 @@ const Step4 = () => {
       </GradientButton>
     </div>;
 };
+
 export default CreateBasketWizard;
