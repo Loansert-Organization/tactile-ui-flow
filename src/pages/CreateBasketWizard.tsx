@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, Users, Lock, Eye, Share2, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Users, Lock, Eye, Share2, X, Upload, Camera } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { usePressFeedback } from '@/hooks/useInteractions';
 import { toast } from 'sonner';
 
@@ -19,6 +21,7 @@ interface BasketData {
   anonymity: 'anonymous' | 'named';
   contributionType: 'recurring' | 'one-off';
   inviteCode: string;
+  profileImage: string | null;
 }
 
 const CreateBasketWizard = () => {
@@ -34,7 +37,8 @@ const CreateBasketWizard = () => {
     privacy: 'private',
     anonymity: 'named',
     contributionType: 'recurring',
-    inviteCode: ''
+    inviteCode: '',
+    profileImage: null
   });
 
   useEffect(() => {
@@ -279,7 +283,58 @@ interface StepProps {
   handlePress: (e: React.MouseEvent) => void;
 }
 
-// Step 1: Basic Info
+// Enhanced Stepper Component
+const StepperBar = ({ currentStep }: { currentStep: number }) => (
+  <div className="text-center mb-8">
+    <h1 className="text-xl font-bold mb-4 bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">
+      Create Basket
+    </h1>
+    <div className="flex gap-2 justify-center">
+      {[1, 2, 3, 4].map((step) => (
+        <div
+          key={step}
+          className={`h-2 rounded-full transition-all duration-500 ${
+            step <= currentStep
+              ? 'w-12 bg-gradient-to-r from-pink-500 to-orange-500'
+              : 'w-8 bg-white/20'
+          }`}
+          style={{
+            animation: step === currentStep ? 'stepper-fill 0.5s ease-out' : undefined,
+            '--target-width': '100%'
+          } as React.CSSProperties}
+        />
+      ))}
+    </div>
+  </div>
+);
+
+// Coach Mark Component
+const CoachMarkOverlay = ({ onDismiss }: { onDismiss: () => void }) => (
+  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <GlassCard className="p-6 max-w-sm relative">
+      <button
+        onClick={onDismiss}
+        className="absolute top-4 right-4 p-1 rounded-full hover:bg-white/10"
+      >
+        <X className="w-4 h-4" />
+      </button>
+      <div className="text-center space-y-4">
+        <div className="w-16 h-16 bg-gradient-to-r from-teal-500/20 to-blue-500/20 rounded-full flex items-center justify-center mx-auto">
+          <Share2 className="w-8 h-8 text-teal-300" />
+        </div>
+        <h3 className="text-lg font-semibold gradient-text">Welcome to the Basket Wizard!</h3>
+        <p className="text-sm text-gray-300">
+          Follow the steps to create your savings group. Swipe or tap to navigate between steps.
+        </p>
+        <Button onClick={onDismiss} className="w-full neuro-button">
+          Got it!
+        </Button>
+      </div>
+    </GlassCard>
+  </div>
+);
+
+// Step 1: Basic Info with Image Upload
 const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: StepProps) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -294,6 +349,18 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
   const handleNext = () => {
     if (validate()) {
       onNext?.();
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        updateBasketData?.('profileImage', result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -326,6 +393,33 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
             </div>
 
             <div className="space-y-4">
+              {/* Profile Image Upload */}
+              <div className="text-center">
+                <label className="block text-sm font-medium mb-3 text-gray-200">
+                  Basket Profile Image
+                </label>
+                <div className="flex flex-col items-center gap-3">
+                  <Avatar className="w-20 h-20">
+                    <AvatarImage src={basketData.profileImage || undefined} alt="Basket profile" />
+                    <AvatarFallback className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-orange-500 text-white">
+                      {basketData.name ? basketData.name.charAt(0) : <Camera className="w-8 h-8" />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors neuro-button">
+                      <Upload className="w-4 h-4" />
+                      <span className="text-sm">Upload Image</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium mb-2 text-gray-200">
                   Basket Name
@@ -521,7 +615,6 @@ const Step2 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
   </div>
 );
 
-// Step 3: Anonymity Settings
 const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: StepProps) => (
   <div className="wizard-step">
     <GlassCard className="max-w-md mx-auto p-6 mt-20 relative overflow-hidden">
@@ -615,7 +708,6 @@ const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
   </div>
 );
 
-// Step 4: Share & Complete
 const Step4 = ({ basketData, onBack, handlePress }: StepProps) => {
   const copyInviteCode = () => {
     navigator.clipboard.writeText(basketData.inviteCode || 'ABC123');

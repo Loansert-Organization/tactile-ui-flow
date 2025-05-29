@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Phone } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/formatters';
 
@@ -16,6 +17,7 @@ export const ContributionPage = () => {
   // Mock basket data - in real app this would come from props or API
   const basketName = 'Lakers Championship Ring Fund';
   const basketCreatorPhone = '0788787878'; // Set by basket creator
+  const basketProfileImage = 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=400&fit=crop&crop=center'; // Mock image
 
   const formatNumber = (value: string) => {
     // Remove all non-digits
@@ -81,7 +83,15 @@ export const ContributionPage = () => {
       <div className="px-6 space-y-6">
         {/* Basket Info */}
         <GlassCard className="p-6 text-center">
-          <h2 className="text-2xl font-bold gradient-text mb-2">{basketName}</h2>
+          <div className="flex flex-col items-center space-y-4">
+            <Avatar className="w-20 h-20">
+              <AvatarImage src={basketProfileImage} alt={basketName} />
+              <AvatarFallback className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-orange-500 text-white">
+                {basketName.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <h2 className="text-2xl font-bold gradient-text">{basketName}</h2>
+          </div>
         </GlassCard>
 
         {/* Contribution Form */}
