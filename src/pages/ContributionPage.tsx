@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Phone } from 'lucide-react';
@@ -81,7 +80,6 @@ export const ContributionPage = () => {
         {/* Basket Info */}
         <GlassCard className="p-6 text-center">
           <h2 className="text-2xl font-bold gradient-text mb-2">{basketName}</h2>
-          <p className="text-gray-300">Add your contribution to help reach the goal</p>
         </GlassCard>
 
         {/* Contribution Form */}
