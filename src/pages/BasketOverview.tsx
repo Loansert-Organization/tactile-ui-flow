@@ -19,14 +19,14 @@ export const BasketOverview = () => {
     id,
     name: 'Lakers Championship Ring Fund',
     description: 'Supporting our team to get that championship ring! Every contribution counts towards our goal.',
-    goal: 50000,
-    totalContributions: 32500,
-    bankBalance: 31800,
+    goal: 500000,
+    totalContributions: 325000,
+    bankBalance: 318000,
     participants: 47,
     progress: 65,
     daysLeft: 45,
     isOwner: true,
-    myContribution: 2500
+    myContribution: 25000
   };
 
   const handleContributionSuccess = (amount: number) => {

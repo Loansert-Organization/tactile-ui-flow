@@ -3,6 +3,7 @@ import React from 'react';
 import { Users, Settings, Share2, Target, Calendar } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { toast } from '@/hooks/use-toast';
+import { formatCurrency } from '@/lib/formatters';
 
 interface BasketHeaderProps {
   basket: {
@@ -80,10 +81,10 @@ export const BasketHeader = ({
         </div>
 
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-400">RWF {basket.totalContributions.toLocaleString()}</span>
+          <span className="text-gray-400">{formatCurrency(basket.totalContributions)}</span>
           <div className="flex items-center gap-1 text-gray-400">
             <Target className="w-4 h-4" />
-            <span>RWF {basket.goal.toLocaleString()}</span>
+            <span>{formatCurrency(basket.goal)}</span>
           </div>
         </div>
       </div>

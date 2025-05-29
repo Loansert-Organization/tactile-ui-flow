@@ -2,6 +2,7 @@
 import React from 'react';
 import { Banknote, Coins } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
+import { formatCurrency } from '@/lib/formatters';
 
 interface FinancialSummaryProps {
   totalContributions: number;
@@ -23,7 +24,7 @@ export const FinancialSummary = ({
             <Coins className="w-6 h-6 text-blue-400" />
           </div>
           <div className="text-2xl font-bold gradient-text mb-1">
-            RWF {totalContributions.toLocaleString()}
+            {formatCurrency(totalContributions)}
           </div>
           <div className="text-sm text-gray-400">Total Contributions</div>
         </GlassCard>
@@ -32,7 +33,7 @@ export const FinancialSummary = ({
             <Banknote className="w-6 h-6 text-green-400" />
           </div>
           <div className="text-2xl font-bold gradient-text mb-1">
-            RWF {bankBalance.toLocaleString()}
+            {formatCurrency(bankBalance)}
           </div>
           <div className="text-sm text-gray-400">Bank Balance</div>
         </GlassCard>
@@ -41,7 +42,7 @@ export const FinancialSummary = ({
       {/* My Contribution */}
       <GlassCard className="p-4 text-center">
         <div className="text-2xl font-bold gradient-text mb-1">
-          RWF {myContribution.toLocaleString()}
+          {formatCurrency(myContribution)}
         </div>
         <div className="text-sm text-gray-400">My Contribution</div>
       </GlassCard>

@@ -28,6 +28,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from '@/hooks/use-toast';
 import { usePressFeedback, useLongPress } from '@/hooks/useInteractions';
+import { formatCurrency } from '@/lib/formatters';
 
 interface Member {
   id: string;
@@ -163,7 +164,6 @@ const BasketDetailPage = () => {
     window.location.reload();
   };
 
-  const formatCurrency = (amount: number) => `RWF ${amount.toLocaleString()}`;
   const formatTimeAgo = (date: Date) => {
     const diff = Date.now() - date.getTime();
     const days = Math.floor(diff / 86400000);

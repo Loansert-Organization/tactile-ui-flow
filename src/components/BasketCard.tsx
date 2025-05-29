@@ -8,6 +8,7 @@ import { ContributionModal } from '@/components/ContributionModal';
 import { ContributionSuccessModal } from '@/components/ContributionSuccessModal';
 import { usePressFeedback } from '@/hooks/useInteractions';
 import { toast } from '@/hooks/use-toast';
+import { formatCurrency } from '@/lib/formatters';
 
 interface BasketCardProps {
   id: string;
@@ -57,7 +58,7 @@ export const BasketCard = ({
     setShowSuccessModal(true);
     toast({
       title: "Payment Successful!",
-      description: `You've contributed RWF ${amount.toLocaleString()} to ${name}`,
+      description: `You've contributed ${formatCurrency(amount)} to ${name}`,
     });
   };
 
@@ -124,10 +125,10 @@ export const BasketCard = ({
 
           {goal && currentAmount && (
             <div className="flex items-center justify-between text-xs text-gray-400">
-              <span>RWF {currentAmount.toLocaleString()}</span>
+              <span>{formatCurrency(currentAmount)}</span>
               <div className="flex items-center gap-1">
                 <Target className="w-3 h-3" />
-                <span>RWF {goal.toLocaleString()}</span>
+                <span>{formatCurrency(goal)}</span>
               </div>
             </div>
           )}

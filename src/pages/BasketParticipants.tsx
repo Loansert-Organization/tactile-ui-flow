@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Crown, Users, Share2 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { toast } from '@/hooks/use-toast';
+import { formatCurrency } from '@/lib/formatters';
 
 export const BasketParticipants = () => {
   const { id } = useParams();
@@ -22,7 +23,7 @@ export const BasketParticipants = () => {
   const sortedParticipants = [...participants].sort((a, b) => b.contributions - a.contributions);
 
   // Calculate total contributed amount (mock data - in real app this would come from API)
-  const totalContributedAmount = 32500; // This should match the basket's totalContributions
+  const totalContributedAmount = 325000; // This should match the basket's totalContributions
 
   const handleShareBasket = async () => {
     const basketUrl = `${window.location.origin}/invite/${id}`;
@@ -104,7 +105,7 @@ export const BasketParticipants = () => {
               
               <div className="text-right">
                 <div className="text-lg font-bold gradient-text">
-                  RWF {totalContributedAmount.toLocaleString()}
+                  {formatCurrency(totalContributedAmount)}
                 </div>
               </div>
             </div>

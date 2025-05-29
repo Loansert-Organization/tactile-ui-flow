@@ -4,6 +4,7 @@ import { Plus, Share2, Settings, Send, Eye, EyeOff, Copy } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { useSwipeGesture, useLongPress, usePressFeedback } from '@/hooks/useInteractions';
 import { toast } from '@/hooks/use-toast';
+import { formatCurrency } from '@/lib/formatters';
 
 interface Message {
   id: string;
@@ -96,12 +97,12 @@ export const Chat = () => {
             <div className="text-right">
               <div className="flex items-center gap-2 mb-1">
                 <div className="text-sm font-semibold gradient-text-blue">
-                  RWF {currentTotal.toLocaleString()}
+                  {formatCurrency(currentTotal)}
                 </div>
                 <div className={`w-2 h-2 rounded-full ${progress >= 100 ? 'bg-green-400 animate-pulse' : 'bg-blue-400'}`} />
               </div>
               <div className="text-xs text-gray-400">
-                of RWF {goal.toLocaleString()}
+                of {formatCurrency(goal)}
               </div>
             </div>
             
@@ -160,7 +161,7 @@ export const Chat = () => {
                     <span className="text-gray-400 font-mono">●●●●●●</span>
                   ) : (
                     <span className="font-semibold gradient-text-blue">
-                      +RWF {message.amount.toLocaleString()}
+                      +{formatCurrency(message.amount)}
                     </span>
                   )}
                   {message.isHidden ? (

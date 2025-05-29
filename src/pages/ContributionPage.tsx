@@ -1,11 +1,11 @@
 
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Phone } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { toast } from '@/hooks/use-toast';
+import { formatCurrency } from '@/lib/formatters';
 
 export const ContributionPage = () => {
   const { id } = useParams();
@@ -55,7 +55,7 @@ export const ContributionPage = () => {
       const numericAmount = Number(amount.replace(/,/g, ''));
       toast({
         title: "Payment Successful!",
-        description: `Successfully contributed RWF ${numericAmount.toLocaleString()} to ${basketName}`,
+        description: `Successfully contributed ${formatCurrency(numericAmount)} to ${basketName}`,
       });
       navigate(`/basket/${id}`);
       setAmount('');
@@ -148,4 +148,3 @@ export const ContributionPage = () => {
     </div>
   );
 };
-

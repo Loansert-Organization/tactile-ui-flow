@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Check, Share2 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
+import { formatCurrency } from '@/lib/formatters';
 
 interface ContributionSuccessModalProps {
   isOpen: boolean;
@@ -29,7 +30,7 @@ export const ContributionSuccessModal = ({
     const basketLink = `${window.location.origin}/invite/BASKET`;
     
     // Create share message
-    const message = `🎯 Join me in contributing to "${basketName}"! I just contributed RWF ${amount.toLocaleString()} and we're making great progress towards our goal. Every contribution counts! ${basketLink}`;
+    const message = `🎯 Join me in contributing to "${basketName}"! I just contributed ${formatCurrency(amount)} and we're making great progress towards our goal. Every contribution counts! ${basketLink}`;
     
     // Create WhatsApp share URL
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -55,7 +56,7 @@ export const ContributionSuccessModal = ({
 
         <h2 className="text-2xl font-bold gradient-text mb-2">Contribution Successful!</h2>
         <p className="text-gray-400 mb-6">
-          You've contributed RWF {amount.toLocaleString()} to {basketName}
+          You've contributed {formatCurrency(amount)} to {basketName}
         </p>
 
         {/* Confetti Animation Placeholder */}

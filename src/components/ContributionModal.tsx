@@ -4,6 +4,7 @@ import { X, CreditCard } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { toast } from '@/hooks/use-toast';
+import { formatAmount } from '@/lib/formatters';
 
 interface ContributionModalProps {
   isOpen: boolean;

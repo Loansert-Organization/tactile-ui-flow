@@ -5,6 +5,7 @@ import { Users, Target, Calendar, ExternalLink } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatCurrency } from '@/lib/formatters';
 
 export const InviteLanding = () => {
   const { code } = useParams();
@@ -21,8 +22,8 @@ export const InviteLanding = () => {
           id: '1',
           name: 'Lakers Championship Ring Fund',
           description: 'Supporting our team to get that championship ring! Every contribution counts towards our goal.',
-          goal: 50000,
-          currentAmount: 32500,
+          goal: 500000,
+          currentAmount: 325000,
           participants: 47,
           progress: 65,
           daysLeft: 45
@@ -126,10 +127,10 @@ export const InviteLanding = () => {
             </div>
 
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-400">RWF {basket.currentAmount.toLocaleString()}</span>
+              <span className="text-gray-400">{formatCurrency(basket.currentAmount)}</span>
               <div className="flex items-center gap-1 text-gray-400">
                 <Target className="w-4 h-4" />
-                <span>RWF {basket.goal.toLocaleString()}</span>
+                <span>{formatCurrency(basket.goal)}</span>
               </div>
             </div>
           </div>
