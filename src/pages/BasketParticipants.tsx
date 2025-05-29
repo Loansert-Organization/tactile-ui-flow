@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, Users, Copy } from 'lucide-react';
+import { ArrowLeft, Crown, Users } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { toast } from '@/hooks/use-toast';
 
@@ -17,6 +17,9 @@ export const BasketParticipants = () => {
     { code: 'X7V4R9', isOwner: false, joinedAt: '2024-01-18', contributions: 2 },
     { code: 'Z1C6N8', isOwner: false, joinedAt: '2024-01-19', contributions: 4 },
   ];
+
+  // Calculate total contributed amount (mock data - in real app this would come from API)
+  const totalContributedAmount = 32500; // This should match the basket's totalContributions
 
   const handleCopyCode = async (code: string) => {
     await navigator.clipboard.writeText(code);
@@ -93,12 +96,12 @@ export const BasketParticipants = () => {
                 </div>
               </div>
               
-              <button
-                onClick={() => handleCopyCode(participant.code)}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-              >
-                <Copy className="w-4 h-4" />
-              </button>
+              <div className="text-right">
+                <div className="text-lg font-bold gradient-text">
+                  RWF {totalContributedAmount.toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-400">Total Amount</div>
+              </div>
             </div>
           </GlassCard>
         ))}
