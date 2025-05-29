@@ -13,6 +13,7 @@ import { BasketParticipants } from "@/pages/BasketParticipants";
 import { BasketSettings } from "@/pages/BasketSettings";
 import { ContributionPage } from "@/pages/ContributionPage";
 import { MyBaskets } from "@/pages/MyBaskets";
+import CreateBasketWizard from "@/pages/CreateBasketWizard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,19 +25,26 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <div className="min-h-screen flex flex-col">
-          <AppHeader />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<Feed />} />
-              <Route path="/baskets/mine" element={<MyBaskets />} />
-              <Route path="/basket/:id" element={<BasketOverview />} />
-              <Route path="/basket/:id/participants" element={<BasketParticipants />} />
-              <Route path="/basket/:id/settings" element={<BasketSettings />} />
-              <Route path="/basket/:id/contribute" element={<ContributionPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <BottomNav />
+          <Routes>
+            <Route path="/create/*" element={<CreateBasketWizard />} />
+            <Route path="/*" element={
+              <>
+                <AppHeader />
+                <main className="flex-1">
+                  <Routes>
+                    <Route path="/" element={<Feed />} />
+                    <Route path="/baskets/mine" element={<MyBaskets />} />
+                    <Route path="/basket/:id" element={<BasketOverview />} />
+                    <Route path="/basket/:id/participants" element={<BasketParticipants />} />
+                    <Route path="/basket/:id/settings" element={<BasketSettings />} />
+                    <Route path="/basket/:id/contribute" element={<ContributionPage />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+                <BottomNav />
+              </>
+            } />
+          </Routes>
         </div>
       </BrowserRouter>
     </TooltipProvider>
