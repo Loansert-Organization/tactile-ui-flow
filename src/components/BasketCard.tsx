@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Lock, Users, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -30,7 +31,7 @@ export const BasketCard = ({
   participants = 0
 }: BasketCardProps) => {
   const [isJoining, setIsJoining] = useState(false);
-  const [hasJoined, setHasJoined] = useState(false);
+  const [hasJoined, setHasJoined] = useState(true); // Set to true for "My Baskets" screen
   const [showContributionModal, setShowContributionModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [contributedAmount, setContributedAmount] = useState(0);
@@ -39,9 +40,15 @@ export const BasketCard = ({
 
   const handleJoin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    if (isPrivate || hasJoined) return;
+    if (isPrivate) return;
 
-    setShowContributionModal(true);
+    if (hasJoined) {
+      // Navigate to basket details if already joined
+      navigate(`/basket/${id}`);
+    } else {
+      // Show contribution modal for new baskets
+      setShowContributionModal(true);
+    }
   };
 
   const handleContributionSuccess = (amount: number) => {
@@ -140,9 +147,8 @@ export const BasketCard = ({
               className="w-full"
               onClick={handleJoin}
               loading={isJoining}
-              disabled={hasJoined}
             >
-              {hasJoined ? 'Joined ✓' : 'Join Basket'}
+              {hasJoined ? 'View Details' : 'Join Basket'}
             </GradientButton>
           )}
         </div>
