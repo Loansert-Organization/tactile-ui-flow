@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
@@ -395,9 +394,6 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
             <div className="space-y-4">
               {/* Profile Image Upload */}
               <div className="text-center">
-                <label className="block text-sm font-medium mb-3 text-gray-200">
-                  Basket Profile Image
-                </label>
                 <div className="flex justify-center">
                   <label className="relative cursor-pointer group">
                     <input
