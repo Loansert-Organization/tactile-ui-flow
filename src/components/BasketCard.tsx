@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Lock, Users, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -50,8 +49,8 @@ export const BasketCard = ({
       // For members: "Contribute More" - show contribution modal
       setShowContributionModal(true);
     } else {
-      // For non-members: "Join Basket" - navigate to non-member detail
-      navigate(`/basket/${id}/join`);
+      // For non-members: "Join Basket" - navigate to contribution page
+      navigate(`/basket/${id}/contribute`);
     }
   };
 
