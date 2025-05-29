@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
@@ -147,7 +146,7 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
       <div className="text-center">
         <h1 className="text-xl font-bold">Create Basket</h1>
         <div className="flex gap-2 mt-2">
-          <div className="w-8 h-1 bg-gradient-magenta-orange rounded" />
+          <div className="w-8 h-1 bg-gradient-to-r from-pink-500 to-orange-500 rounded" />
           <div className="w-8 h-1 bg-white/20 rounded" />
           <div className="w-8 h-1 bg-white/20 rounded" />
           <div className="w-8 h-1 bg-white/20 rounded" />
@@ -158,7 +157,7 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
 
     <div className="space-y-4">
       <div className="text-center mb-6">
-        <div className="w-16 h-16 bg-gradient-teal-blue/20 rounded-full flex items-center justify-center mx-auto mb-3">
+        <div className="w-16 h-16 bg-gradient-to-r from-teal-500/20 to-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
           <Users className="w-8 h-8 text-teal-300" />
         </div>
         <h2 className="text-lg font-semibold gradient-text">Basic Information</h2>
@@ -199,7 +198,7 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
 
       <Button 
         onClick={(e) => { handlePress(e); onNext?.(); }}
-        className="w-full bg-gradient-magenta-orange"
+        className="w-full bg-gradient-to-r from-pink-500 to-orange-500"
         disabled={!basketData.name.trim() || !basketData.goal.trim()}
       >
         Next <ArrowRight className="w-4 h-4 ml-2" />
@@ -218,8 +217,8 @@ const Step2 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
       <div className="text-center">
         <h1 className="text-xl font-bold">Create Basket</h1>
         <div className="flex gap-2 mt-2">
-          <div className="w-8 h-1 bg-gradient-magenta-orange rounded" />
-          <div className="w-8 h-1 bg-gradient-magenta-orange rounded" />
+          <div className="w-8 h-1 bg-gradient-to-r from-pink-500 to-orange-500 rounded" />
+          <div className="w-8 h-1 bg-gradient-to-r from-pink-500 to-orange-500 rounded" />
           <div className="w-8 h-1 bg-white/20 rounded" />
           <div className="w-8 h-1 bg-white/20 rounded" />
         </div>
@@ -229,7 +228,7 @@ const Step2 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
 
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="w-16 h-16 bg-gradient-purple-pink/20 rounded-full flex items-center justify-center mx-auto mb-3">
+        <div className="w-16 h-16 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
           <Lock className="w-8 h-8 text-purple-300" />
         </div>
         <h2 className="text-lg font-semibold gradient-text">Privacy Settings</h2>
@@ -290,7 +289,7 @@ const Step2 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
 
       <Button 
         onClick={(e) => { handlePress(e); onNext?.(); }}
-        className="w-full bg-gradient-magenta-orange"
+        className="w-full bg-gradient-to-r from-pink-500 to-orange-500"
       >
         Next <ArrowRight className="w-4 h-4 ml-2" />
       </Button>
@@ -308,9 +307,9 @@ const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
       <div className="text-center">
         <h1 className="text-xl font-bold">Create Basket</h1>
         <div className="flex gap-2 mt-2">
-          <div className="w-8 h-1 bg-gradient-magenta-orange rounded" />
-          <div className="w-8 h-1 bg-gradient-magenta-orange rounded" />
-          <div className="w-8 h-1 bg-gradient-magenta-orange rounded" />
+          <div className="w-8 h-1 bg-gradient-to-r from-pink-500 to-orange-500 rounded" />
+          <div className="w-8 h-1 bg-gradient-to-r from-pink-500 to-orange-500 rounded" />
+          <div className="w-8 h-1 bg-gradient-to-r from-pink-500 to-orange-500 rounded" />
           <div className="w-8 h-1 bg-white/20 rounded" />
         </div>
       </div>
@@ -319,7 +318,7 @@ const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
 
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <div className="w-16 h-16 bg-gradient-magenta-orange/20 rounded-full flex items-center justify-center mx-auto mb-3">
+        <div className="w-16 h-16 bg-gradient-to-r from-pink-500/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
           <Eye className="w-8 h-8 text-orange-300" />
         </div>
         <h2 className="text-lg font-semibold gradient-text">Anonymity Settings</h2>
@@ -390,7 +389,7 @@ const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
 
       <Button 
         onClick={(e) => { handlePress(e); onNext?.(); }}
-        className="w-full bg-gradient-magenta-orange"
+        className="w-full bg-gradient-to-r from-pink-500 to-orange-500"
         disabled={!basketData.duration.trim()}
       >
         Create Basket <Check className="w-4 h-4 ml-2" />
@@ -421,7 +420,7 @@ const Step4 = ({ basketData, onBack, handlePress }: StepProps) => {
   return (
     <GlassCard className="max-w-md mx-auto p-6 mt-20">
       <div className="text-center space-y-6">
-        <div className="w-20 h-20 bg-gradient-magenta-orange/20 rounded-full flex items-center justify-center mx-auto">
+        <div className="w-20 h-20 bg-gradient-to-r from-pink-500/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto">
           <Check className="w-10 h-10 text-green-400" />
         </div>
 
@@ -448,7 +447,7 @@ const Step4 = ({ basketData, onBack, handlePress }: StepProps) => {
         <div className="space-y-3">
           <Button
             onClick={(e) => { handlePress(e); shareBasket(); }}
-            className="w-full bg-gradient-teal-blue"
+            className="w-full bg-gradient-to-r from-teal-500 to-blue-500"
           >
             <Share2 className="w-4 h-4 mr-2" />
             Share Basket
