@@ -8,19 +8,24 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { useSwipeGesture } from '@/hooks/useInteractions';
 import { useBaskets } from '@/contexts/BasketContext';
+import { useMyBasketsContext } from '@/contexts/MyBasketsContext';
 
 export const Feed = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const { getNonMemberBaskets } = useBaskets();
+  const { myBaskets } = useMyBasketsContext();
 
   const { handleTouchStart, handleTouchEnd } = useSwipeGesture(
     undefined,
     () => handleRefresh()
   );
 
-  const nonMemberBaskets = getNonMemberBaskets();
+  // Filter out baskets that user has already joined
+  const availableBaskets = getNonMemberBaskets().filter(
+    basket => !myBaskets.some(myBasket => myBasket.id === basket.id)
+  );
 
   const loadBaskets = async () => {
     try {
@@ -45,6 +50,12 @@ export const Feed = () => {
     setLoading(true);
     setError(false);
     loadBaskets();
+  };
+
+  const handleJoinSuccess = () => {
+    // Trigger a refresh animation
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 500);
   };
 
   useEffect(() => {
@@ -91,7 +102,7 @@ export const Feed = () => {
     );
   }
 
-  if (nonMemberBaskets.length === 0) {
+  if (availableBaskets.length === 0) {
     return (
       <div className="p-4">
         <EmptyState
@@ -127,15 +138,18 @@ export const Feed = () => {
         <p className="text-gray-400">Join community funding initiatives</p>
       </div>
 
+      {/* ARIA live region for announcements */}
+      <div className="sr-only" aria-live="polite" id="feed-announcements" />
+
       {/* Baskets list */}
       <div className="space-y-4">
-        {nonMemberBaskets.map((basket, index) => (
+        {availableBaskets.map((basket, index) => (
           <div 
             key={basket.id}
             className="animate-slide-up"
             style={{ animationDelay: `${index * 100}ms` }}
           >
-            <BasketCard {...basket} />
+            <BasketCard {...basket} onJoinSuccess={handleJoinSuccess} />
           </div>
         ))}
       </div>

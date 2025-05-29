@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plus, ArrowLeft, Clock, CheckCircle, Lock } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -5,107 +6,34 @@ import { GradientButton } from '@/components/ui/gradient-button';
 import { BasketCard } from '@/components/BasketCard';
 import { EmptyState } from '@/components/EmptyState';
 import { useNavigate } from 'react-router-dom';
-import { useBaskets } from '@/contexts/BasketContext';
 import { usePressFeedback } from '@/hooks/useInteractions';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
-
-interface BasketWithStatus {
-  id: string;
-  name: string;
-  description: string;
-  goal: number;
-  currentAmount: number;
-  progress: number;
-  participants: number;
-  daysLeft: number;
-  isMember: boolean;
-  myContribution: number;
-  status: 'pending' | 'approved' | 'private';
-  isPrivate?: boolean;
-}
+import { useMyBasketsContext } from '@/contexts/MyBasketsContext';
 
 export const MyBaskets = () => {
   const [activeTab, setActiveTab] = useState('joined');
   const navigate = useNavigate();
-  const { getMemberBaskets } = useBaskets();
   const { handlePress } = usePressFeedback();
+  const { myBaskets, updateBasketStatus } = useMyBasketsContext();
 
-  // Dummy baskets with status
-  const [basketsWithStatus, setBasketsWithStatus] = useState<BasketWithStatus[]>([
-    {
-      id: '3',
-      name: 'Lakers Championship Ring',
-      description: 'Supporting our team to get that championship ring!',
-      progress: 65,
-      goal: 50000,
-      currentAmount: 32500,
-      participants: 47,
-      daysLeft: 10,
-      isMember: true,
-      myContribution: 15000,
-      status: 'approved',
-      isPrivate: false
-    },
-    {
-      id: '4',
-      name: 'Manchester United Jersey',
-      description: 'Getting the new season jersey for the whole squad',
-      progress: 80,
-      goal: 25000,
-      currentAmount: 20000,
-      participants: 23,
-      daysLeft: 5,
-      isMember: true,
-      myContribution: 5000,
-      status: 'private',
-      isPrivate: true
-    },
-    {
-      id: '6',
-      name: 'Community Event Fund',
-      description: 'Organizing a community sports event for local youth',
-      progress: 30,
-      goal: 100000,
-      currentAmount: 30000,
-      participants: 15,
-      daysLeft: 20,
-      isMember: true,
-      myContribution: 10000,
-      status: 'pending',
-      isPrivate: false
-    }
-  ]);
-
-  // Auto-approve pending baskets after 5 seconds
+  // Auto-approve pending baskets after 5 seconds for demo
   useEffect(() => {
-    const pendingBaskets = basketsWithStatus.filter(basket => basket.status === 'pending');
+    const pendingBaskets = myBaskets.filter(basket => basket.status === 'pending');
     
     if (pendingBaskets.length > 0) {
       const timer = setTimeout(() => {
-        setBasketsWithStatus(prev => 
-          prev.map(basket => 
-            basket.status === 'pending' 
-              ? { ...basket, status: 'approved' as const }
-              : basket
-          )
-        );
-
-        // Show toast for each approved basket
         pendingBaskets.forEach(basket => {
-          toast.success(`Your basket '${basket.name}' has been approved!`, {
-            description: 'Your basket is now live and accepting contributions',
-            duration: 4000,
-          });
+          updateBasketStatus(basket.id, 'approved');
         });
       }, 5000);
 
       return () => clearTimeout(timer);
     }
-  }, [basketsWithStatus]);
+  }, [myBaskets, updateBasketStatus]);
   
-  const joinedBaskets = basketsWithStatus;
-  const createdBaskets: typeof basketsWithStatus = [];
+  // For demo purposes, all baskets are "joined" 
+  const joinedBaskets = myBaskets;
+  const createdBaskets = myBaskets.filter(basket => basket.status === 'pending' || basket.isPrivate);
 
   const baskets = activeTab === 'joined' ? joinedBaskets : createdBaskets;
 
@@ -146,6 +74,7 @@ export const MyBaskets = () => {
                 navigate('/');
               }}
               className="p-2 rounded-lg hover:bg-white/10 transition-colors focus-gradient"
+              style={{ minWidth: '44px', minHeight: '44px' }}
               aria-label="Back to Home"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -164,6 +93,7 @@ export const MyBaskets = () => {
                   ? 'bg-gradient-magenta-orange text-white shadow-lg'
                   : 'text-gray-400 hover:text-white'
               }`}
+              style={{ minHeight: '44px' }}
             >
               Joined ({joinedBaskets.length})
             </button>
@@ -174,6 +104,7 @@ export const MyBaskets = () => {
                   ? 'bg-gradient-magenta-orange text-white shadow-lg'
                   : 'text-gray-400 hover:text-white'
               }`}
+              style={{ minHeight: '44px' }}
             >
               Created ({createdBaskets.length})
             </button>
@@ -185,18 +116,38 @@ export const MyBaskets = () => {
           variant="primary"
           className="w-full mb-6 flex items-center justify-center gap-2"
           onClick={() => navigate('/create/step/1')}
+          style={{ minHeight: '44px' }}
         >
           <Plus className="w-5 h-5" />
           Create New Basket
         </GradientButton>
       </div>
 
+      {/* ARIA live region for basket updates */}
+      <div className="sr-only" aria-live="polite" id="basket-announcements" />
+
       {/* Baskets List */}
       <div className="px-6 space-y-4">
         {baskets.length > 0 ? (
-          baskets.map((basket) => (
-            <div key={basket.id} className="relative">
-              <BasketCard {...basket} />
+          baskets.map((basket, index) => (
+            <div 
+              key={basket.id} 
+              className="relative animate-slide-up" 
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <BasketCard 
+                id={basket.id}
+                name={basket.name}
+                description={basket.description}
+                isPrivate={basket.isPrivate}
+                progress={basket.progress}
+                goal={basket.goal}
+                currentAmount={basket.currentAmount}
+                participants={basket.participants}
+                isMember={basket.isMember}
+                myContribution={basket.myContribution}
+                daysLeft={basket.daysLeft}
+              />
               <div className="absolute top-4 right-4 z-10">
                 {getStatusBadge(basket.status)}
               </div>
