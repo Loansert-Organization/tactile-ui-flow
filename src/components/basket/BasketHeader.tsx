@@ -23,11 +23,6 @@ export const BasketHeader = ({
   return <GlassCard className="p-6">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-16 h-16 rounded-xl bg-gradient-purple-pink flex items-center justify-center">
-            <span className="text-2xl font-bold text-white">
-              {basket.name.charAt(0)}
-            </span>
-          </div>
           <div>
             <h1 className="font-bold gradient-text text-xl">{basket.name}</h1>
             <div className="flex items-center gap-4 text-sm text-gray-400">
