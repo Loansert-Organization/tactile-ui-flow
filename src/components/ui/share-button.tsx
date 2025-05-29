@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { MessageCircle } from 'lucide-react';
+import { Share } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -44,6 +44,7 @@ export const ShareButton = ({
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     
     console.log('WhatsApp URL:', whatsappUrl);
+    console.log('Opening WhatsApp...');
     
     // Show opening toast
     toast({
@@ -52,18 +53,19 @@ export const ShareButton = ({
     });
 
     try {
-      // Try multiple approaches to open WhatsApp
-      console.log('Attempting to open WhatsApp...');
-      
-      // First try: direct window.open
-      const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-      
-      if (!opened || opened.closed || typeof opened.closed == 'undefined') {
-        console.log('Window.open failed, trying location.href');
-        // Fallback: try location.href
+      // For mobile devices, try using window.location.href first
+      if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        console.log('Mobile device detected, using location.href');
         window.location.href = whatsappUrl;
       } else {
-        console.log('WhatsApp opened successfully');
+        // For desktop, try window.open
+        console.log('Desktop device detected, using window.open');
+        const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        
+        if (!opened || opened.closed || typeof opened.closed === 'undefined') {
+          console.log('Window.open failed, falling back to location.href');
+          window.location.href = whatsappUrl;
+        }
       }
     } catch (error) {
       console.error('Error opening WhatsApp:', error);
@@ -101,7 +103,7 @@ export const ShareButton = ({
           className
         )}
       >
-        <MessageCircle className={sizeClasses[size]} />
+        <Share className={sizeClasses[size]} />
         {children || "Share on WhatsApp"}
       </button>
     );
@@ -122,7 +124,7 @@ export const ShareButton = ({
         className
       )}
     >
-      <MessageCircle className={cn(sizeClasses[size], "text-green-400")} />
+      <Share className={cn(sizeClasses[size], "text-green-400")} />
     </button>
   );
 };
