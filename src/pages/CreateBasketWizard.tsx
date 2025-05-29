@@ -279,57 +279,6 @@ interface StepProps {
   handlePress: (e: React.MouseEvent) => void;
 }
 
-// Enhanced Stepper Component
-const StepperBar = ({ currentStep }: { currentStep: number }) => (
-  <div className="text-center mb-8">
-    <h1 className="text-xl font-bold mb-4 bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">
-      Create Basket
-    </h1>
-    <div className="flex gap-2 justify-center">
-      {[1, 2, 3, 4].map((step) => (
-        <div
-          key={step}
-          className={`h-2 rounded-full transition-all duration-500 ${
-            step <= currentStep
-              ? 'w-12 bg-gradient-to-r from-pink-500 to-orange-500'
-              : 'w-8 bg-white/20'
-          }`}
-          style={{
-            animation: step === currentStep ? 'stepper-fill 0.5s ease-out' : undefined,
-            '--target-width': '100%'
-          } as React.CSSProperties}
-        />
-      ))}
-    </div>
-  </div>
-);
-
-// Coach Mark Component
-const CoachMarkOverlay = ({ onDismiss }: { onDismiss: () => void }) => (
-  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <GlassCard className="p-6 max-w-sm relative">
-      <button
-        onClick={onDismiss}
-        className="absolute top-4 right-4 p-1 rounded-full hover:bg-white/10"
-      >
-        <X className="w-4 h-4" />
-      </button>
-      <div className="text-center space-y-4">
-        <div className="w-16 h-16 bg-gradient-to-r from-teal-500/20 to-blue-500/20 rounded-full flex items-center justify-center mx-auto">
-          <Share2 className="w-8 h-8 text-teal-300" />
-        </div>
-        <h3 className="text-lg font-semibold gradient-text">Welcome to the Basket Wizard!</h3>
-        <p className="text-sm text-gray-300">
-          Follow the steps to create your savings group. Swipe or tap to navigate between steps.
-        </p>
-        <Button onClick={onDismiss} className="w-full neuro-button">
-          Got it!
-        </Button>
-      </div>
-    </GlassCard>
-  </div>
-);
-
 // Step 1: Basic Info
 const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: StepProps) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -417,7 +366,7 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
                   type="number"
                   value={basketData.goal}
                   onChange={(e) => updateBasketData?.('goal', e.target.value)}
-                  placeholder="0"
+                  placeholder="1,000"
                   className={`glass-input text-white placeholder:text-gray-400 ${
                     errors.goal ? 'border-red-500 animate-[shake_0.3s_ease-in-out]' : ''
                   }`}
