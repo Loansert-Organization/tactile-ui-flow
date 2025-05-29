@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Menu, Share2, Settings, X } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -34,7 +33,7 @@ export const AppHeader = () => {
               <Menu className="w-6 h-6" />
             </button>
             
-            <h1 className="text-xl font-bold gradient-text">Community Baskets</h1>
+            <h1 className="text-xl font-bold gradient-text">IKANISA</h1>
             
             <div className="flex items-center gap-2">
               <button
