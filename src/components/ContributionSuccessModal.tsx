@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Share2 } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
+import { ShareButton } from '@/components/ui/share-button';
 import { formatCurrency } from '@/lib/formatters';
 
 interface ContributionSuccessModalProps {
@@ -25,19 +26,7 @@ export const ContributionSuccessModal = ({
   
   if (!isOpen) return null;
 
-  const handleShare = () => {
-    // Generate basket link (using current domain + basket invite path)
-    const basketLink = `${window.location.origin}/invite/BASKET`;
-    
-    // Create share message
-    const message = `🎯 Join me in contributing to "${basketName}"! I just contributed ${formatCurrency(amount)} and we're making great progress towards our goal. Every contribution counts! ${basketLink}`;
-    
-    // Create WhatsApp share URL
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    
-    // Open WhatsApp in a new window
-    window.open(whatsappUrl, '_blank');
-  };
+  const basketURL = `${window.location.origin}/basket/${basketId || 'abc123'}`;
 
   const handleContinue = () => {
     onClose();
@@ -68,14 +57,15 @@ export const ContributionSuccessModal = ({
         </div>
 
         <div className="space-y-3">
-          <GradientButton
-            variant="secondary"
-            className="w-full"
-            onClick={handleShare}
+          <ShareButton
+            basketName={basketName}
+            basketURL={basketURL}
+            variant="button"
+            size="md"
+            className="w-full bg-green-600 hover:bg-green-700"
           >
-            <Share2 className="w-4 h-4 mr-2" />
             Share Achievement
-          </GradientButton>
+          </ShareButton>
 
           <GradientButton
             variant="primary"

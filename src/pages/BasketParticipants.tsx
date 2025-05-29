@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, Users, Share2 } from 'lucide-react';
+import { ArrowLeft, Crown, Users } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
-import { toast } from '@/hooks/use-toast';
+import { ShareButton } from '@/components/ui/share-button';
 import { formatCurrency } from '@/lib/formatters';
 
 export const BasketParticipants = () => {
@@ -25,14 +25,8 @@ export const BasketParticipants = () => {
   // Calculate total contributed amount (mock data - in real app this would come from API)
   const totalContributedAmount = 325000; // This should match the basket's totalContributions
 
-  const handleShareBasket = async () => {
-    const basketUrl = `${window.location.origin}/basket/${id}`;
-    await navigator.clipboard.writeText(basketUrl);
-    toast({
-      title: "Copied!",
-      description: "Basket link copied to clipboard",
-    });
-  };
+  const basketName = "Lakers Championship Ring Fund"; // Mock basket name
+  const basketURL = `${window.location.origin}/basket/${id}`;
 
   return (
     <div className="min-h-screen pb-24">
@@ -120,13 +114,15 @@ export const BasketParticipants = () => {
           <p className="text-sm text-gray-400 mb-4">
             Share your basket link to grow your community
           </p>
-          <button 
-            onClick={handleShareBasket}
-            className="flex items-center justify-center gap-2 mx-auto text-pink-400 font-medium hover:text-pink-300 transition-colors"
+          <ShareButton 
+            basketName={basketName}
+            basketURL={basketURL}
+            variant="button"
+            size="md"
+            className="mx-auto"
           >
-            <Share2 className="w-4 h-4" />
-            Share Basket Link
-          </button>
+            Share on WhatsApp
+          </ShareButton>
         </GlassCard>
       </div>
     </div>
