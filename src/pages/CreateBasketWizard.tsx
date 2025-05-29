@@ -161,7 +161,9 @@ const Step3 = () => {
               <p className="text-sm text-gray-400">Members can choose to hide their contribution amounts</p>
             </div>
             <button onClick={() => setAllowAnonymous(!allowAnonymous)} className={`relative w-12 h-6 rounded-full transition-all ${allowAnonymous ? 'bg-gradient-magenta-orange' : 'bg-gray-600'}`}>
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${allowAnonymous ? 'translate-x-7' : 'translate-x-1'}`} />
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform flex items-center justify-center ${allowAnonymous ? 'translate-x-7' : 'translate-x-1'}`}>
+                {allowAnonymous && <Check className="w-2.5 h-2.5 text-gray-800" />}
+              </div>
             </button>
           </div>
 
