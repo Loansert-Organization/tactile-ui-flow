@@ -3,6 +3,8 @@ import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
+import { Switch } from '@/components/ui/switch';
+
 const CreateBasketWizard = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -159,9 +161,10 @@ const Step3 = () => {
               <h3 className="font-semibold">Allow Anonymous Contributions</h3>
               <p className="text-sm text-gray-400">Members can choose to hide their contribution amounts</p>
             </div>
-            <button onClick={() => setAllowAnonymous(!allowAnonymous)} className={`relative w-12 h-6 rounded-full transition-all ${allowAnonymous ? 'bg-gradient-magenta-orange' : 'bg-gray-600'}`}>
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${allowAnonymous ? 'translate-x-7' : 'translate-x-1'}`} />
-            </button>
+            <Switch 
+              checked={allowAnonymous}
+              onCheckedChange={setAllowAnonymous}
+            />
           </div>
 
           <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
