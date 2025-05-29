@@ -1,17 +1,19 @@
 
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, ArrowLeft } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { BasketCard } from '@/components/BasketCard';
 import { EmptyState } from '@/components/EmptyState';
 import { useNavigate } from 'react-router-dom';
 import { useBaskets } from '@/contexts/BasketContext';
+import { usePressFeedback } from '@/hooks/useInteractions';
 
 export const MyBaskets = () => {
   const [activeTab, setActiveTab] = useState('joined');
   const navigate = useNavigate();
   const { getMemberBaskets } = useBaskets();
+  const { handlePress } = usePressFeedback();
 
   const memberBaskets = getMemberBaskets();
   
@@ -26,7 +28,19 @@ export const MyBaskets = () => {
       {/* Header */}
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold gradient-text">My Baskets</h1>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={(e) => {
+                handlePress(e);
+                navigate('/');
+              }}
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors focus-gradient"
+              aria-label="Back to Home"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <h1 className="text-2xl font-bold gradient-text">My Baskets</h1>
+          </div>
         </div>
 
         {/* Tabs */}
