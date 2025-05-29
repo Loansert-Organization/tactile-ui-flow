@@ -26,6 +26,19 @@ export const ContributionModal = ({
 
   if (!isOpen) return null;
 
+  const formatNumber = (value: string) => {
+    // Remove all non-digits
+    const cleanValue = value.replace(/\D/g, '');
+    // Add commas for thousands
+    return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const formattedValue = formatNumber(value);
+    setAmount(formattedValue);
+  };
+
   const handleContribute = async () => {
     if (!amount) {
       toast({
@@ -47,7 +60,9 @@ export const ContributionModal = ({
     // Simulate payment processing
     setTimeout(() => {
       setIsProcessing(false);
-      onSuccess(Number(amount));
+      // Remove commas before converting to number
+      const numericAmount = Number(amount.replace(/,/g, ''));
+      onSuccess(numericAmount);
       onClose();
       setAmount('');
     }, 3000);
@@ -69,10 +84,10 @@ export const ContributionModal = ({
             <div className="relative">
               <CreditCard className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
               <input 
-                type="number" 
+                type="text" 
                 value={amount} 
-                onChange={e => setAmount(e.target.value)} 
-                placeholder="Enter amount" 
+                onChange={handleAmountChange} 
+                placeholder="1,000" 
                 className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-pink-500" 
               />
             </div>
