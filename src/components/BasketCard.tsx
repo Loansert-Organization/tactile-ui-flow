@@ -85,7 +85,7 @@ export const BasketCard = ({
               </span>
             </div>
             <div>
-              <h3 className="text-fluid-base group-hover:gradient-text transition-all duration-300 font-medium">
+              <h3 className="text-fluid-base group-hover:gradient-text transition-all duration-300 font-semibold">
                 {name}
               </h3>
               <div className="flex items-center gap-2 text-sm text-gray-400">
