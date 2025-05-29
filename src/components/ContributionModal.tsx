@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { X, CreditCard, Phone } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -69,11 +70,6 @@ export const ContributionModal = ({
               <Phone className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
               <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} placeholder="078XXXXXXX" className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-pink-500" />
             </div>
-          </div>
-
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-            <p className="text-sm text-blue-300">
-          </p>
           </div>
 
           <div className="flex gap-3 pt-4">
