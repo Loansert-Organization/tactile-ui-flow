@@ -18,6 +18,9 @@ export const BasketParticipants = () => {
     { code: 'Z1C6N8', isOwner: false, joinedAt: '2024-01-19', contributions: 4 },
   ];
 
+  // Sort participants by contributions (highest first)
+  const sortedParticipants = [...participants].sort((a, b) => b.contributions - a.contributions);
+
   // Calculate total contributed amount (mock data - in real app this would come from API)
   const totalContributedAmount = 32500; // This should match the basket's totalContributions
 
@@ -75,7 +78,7 @@ export const BasketParticipants = () => {
 
       {/* Participants List */}
       <div className="px-6 space-y-3">
-        {participants.map((participant, index) => (
+        {sortedParticipants.map((participant, index) => (
           <GlassCard key={participant.code} className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -89,6 +92,11 @@ export const BasketParticipants = () => {
                     <span className="font-mono font-semibold">{participant.code}</span>
                     {participant.isOwner && (
                       <Crown className="w-4 h-4 text-yellow-500" />
+                    )}
+                    {index === 0 && (
+                      <span className="text-xs bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full font-bold">
+                        TOP
+                      </span>
                     )}
                   </div>
                 </div>
