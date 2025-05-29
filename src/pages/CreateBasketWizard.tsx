@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
@@ -17,6 +18,7 @@ interface BasketData {
   duration: string;
   privacy: 'public' | 'private';
   anonymity: 'anonymous' | 'named';
+  contributionType: 'recurring' | 'one-off';
   inviteCode: string;
 }
 
@@ -31,6 +33,7 @@ const CreateBasketWizard = () => {
     duration: '12',
     privacy: 'private',
     anonymity: 'named',
+    contributionType: 'recurring',
     inviteCode: ''
   });
 
@@ -81,13 +84,6 @@ const CreateBasketWizard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
-      <style jsx>{`
-        @keyframes confetti-fall {
-          0% { transform: translateY(-10px) rotate(0deg); }
-          100% { transform: translateY(100vh) rotate(360deg); }
-        }
-      `}</style>
-      
       <Routes>
         <Route path="/step/1" element={
           <Step1 
@@ -275,17 +271,52 @@ const Step2 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-3">Contribution Frequency</label>
-        <select 
-          value={basketData.frequency}
-          onChange={(e) => updateBasketData?.('frequency', e.target.value)}
-          className="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white"
-        >
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-          <option value="quarterly">Quarterly</option>
-        </select>
+        <label className="block text-sm font-medium mb-3">Contribution Type</label>
+        <div className="space-y-3">
+          <button
+            onClick={() => updateBasketData?.('contributionType', 'recurring')}
+            className={`w-full p-4 rounded-lg border-2 transition-all ${
+              basketData.contributionType === 'recurring' 
+                ? 'border-purple-500 bg-purple-500/20' 
+                : 'border-white/20 bg-white/5'
+            }`}
+          >
+            <div className="text-left">
+              <p className="font-medium">Recurring Contributions</p>
+              <p className="text-xs text-gray-400">Regular scheduled contributions</p>
+            </div>
+          </button>
+
+          <button
+            onClick={() => updateBasketData?.('contributionType', 'one-off')}
+            className={`w-full p-4 rounded-lg border-2 transition-all ${
+              basketData.contributionType === 'one-off' 
+                ? 'border-purple-500 bg-purple-500/20' 
+                : 'border-white/20 bg-white/5'
+            }`}
+          >
+            <div className="text-left">
+              <p className="font-medium">One-Off Contributions</p>
+              <p className="text-xs text-gray-400">Flexible one-time contributions</p>
+            </div>
+          </button>
+        </div>
       </div>
+
+      {basketData.contributionType === 'recurring' && (
+        <div>
+          <label className="block text-sm font-medium mb-3">Contribution Frequency</label>
+          <select 
+            value={basketData.frequency}
+            onChange={(e) => updateBasketData?.('frequency', e.target.value)}
+            className="w-full p-3 rounded-lg bg-white/10 border border-white/20 text-white"
+          >
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option>
+          </select>
+        </div>
+      )}
 
       <Button 
         onClick={(e) => { handlePress(e); onNext?.(); }}
@@ -364,24 +395,31 @@ const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
         </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">Duration (months)</label>
-        <Input
-          type="number"
-          value={basketData.duration}
-          onChange={(e) => updateBasketData?.('duration', e.target.value)}
-          placeholder="12"
-          className="bg-white/10 border-white/20"
-        />
-      </div>
+      {basketData.contributionType === 'recurring' && (
+        <div>
+          <label className="block text-sm font-medium mb-2">Duration (months)</label>
+          <Input
+            type="number"
+            value={basketData.duration}
+            onChange={(e) => updateBasketData?.('duration', e.target.value)}
+            placeholder="12"
+            className="bg-white/10 border-white/20"
+          />
+        </div>
+      )}
 
       <div className="bg-white/5 p-4 rounded-lg">
         <h3 className="font-medium mb-2">Summary</h3>
         <div className="space-y-1 text-sm text-gray-300">
           <p>Name: {basketData.name}</p>
           <p>Goal: RWF {basketData.goal}</p>
-          <p>Frequency: {basketData.frequency}</p>
-          <p>Duration: {basketData.duration} months</p>
+          <p>Type: {basketData.contributionType === 'one-off' ? 'One-off contributions' : 'Recurring contributions'}</p>
+          {basketData.contributionType === 'recurring' && (
+            <>
+              <p>Frequency: {basketData.frequency}</p>
+              <p>Duration: {basketData.duration} months</p>
+            </>
+          )}
           <p>Privacy: {basketData.privacy}</p>
           <p>Display: {basketData.anonymity}</p>
         </div>
@@ -390,7 +428,7 @@ const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
       <Button 
         onClick={(e) => { handlePress(e); onNext?.(); }}
         className="w-full bg-gradient-to-r from-pink-500 to-orange-500"
-        disabled={!basketData.duration.trim()}
+        disabled={basketData.contributionType === 'recurring' && !basketData.duration.trim()}
       >
         Create Basket <Check className="w-4 h-4 ml-2" />
       </Button>
