@@ -1,8 +1,6 @@
-
 import React from 'react';
 import { Users, Settings, Share2, Target, Calendar } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
-
 interface BasketHeaderProps {
   basket: {
     name: string;
@@ -17,10 +15,12 @@ interface BasketHeaderProps {
   onShare: () => void;
   onSettings: () => void;
 }
-
-export const BasketHeader = ({ basket, onShare, onSettings }: BasketHeaderProps) => {
-  return (
-    <GlassCard className="p-6">
+export const BasketHeader = ({
+  basket,
+  onShare,
+  onSettings
+}: BasketHeaderProps) => {
+  return <GlassCard className="p-6">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-16 h-16 rounded-xl bg-gradient-purple-pink flex items-center justify-center">
@@ -29,7 +29,7 @@ export const BasketHeader = ({ basket, onShare, onSettings }: BasketHeaderProps)
             </span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold gradient-text">{basket.name}</h1>
+            <h1 className="font-bold gradient-text text-xl">{basket.name}</h1>
             <div className="flex items-center gap-4 text-sm text-gray-400">
               <div className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
@@ -43,20 +43,12 @@ export const BasketHeader = ({ basket, onShare, onSettings }: BasketHeaderProps)
           </div>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={onShare}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-          >
+          <button onClick={onShare} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
             <Share2 className="w-5 h-5" />
           </button>
-          {basket.isOwner && (
-            <button
-              onClick={onSettings}
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-            >
+          {basket.isOwner && <button onClick={onSettings} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
               <Settings className="w-5 h-5" />
-            </button>
-          )}
+            </button>}
         </div>
       </div>
 
@@ -70,10 +62,9 @@ export const BasketHeader = ({ basket, onShare, onSettings }: BasketHeaderProps)
         </div>
         
         <div className="relative h-3 bg-gray-700 rounded-full overflow-hidden">
-          <div 
-            className="absolute inset-y-0 left-0 bg-gradient-teal-blue rounded-full transition-all duration-700"
-            style={{ width: `${basket.progress}%` }}
-          >
+          <div className="absolute inset-y-0 left-0 bg-gradient-teal-blue rounded-full transition-all duration-700" style={{
+          width: `${basket.progress}%`
+        }}>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
           </div>
         </div>
@@ -86,6 +77,5 @@ export const BasketHeader = ({ basket, onShare, onSettings }: BasketHeaderProps)
           </div>
         </div>
       </div>
-    </GlassCard>
-  );
+    </GlassCard>;
 };
