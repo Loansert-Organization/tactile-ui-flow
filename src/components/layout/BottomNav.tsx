@@ -1,15 +1,15 @@
 
 import React from 'react';
-import { Home, MessageCircle, Plus, User, Bell } from 'lucide-react';
+import { Home, MessageCircle, Plus, User, Heart } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { usePressFeedback } from '@/hooks/useInteractions';
 
 const navItems = [
   { icon: Home, label: 'Feed', path: '/' },
+  { icon: Heart, label: 'My Baskets', path: '/baskets/mine' },
+  { icon: Plus, label: 'Create', path: '/create/step/1' },
   { icon: MessageCircle, label: 'Chat', path: '/chat' },
-  { icon: Plus, label: 'Create', path: '/create' },
-  { icon: Bell, label: 'Notifications', path: '/notifications' },
   { icon: User, label: 'Profile', path: '/profile' },
 ];
 
@@ -23,7 +23,8 @@ export const BottomNav = () => {
       <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl px-2 py-3 shadow-2xl">
         <div className="flex items-center justify-around">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || 
+              (item.path === '/baskets/mine' && location.pathname.startsWith('/basket/'));
             const Icon = item.icon;
             
             return (

@@ -1,0 +1,125 @@
+
+import React, { useState } from 'react';
+import { Plus, Search, Filter } from 'lucide-react';
+import { GlassCard } from '@/components/ui/glass-card';
+import { GradientButton } from '@/components/ui/gradient-button';
+import { BasketCard } from '@/components/BasketCard';
+import { EmptyState } from '@/components/EmptyState';
+import { useNavigate } from 'react-router-dom';
+
+export const MyBaskets = () => {
+  const [activeTab, setActiveTab] = useState('joined');
+  const navigate = useNavigate();
+
+  // Mock data
+  const joinedBaskets = [
+    {
+      id: '1',
+      name: 'Lakers Championship Ring',
+      description: 'Supporting our team to get that championship ring!',
+      progress: 65,
+      goal: 50000,
+      currentAmount: 32500,
+      participants: 47
+    },
+    {
+      id: '2',
+      name: 'Manchester United Jersey',
+      description: 'Getting the new season jersey for the whole squad',
+      progress: 80,
+      goal: 25000,
+      currentAmount: 20000,
+      participants: 23
+    }
+  ];
+
+  const createdBaskets = [
+    {
+      id: '3',
+      name: 'Warriors Watch Party',
+      description: 'Organizing the ultimate Warriors championship watch party',
+      progress: 45,
+      goal: 15000,
+      currentAmount: 6750,
+      participants: 12
+    }
+  ];
+
+  const baskets = activeTab === 'joined' ? joinedBaskets : createdBaskets;
+
+  return (
+    <div className="min-h-screen pb-24">
+      {/* Header */}
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold gradient-text">My Baskets</h1>
+          <div className="flex gap-2">
+            <button className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+              <Search className="w-5 h-5" />
+            </button>
+            <button className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+              <Filter className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <GlassCard className="p-1 mb-6">
+          <div className="grid grid-cols-2 gap-1">
+            <button
+              onClick={() => setActiveTab('joined')}
+              className={`py-3 px-4 rounded-lg font-medium transition-all ${
+                activeTab === 'joined'
+                  ? 'bg-gradient-magenta-orange text-white shadow-lg'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Joined ({joinedBaskets.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('created')}
+              className={`py-3 px-4 rounded-lg font-medium transition-all ${
+                activeTab === 'created'
+                  ? 'bg-gradient-magenta-orange text-white shadow-lg'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Created ({createdBaskets.length})
+            </button>
+          </div>
+        </GlassCard>
+
+        {/* Create New Basket Button */}
+        <GradientButton
+          variant="primary"
+          className="w-full mb-6 flex items-center justify-center gap-2"
+          onClick={() => navigate('/create/step/1')}
+        >
+          <Plus className="w-5 h-5" />
+          Create New Basket
+        </GradientButton>
+      </div>
+
+      {/* Baskets List */}
+      <div className="px-6 space-y-4">
+        {baskets.length > 0 ? (
+          baskets.map((basket) => (
+            <BasketCard key={basket.id} {...basket} />
+          ))
+        ) : (
+          <EmptyState
+            title={activeTab === 'joined' ? "No Baskets Joined" : "No Baskets Created"}
+            description={
+              activeTab === 'joined'
+                ? "Join your first basket by entering a code or browsing public baskets"
+                : "Create your first basket to start collecting funds for your goal"
+            }
+            actionLabel={activeTab === 'joined' ? "Browse Public Baskets" : "Create Basket"}
+            onAction={() => navigate(activeTab === 'joined' ? '/' : '/create/step/1')}
+            icon={<Plus className="w-8 h-8" />}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
