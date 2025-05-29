@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Lock, Users, Target, Check } from 'lucide-react';
+import { Lock, Users, Target, Check, Plus, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
@@ -190,16 +191,14 @@ export const BasketCard = ({
                 loading={isCurrentlyJoining}
                 disabled={isJoined}
                 style={{ minHeight: '44px' }}
+                aria-label={isJoined ? 'Joined' : isMember ? 'Contribute More' : 'Join Basket'}
               >
                 {isJoined ? (
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4" />
-                    <span>Joined!</span>
-                  </div>
+                  <Check className="w-5 h-5" />
                 ) : isMember ? (
-                  'Contribute More'
+                  <Plus className="w-5 h-5" />
                 ) : (
-                  'Join Basket'
+                  <Plus className="w-5 h-5" />
                 )}
               </GradientButton>
 
@@ -210,8 +209,9 @@ export const BasketCard = ({
                 className="flex-1" 
                 onClick={handleSecondaryAction}
                 style={{ minHeight: '44px' }}
+                aria-label={isMember ? 'View Members' : 'View Details'}
               >
-                {isMember ? 'View Members' : 'View Details'}
+                <Eye className="w-5 h-5" />
               </GradientButton>
             </div>
           )}
