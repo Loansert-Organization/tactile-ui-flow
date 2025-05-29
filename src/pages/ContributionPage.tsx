@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Phone } from 'lucide-react';
@@ -97,7 +98,6 @@ export const ContributionPage = () => {
                   className="w-full pl-14 pr-4 py-4 text-lg rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                 />
               </div>
-              <p className="text-xs text-gray-400 mt-2">Minimum contribution: RWF 1,000</p>
             </div>
 
             <div>
