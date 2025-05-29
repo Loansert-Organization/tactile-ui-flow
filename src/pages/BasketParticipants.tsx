@@ -36,7 +36,7 @@ export const BasketParticipants = () => {
       <div className="p-6">
         <div className="flex items-center mb-6">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(`/basket/${id}`)}
             className="p-2 rounded-lg hover:bg-white/10 transition-colors mr-4"
           >
             <ArrowLeft className="w-6 h-6" />

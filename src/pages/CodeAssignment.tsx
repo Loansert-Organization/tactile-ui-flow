@@ -25,7 +25,7 @@ export const CodeAssignment = () => {
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-purple-900 via-blue-900 to-teal-900">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold gradient-text mb-2">Welcome!</h1>
+          <h1 className="text-3xl font-bold gradient-text">Welcome!</h1>
           <p className="text-gray-300">Here's your unique identification code</p>
         </div>
 
