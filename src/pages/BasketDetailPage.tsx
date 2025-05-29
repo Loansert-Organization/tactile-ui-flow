@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -17,7 +18,9 @@ import {
   AlertCircle,
   RefreshCcw,
   Lock,
-  Globe
+  Globe,
+  CheckCircle,
+  Loader2
 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
@@ -58,9 +61,10 @@ interface BasketData {
   isCreator: boolean;
   members: Member[];
   contributions: Contribution[];
+  status: 'pending' | 'approved' | 'private';
 }
 
-// Dummy data
+// Dummy data with status
 const getDummyBasketData = (type: 'private' | 'public'): BasketData => ({
   id: '1',
   name: 'Team Championship Fund',
@@ -71,6 +75,7 @@ const getDummyBasketData = (type: 'private' | 'public'): BasketData => ({
   progress: 65,
   daysLeft: 15,
   isCreator: true,
+  status: type === 'private' ? 'private' : Math.random() > 0.5 ? 'pending' : 'approved',
   members: [
     { id: '1', code: '123456', phone: '0788123456', hidePhone: false, isCurrentUser: true },
     { id: '2', code: '789012', phone: '0788654321', hidePhone: true },
@@ -86,6 +91,32 @@ const getDummyBasketData = (type: 'private' | 'public'): BasketData => ({
     { id: '5', memberCode: '567890', amount: 50000, timestamp: new Date(Date.now() - 432000000) },
   ]
 });
+
+const StatusBanner = ({ status }: { status: 'pending' | 'approved' | 'private' }) => {
+  if (status === 'private') return null;
+
+  return (
+    <div className={`p-4 mx-4 mt-4 rounded-lg border ${
+      status === 'pending' 
+        ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-300' 
+        : 'bg-green-500/10 border-green-500/20 text-green-300'
+    }`}>
+      <div className="flex items-center gap-2 text-sm font-medium">
+        {status === 'pending' ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>🔄 This basket is pending review.</span>
+          </>
+        ) : (
+          <>
+            <CheckCircle className="w-4 h-4" />
+            <span>✅ This basket is live!</span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const BasketDetailPage = () => {
   const { id } = useParams();
@@ -125,6 +156,17 @@ const BasketDetailPage = () => {
     loadBasketData();
   }, [id]);
 
+  // Auto-approve pending baskets after 5 seconds
+  useEffect(() => {
+    if (basketData?.status === 'pending') {
+      const timer = setTimeout(() => {
+        setBasketData(prev => prev ? { ...prev, status: 'approved' } : null);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [basketData?.status]);
+
   // Handlers
   const handleBack = () => navigate(-1);
   
@@ -147,7 +189,6 @@ const BasketDetailPage = () => {
 
   const handleTogglePhoneVisibility = (newValue: boolean) => {
     setHideMyPhone(newValue);
-    // In real app, this would update the backend
     toast({
       title: newValue ? "Phone Hidden" : "Phone Visible",
       description: newValue ? "Your phone number is now hidden from other members" : "Your phone number is now visible to other members",
@@ -160,7 +201,6 @@ const BasketDetailPage = () => {
 
   const handleRetry = () => {
     setError(null);
-    // Reload data
     window.location.reload();
   };
 
@@ -248,6 +288,9 @@ const BasketDetailPage = () => {
             </div>
           </div>
         </header>
+
+        {/* Status Banner */}
+        <StatusBanner status={basketData.status} />
 
         <div className="p-4 space-y-6">
           {/* Basket Info */}

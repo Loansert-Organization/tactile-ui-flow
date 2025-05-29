@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, Users, Lock, Eye, Share2, X, Upload, Camera } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Users, Lock, Eye, Share2, X, Upload, Camera, Loader2 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -60,49 +60,54 @@ const CreateBasketWizard = () => {
   };
 
   const handleComplete = () => {
-    // Enhanced confetti effect
-    const triggerConfetti = () => {
-      const colors = ['#ff006e', '#ff8500', '#06ffa5', '#0099ff', '#8b5cf6', '#ec4899'];
-      const confettiContainer = document.createElement('div');
-      confettiContainer.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        pointer-events: none;
-        z-index: 1000;
-      `;
-      document.body.appendChild(confettiContainer);
+    if (basketData.privacy === 'public') {
+      // Show pending review screen instead of confetti
+      navigate('/create/step/4');
+    } else {
+      // Enhanced confetti effect for private baskets
+      const triggerConfetti = () => {
+        const colors = ['#ff006e', '#ff8500', '#06ffa5', '#0099ff', '#8b5cf6', '#ec4899'];
+        const confettiContainer = document.createElement('div');
+        confettiContainer.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          pointer-events: none;
+          z-index: 1000;
+        `;
+        document.body.appendChild(confettiContainer);
 
-      for (let i = 0; i < 80; i++) {
-        setTimeout(() => {
-          const confettiPiece = document.createElement('div');
-          confettiPiece.style.cssText = `
-            position: absolute;
-            width: ${Math.random() * 8 + 6}px;
-            height: ${Math.random() * 8 + 6}px;
-            background: ${colors[Math.floor(Math.random() * colors.length)]};
-            top: -20px;
-            left: ${Math.random() * 100}vw;
-            border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
-            animation: enhanced-confetti-fall ${2 + Math.random() * 2}s ease-out forwards;
-            transform: rotate(${Math.random() * 360}deg);
-          `;
-          confettiContainer.appendChild(confettiPiece);
-          setTimeout(() => confettiPiece.remove(), 4000);
-        }, i * 30);
-      }
+        for (let i = 0; i < 80; i++) {
+          setTimeout(() => {
+            const confettiPiece = document.createElement('div');
+            confettiPiece.style.cssText = `
+              position: absolute;
+              width: ${Math.random() * 8 + 6}px;
+              height: ${Math.random() * 8 + 6}px;
+              background: ${colors[Math.floor(Math.random() * colors.length)]};
+              top: -20px;
+              left: ${Math.random() * 100}vw;
+              border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+              animation: enhanced-confetti-fall ${2 + Math.random() * 2}s ease-out forwards;
+              transform: rotate(${Math.random() * 360}deg);
+            `;
+            confettiContainer.appendChild(confettiPiece);
+            setTimeout(() => confettiPiece.remove(), 4000);
+          }, i * 30);
+        }
 
-      setTimeout(() => confettiContainer.remove(), 5000);
-    };
+        setTimeout(() => confettiContainer.remove(), 5000);
+      };
 
-    triggerConfetti();
-    toast.success('🎉 Basket created successfully!', {
-      description: 'Your savings group is ready to go!',
-      duration: 4000,
-    });
-    navigate('/create/step/4');
+      triggerConfetti();
+      toast.success('🎉 Basket created successfully!', {
+        description: 'Your savings group is ready to go!',
+        duration: 4000,
+      });
+      navigate('/create/step/5');
+    }
   };
 
   return (
@@ -146,6 +151,13 @@ const CreateBasketWizard = () => {
         } />
         <Route path="/step/4" element={
           <Step4 
+            basketData={basketData}
+            onBack={() => navigate('/baskets/mine')}
+            handlePress={handlePress}
+          />
+        } />
+        <Route path="/step/5" element={
+          <Step5 
             basketData={basketData}
             onBack={() => navigate('/baskets/mine')}
             handlePress={handlePress}
@@ -327,16 +339,75 @@ const CoachMarkOverlay = ({ onDismiss }: { onDismiss: () => void }) => (
   </div>
 );
 
-// Step 1: Basic Info with Image Upload
+// Character Counter Component
+const CharacterCounter = ({ current, max, error }: { current: number; max: number; error?: boolean }) => (
+  <div className={`text-xs mt-1 ${error ? 'text-red-400' : 'text-gray-400'}`}>
+    {current}/{max}
+  </div>
+);
+
+// Step 1: Basic Info with Character Limits
 const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: StepProps) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const NAME_MAX = 50;
+  const DESCRIPTION_MAX = 200;
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!basketData.name.trim()) newErrors.name = 'Basket name is required';
-    if (!basketData.goal.trim()) newErrors.goal = 'Goal amount is required';
+    
+    if (!basketData.name.trim()) {
+      newErrors.name = 'Basket name is required';
+    } else if (basketData.name.length > NAME_MAX) {
+      newErrors.name = `Max ${NAME_MAX} characters`;
+    }
+    
+    if (basketData.description.length > DESCRIPTION_MAX) {
+      newErrors.description = `Max ${DESCRIPTION_MAX} characters`;
+    }
+    
+    if (!basketData.goal.trim()) {
+      newErrors.goal = 'Goal amount is required';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const validateField = (field: string) => {
+    const newErrors = { ...errors };
+    
+    if (field === 'name') {
+      if (!basketData.name.trim()) {
+        newErrors.name = 'Basket name is required';
+      } else if (basketData.name.length > NAME_MAX) {
+        newErrors.name = `Max ${NAME_MAX} characters`;
+      } else {
+        delete newErrors.name;
+      }
+    }
+    
+    if (field === 'description') {
+      if (basketData.description.length > DESCRIPTION_MAX) {
+        newErrors.description = `Max ${DESCRIPTION_MAX} characters`;
+      } else {
+        delete newErrors.description;
+      }
+    }
+    
+    setErrors(newErrors);
+  };
+
+  const handleInputChange = (field: keyof BasketData, value: string) => {
+    updateBasketData?.(field, value);
+    setTouched(prev => ({ ...prev, [field]: true }));
+    validateField(field);
+  };
+
+  const handleBlur = (field: string) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    validateField(field);
   };
 
   const handleNext = () => {
@@ -358,9 +429,7 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
   };
 
   const formatNumber = (value: string) => {
-    // Remove all non-digits
     const cleanValue = value.replace(/\D/g, '');
-    // Add commas for thousands
     return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
@@ -369,6 +438,10 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
     const formattedValue = formatNumber(value);
     updateBasketData?.('goal', formattedValue);
   };
+
+  const isNameError = basketData.name.length > NAME_MAX;
+  const isDescError = basketData.description.length > DESCRIPTION_MAX;
+  const canProceed = basketData.name.trim() && basketData.goal.trim() && !isNameError && !isDescError;
 
   return (
     <div className="wizard-step">
@@ -409,7 +482,6 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
                         )}
                       </AvatarFallback>
                     </Avatar>
-                    {/* Edit icon overlay */}
                     <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-r from-pink-500 to-orange-500 rounded-full flex items-center justify-center border-2 border-white/20 group-hover:scale-110 transition-transform">
                       <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -425,14 +497,21 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
                 </label>
                 <Input
                   value={basketData.name}
-                  onChange={(e) => updateBasketData?.('name', e.target.value)}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  onBlur={() => handleBlur('name')}
                   placeholder="Enter basket name..."
                   className={`glass-input text-white placeholder:text-gray-400 ${
                     errors.name ? 'border-red-500 animate-[shake_0.3s_ease-in-out]' : ''
                   }`}
+                  maxLength={NAME_MAX + 10} // Allow typing over limit for better UX
+                />
+                <CharacterCounter 
+                  current={basketData.name.length} 
+                  max={NAME_MAX} 
+                  error={isNameError}
                 />
                 {errors.name && (
-                  <p className="text-red-400 text-xs mt-1 bg-gradient-to-r from-red-400 to-pink-400 bg-clip-text text-transparent">
+                  <p className="text-red-400 text-xs mt-1">
                     {errors.name}
                   </p>
                 )}
@@ -444,11 +523,25 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
                 </label>
                 <Textarea
                   value={basketData.description}
-                  onChange={(e) => updateBasketData?.('description', e.target.value)}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  onBlur={() => handleBlur('description')}
                   placeholder="Describe your savings goal..."
-                  className="glass-input text-white placeholder:text-gray-400 resize-none"
+                  className={`glass-input text-white placeholder:text-gray-400 resize-none ${
+                    errors.description ? 'border-red-500 animate-[shake_0.3s_ease-in-out]' : ''
+                  }`}
                   rows={3}
+                  maxLength={DESCRIPTION_MAX + 20}
                 />
+                <CharacterCounter 
+                  current={basketData.description.length} 
+                  max={DESCRIPTION_MAX} 
+                  error={isDescError}
+                />
+                {errors.description && (
+                  <p className="text-red-400 text-xs mt-1">
+                    {errors.description}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -465,7 +558,7 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
                   }`}
                 />
                 {errors.goal && (
-                  <p className="text-red-400 text-xs mt-1 bg-gradient-to-r from-red-400 to-pink-400 bg-clip-text text-transparent">
+                  <p className="text-red-400 text-xs mt-1">
                     {errors.goal}
                   </p>
                 )}
@@ -474,7 +567,7 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
               <Button 
                 onClick={(e) => { handlePress(e); handleNext(); }}
                 className="w-full bg-gradient-to-r from-pink-500 to-orange-500 neuro-button text-white font-semibold py-3 text-base"
-                disabled={!basketData.name.trim() || !basketData.goal.trim()}
+                disabled={!canProceed}
               >
                 Next <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -707,28 +800,57 @@ const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
   </div>
 );
 
+// Step 4: Pending Review (for public baskets)
 const Step4 = ({ basketData, onBack, handlePress }: StepProps) => {
+  return (
+    <div className="wizard-step">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <GlassCard className="max-w-md mx-auto p-8 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-orange-500/10" />
+          
+          <div className="relative text-center space-y-6">
+            <div className="w-20 h-20 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto neuro-button">
+              <Loader2 className="w-10 h-10 text-yellow-400 animate-spin" />
+            </div>
+
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent mb-2">
+                Pending Review
+              </h1>
+              <p className="text-gray-400">Your public basket is under review. You'll be notified when it's approved.</p>
+            </div>
+
+            <div className="space-y-3">
+              <Button
+                onClick={(e) => { handlePress(e); onBack(); }}
+                className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 neuro-button text-white font-semibold py-3 text-base"
+              >
+                View My Baskets
+              </Button>
+            </div>
+          </div>
+        </GlassCard>
+      </div>
+    </div>
+  );
+};
+
+// Step 5: Success (for private baskets)
+const Step5 = ({ basketData, onBack, handlePress }: StepProps) => {
   const shareBasket = () => {
-    const basketUrl = `${window.location.origin}/basket/1`; // Use actual basket ID in production
+    const basketUrl = `${window.location.origin}/basket/1`;
     const message = `Hey! Join my Basket "${basketData.name}" and add your support via MOMO: ${basketUrl}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     
-    console.log('Sharing basket via WhatsApp');
-    console.log('Basket name:', basketData.name);
-    console.log('WhatsApp URL:', whatsappUrl);
-    
-    // Show opening toast
     toast.success('📱 Opening WhatsApp…', {
       description: 'Redirecting to WhatsApp to share your basket',
       duration: 2000,
     });
 
     try {
-      // Try to open WhatsApp
       const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
       
       if (!opened || opened.closed || typeof opened.closed == 'undefined') {
-        // Fallback: try location.href
         window.location.href = whatsappUrl;
       }
     } catch (error) {
