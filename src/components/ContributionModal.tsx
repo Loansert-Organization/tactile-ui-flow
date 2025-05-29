@@ -21,8 +21,8 @@ export const ContributionModal = ({
   const [amount, setAmount] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   
-  // Static placeholder phone number for UI purposes
-  const phoneNumber = '0788787878';
+  // Phone number set by basket creator - not editable
+  const basketCreatorPhone = '0788787878';
 
   if (!isOpen) return null;
 
@@ -98,12 +98,12 @@ export const ContributionModal = ({
             <div className="relative">
               <input 
                 type="text" 
-                value={phoneNumber} 
+                value={basketCreatorPhone} 
                 readOnly
                 className="w-full px-4 py-3 rounded-lg bg-gray-100/10 border border-white/10 text-gray-400 cursor-not-allowed" 
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1">Using saved profile number</p>
+            <p className="text-xs text-gray-400 mt-1">Set by basket creator</p>
           </div>
 
           <div className="flex gap-3 pt-4">

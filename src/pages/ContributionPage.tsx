@@ -10,17 +10,30 @@ export const ContributionPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [amount, setAmount] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Mock basket data - in real app this would come from props or API
   const basketName = 'Lakers Championship Ring Fund';
+  const basketCreatorPhone = '0788787878'; // Set by basket creator
+
+  const formatNumber = (value: string) => {
+    // Remove all non-digits
+    const cleanValue = value.replace(/\D/g, '');
+    // Add commas for thousands
+    return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const formattedValue = formatNumber(value);
+    setAmount(formattedValue);
+  };
 
   const handleContribute = async () => {
-    if (!amount || !phoneNumber) {
+    if (!amount) {
       toast({
         title: "Missing Information",
-        description: "Please enter both amount and phone number",
+        description: "Please enter the amount",
         variant: "destructive"
       });
       return;
@@ -37,13 +50,14 @@ export const ContributionPage = () => {
     // Simulate payment processing
     setTimeout(() => {
       setIsProcessing(false);
+      // Remove commas before converting to number for display
+      const numericAmount = Number(amount.replace(/,/g, ''));
       toast({
         title: "Payment Successful!",
-        description: `Successfully contributed RWF ${amount} to ${basketName}`,
+        description: `Successfully contributed RWF ${numericAmount.toLocaleString()} to ${basketName}`,
       });
       navigate(`/basket/${id}`);
       setAmount('');
-      setPhoneNumber('');
     }, 3000);
   };
 
@@ -78,10 +92,10 @@ export const ContributionPage = () => {
               <div className="relative">
                 <CreditCard className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
                 <input
-                  type="number"
+                  type="text"
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Enter amount"
+                  onChange={handleAmountChange}
+                  placeholder="1,000"
                   className="w-full pl-14 pr-4 py-4 text-lg rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                 />
               </div>
@@ -89,28 +103,17 @@ export const ContributionPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-3 text-gray-300">Phone Number</label>
+              <label className="block text-sm font-medium mb-3 text-gray-300">Payment Number</label>
               <div className="relative">
                 <Phone className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
                 <input
                   type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="078XXXXXXX"
-                  className="w-full pl-14 pr-4 py-4 text-lg rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                  value={basketCreatorPhone}
+                  readOnly
+                  className="w-full pl-14 pr-4 py-4 text-lg rounded-lg bg-gray-100/10 border border-white/10 text-gray-400 cursor-not-allowed"
                 />
               </div>
-              <p className="text-xs text-gray-400 mt-2">Enter your Mobile Money number</p>
-            </div>
-
-            {/* Payment Info */}
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-              <h3 className="font-semibold text-blue-300 mb-2">Payment Process</h3>
-              <div className="space-y-2 text-sm text-blue-300">
-                <p>• A USSD prompt will be sent to your phone</p>
-                <p>• Complete the payment via Mobile Money</p>
-                <p>• Your contribution will be added to the basket</p>
-              </div>
+              <p className="text-xs text-gray-400 mt-2">Set by basket creator</p>
             </div>
 
             {/* Action Buttons */}
@@ -120,7 +123,7 @@ export const ContributionPage = () => {
                 className="w-full py-4 text-lg"
                 onClick={handleContribute}
                 loading={isProcessing}
-                disabled={!amount || !phoneNumber}
+                disabled={!amount}
               >
                 {isProcessing ? 'Processing Payment...' : 'Pay with Mobile Money'}
               </GradientButton>
