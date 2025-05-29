@@ -1,11 +1,13 @@
 
 import React from 'react';
-import { Menu, Share2, Settings } from 'lucide-react';
+import { Menu, Share2, Plus } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { usePressFeedback } from '@/hooks/useInteractions';
+import { useNavigate } from 'react-router-dom';
 
 export const AppHeader = () => {
   const { handlePress } = usePressFeedback();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -30,11 +32,14 @@ export const AppHeader = () => {
               <Share2 className="w-5 h-5" />
             </button>
             <button
-              onClick={handlePress}
+              onClick={(e) => {
+                handlePress(e);
+                navigate('/create/step/1');
+              }}
               className="p-2 rounded-lg hover:bg-white/10 transition-colors focus-gradient"
-              aria-label="Settings"
+              aria-label="Create Basket"
             >
-              <Settings className="w-5 h-5" />
+              <Plus className="w-5 h-5" />
             </button>
           </div>
         </div>
