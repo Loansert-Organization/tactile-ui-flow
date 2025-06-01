@@ -82,6 +82,7 @@ function App() {
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/baskets" element={<MyBaskets />} />
+                      <Route path="/baskets/mine" element={<MyBaskets />} />
                       <Route path="/feed" element={<Feed />} />
                       <Route path="/chat" element={<Chat />} />
                       <Route path="/basket/:id" element={<BasketDetailPage />} />
@@ -91,6 +92,7 @@ function App() {
                       <Route path="/basket/:id/settings" element={<BasketSettings />} />
                       <Route path="/basket/:id/contribute" element={<ContributionPage />} />
                       <Route path="/create-basket" element={<CreateBasketWizard />} />
+                      <Route path="/create/step/1" element={<CreateBasketWizard />} />
                       <Route path="/getting-started" element={<GettingStarted />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
