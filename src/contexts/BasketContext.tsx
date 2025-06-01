@@ -1,128 +1,100 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
-interface Basket {
+export interface Basket {
   id: string;
   name: string;
   description: string;
+  privacy: 'public' | 'private';
+  createdByAdmin: boolean; // New field to distinguish admin vs user baskets
+  progress: number;
   goal: number;
   currentAmount: number;
-  progress: number;
   participants: number;
   daysLeft: number;
   isMember: boolean;
   myContribution: number;
-  isPrivate?: boolean;
 }
 
 interface BasketContextType {
   baskets: Basket[];
-  joinBasket: (basketId: string) => void;
-  getBasket: (basketId: string) => Basket | undefined;
   getNonMemberBaskets: () => Basket[];
-  getMemberBaskets: () => Basket[];
+  joinBasket: (basketId: string) => void;
 }
 
 const BasketContext = createContext<BasketContextType | undefined>(undefined);
 
-const dummyBaskets: Basket[] = [
+// Updated dummy data with admin flag
+const initialBaskets: Basket[] = [
+  // Admin-created public basket (shows in feed)
   {
     id: '1',
-    name: 'Arsenal Season Tickets',
-    description: 'Pooling together to get season tickets for the Emirates Stadium. Join us for every home game!',
+    name: 'Community Sports Equipment',
+    description: 'Funding sports equipment for our local community center',
+    privacy: 'public',
+    createdByAdmin: true, // Admin-created, shows in feed
     progress: 75,
-    goal: 2000000,
-    currentAmount: 1500000,
-    participants: 12,
-    daysLeft: 15,
+    goal: 100000,
+    currentAmount: 75000,
+    participants: 45,
+    daysLeft: 12,
     isMember: false,
     myContribution: 0,
-    isPrivate: false
   },
+  // User-created private basket (doesn't show in feed)
   {
     id: '2',
-    name: 'Weekend Getaway Fund',
-    description: 'Saving up for an amazing weekend trip to Lake Kivu. Beautiful views and great memories await!',
-    progress: 45,
-    goal: 500000,
-    currentAmount: 225000,
-    participants: 8,
-    daysLeft: 22,
+    name: 'Team Jersey Fund',
+    description: 'Getting new jerseys for our football team',
+    privacy: 'private',
+    createdByAdmin: false, // User-created, won't show in feed
+    progress: 60,
+    goal: 50000,
+    currentAmount: 30000,
+    participants: 15,
+    daysLeft: 8,
     isMember: false,
     myContribution: 0,
-    isPrivate: false
   },
-  {
-    id: '3',
-    name: 'Lakers Championship Ring',
-    description: 'Supporting our team to get that championship ring!',
-    progress: 65,
-    goal: 50000,
-    currentAmount: 32500,
-    participants: 47,
-    daysLeft: 10,
-    isMember: true,
-    myContribution: 15000,
-    isPrivate: false
-  },
-  {
-    id: '4',
-    name: 'Manchester United Jersey',
-    description: 'Getting the new season jersey for the whole squad',
-    progress: 80,
-    goal: 25000,
-    currentAmount: 20000,
-    participants: 23,
-    daysLeft: 5,
-    isMember: true,
-    myContribution: 5000,
-    isPrivate: false
-  },
+  // Another admin-created public basket
   {
     id: '5',
-    name: 'Community Garden Project',
-    description: 'Building a sustainable community garden in Kimisagara. Growing together, thriving together.',
-    progress: 30,
-    goal: 800000,
-    currentAmount: 240000,
-    participants: 24,
-    daysLeft: 30,
+    name: 'School Library Renovation',
+    description: 'Renovating our community school library with new books and computers',
+    privacy: 'public',
+    createdByAdmin: true, // Admin-created, shows in feed
+    progress: 40,
+    goal: 200000,
+    currentAmount: 80000,
+    participants: 68,
+    daysLeft: 25,
     isMember: false,
     myContribution: 0,
-    isPrivate: false
-  }
+  },
 ];
 
-export const BasketProvider = ({ children }: { children: ReactNode }) => {
-  const [baskets, setBaskets] = useState<Basket[]>(dummyBaskets);
-
-  const joinBasket = (basketId: string) => {
-    setBaskets(prev => prev.map(basket => 
-      basket.id === basketId 
-        ? { ...basket, isMember: true, myContribution: 10000, participants: basket.participants + 1 }
-        : basket
-    ));
-  };
-
-  const getBasket = (basketId: string) => {
-    return baskets.find(basket => basket.id === basketId);
-  };
+export const BasketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [baskets, setBaskets] = useState<Basket[]>(initialBaskets);
 
   const getNonMemberBaskets = () => {
     return baskets.filter(basket => !basket.isMember);
   };
 
-  const getMemberBaskets = () => {
-    return baskets.filter(basket => basket.isMember);
+  const joinBasket = (basketId: string) => {
+    setBaskets(prev => 
+      prev.map(basket => 
+        basket.id === basketId 
+          ? { ...basket, isMember: true, participants: basket.participants + 1 }
+          : basket
+      )
+    );
   };
 
   return (
     <BasketContext.Provider value={{
       baskets,
-      joinBasket,
-      getBasket,
       getNonMemberBaskets,
-      getMemberBaskets
+      joinBasket
     }}>
       {children}
     </BasketContext.Provider>

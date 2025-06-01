@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -60,6 +61,7 @@ interface BasketData {
   isCreator: boolean;
   creatorId: string;
   privacy: 'private' | 'public';
+  createdByAdmin: boolean; // New field
   members: Member[];
   contributions: Contribution[];
   status: 'pending' | 'approved' | 'private';
@@ -71,7 +73,10 @@ const currentUser = {
   code: '123456'
 };
 
-// Dummy data with status
+// Simulate direct link access
+const isDirectLink = true; // In real app, this would be determined by how user accessed the page
+
+// Dummy data with admin flag
 const getDummyBasketData = (type: 'private' | 'public'): BasketData => ({
   id: '1',
   name: 'Team Championship Fund',
@@ -81,9 +86,10 @@ const getDummyBasketData = (type: 'private' | 'public'): BasketData => ({
   currentAmount: 325000,
   progress: 65,
   daysLeft: 15,
-  isCreator: Math.random() > 0.5, // Randomly assign creator status for testing
-  creatorId: Math.random() > 0.5 ? 'user123' : 'creator456', // Sometimes current user is creator
+  isCreator: Math.random() > 0.5,
+  creatorId: Math.random() > 0.5 ? 'user123' : 'creator456',
   privacy: type,
+  createdByAdmin: type === 'public', // Public baskets are admin-created
   status: type === 'private' ? 'private' : Math.random() > 0.5 ? 'pending' : 'approved',
   members: [
     { id: '1', code: '123456', phone: '0788123456', hidePhone: false, isCurrentUser: true },
@@ -152,6 +158,12 @@ const BasketDetailPage = () => {
         // Determine basket type based on URL or other logic
         const basketType = Math.random() > 0.5 ? 'private' : 'public';
         const data = getDummyBasketData(basketType);
+        
+        // Check access for private baskets
+        if (data.privacy === 'private' && !data.createdByAdmin && !isDirectLink) {
+          setError('Basket not found or private');
+          return;
+        }
         
         setBasketData(data);
         setHideMyPhone(data.members.find(m => m.isCurrentUser)?.hidePhone || false);
@@ -244,17 +256,24 @@ const BasketDetailPage = () => {
     );
   }
 
-  // Error state
+  // Error state (including private basket access)
   if (error || !basketData) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <GlassCard className="p-8 text-center max-w-sm">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Something went wrong</h3>
-          <p className="text-gray-400 mb-6">{error}</p>
+          <h3 className="text-lg font-semibold mb-2">
+            {error === 'Basket not found or private' ? 'Basket Not Found' : 'Something went wrong'}
+          </h3>
+          <p className="text-gray-400 mb-6">
+            {error === 'Basket not found or private' 
+              ? 'This basket is private or does not exist. You need a direct link to access it.'
+              : error
+            }
+          </p>
           <GradientButton onClick={handleRetry} className="w-full">
             <RefreshCcw className="w-4 h-4 mr-2" />
-            Try Again
+            {error === 'Basket not found or private' ? 'Go Back' : 'Try Again'}
           </GradientButton>
         </GlassCard>
       </div>

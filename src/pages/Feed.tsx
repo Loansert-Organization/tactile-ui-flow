@@ -15,7 +15,7 @@ import { useRenderPerformance } from '@/hooks/usePerformanceMonitor';
 export const Feed = () => {
   const [refreshing, setRefreshing] = useState(false);
   const { isLoading, error, executeWithLoading, retry } = useLoadingState({
-    minimumDuration: 800 // Ensure skeleton shows for at least 800ms
+    minimumDuration: 800
   });
   
   const { getNonMemberBaskets } = useBaskets();
@@ -28,10 +28,13 @@ export const Feed = () => {
     () => handleRefresh()
   );
 
-  // Filter out baskets that user has already joined
-  const availableBaskets = getNonMemberBaskets().filter(
-    basket => !myBaskets.some(myBasket => myBasket.id === basket.id)
-  );
+  // Only show admin-created public baskets that the user hasn't joined
+  const availableBaskets = getNonMemberBaskets()
+    .filter(basket => 
+      basket.privacy === 'public' && 
+      basket.createdByAdmin === true && 
+      !myBaskets.some(myBasket => myBasket.id === basket.id)
+    );
 
   const loadBaskets = async () => {
     // Simulate API call with realistic timing
@@ -113,7 +116,7 @@ export const Feed = () => {
     return (
       <div className="p-4">
         <EmptyState
-          title="No Public Baskets"
+          title="No Public Baskets Available"
           description="There are no public baskets available to join at the moment. Check back later!"
           actionLabel="Refresh"
           onAction={handleRefresh}
@@ -141,8 +144,8 @@ export const Feed = () => {
 
       {/* Feed header */}
       <div className="text-center py-4">
-        <h2 className="text-2xl font-bold gradient-text mb-2">Discover Baskets</h2>
-        <p className="text-gray-400">Join community funding initiatives</p>
+        <h2 className="text-2xl font-bold gradient-text mb-2">Discover Public Baskets</h2>
+        <p className="text-gray-400">Join official community funding initiatives</p>
       </div>
 
       {/* ARIA live region for announcements */}

@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowLeft, Clock, CheckCircle, Lock } from 'lucide-react';
+import { Plus, ArrowLeft, Lock } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { BasketCard } from '@/components/BasketCard';
@@ -13,52 +14,21 @@ export const MyBaskets = () => {
   const [activeTab, setActiveTab] = useState('joined');
   const navigate = useNavigate();
   const { handlePress } = usePressFeedback();
-  const { myBaskets, updateBasketStatus } = useMyBasketsContext();
+  const { myBaskets } = useMyBasketsContext();
 
-  // Auto-approve pending baskets after 5 seconds for demo
-  useEffect(() => {
-    const pendingBaskets = myBaskets.filter(basket => basket.status === 'pending');
-    
-    if (pendingBaskets.length > 0) {
-      const timer = setTimeout(() => {
-        pendingBaskets.forEach(basket => {
-          updateBasketStatus(basket.id, 'approved');
-        });
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [myBaskets, updateBasketStatus]);
-  
   // For demo purposes, all baskets are "joined" 
   const joinedBaskets = myBaskets;
-  const createdBaskets = myBaskets.filter(basket => basket.status === 'pending' || basket.isPrivate);
+  const createdBaskets = myBaskets.filter(basket => basket.isPrivate);
 
   const baskets = activeTab === 'joined' ? joinedBaskets : createdBaskets;
 
-  const getStatusBadge = (status: 'pending' | 'approved' | 'private') => {
-    switch (status) {
-      case 'pending':
-        return (
-          <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 p-2 rounded-full">
-            <Clock className="w-4 h-4" />
-          </Badge>
-        );
-      case 'approved':
-        return (
-          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 p-2 rounded-full">
-            <CheckCircle className="w-4 h-4" />
-          </Badge>
-        );
-      case 'private':
-        return (
-          <Badge className="bg-blue-500 text-white border-0 p-2 rounded-full">
-            <Lock className="w-4 h-4" />
-          </Badge>
-        );
-      default:
-        return null;
-    }
+  const getStatusBadge = (basket: any) => {
+    // All user-created baskets are private, no pending review needed
+    return (
+      <Badge className="bg-blue-500 text-white border-0 p-2 rounded-full">
+        <Lock className="w-4 h-4" />
+      </Badge>
+    );
   };
 
   return (
@@ -118,7 +88,7 @@ export const MyBaskets = () => {
           style={{ minHeight: '44px' }}
         >
           <Plus className="w-5 h-5" />
-          Create New Basket
+          Create New Private Basket
         </GradientButton>
       </div>
 
@@ -148,7 +118,7 @@ export const MyBaskets = () => {
                 daysLeft={basket.daysLeft}
               />
               <div className="absolute top-2 right-2 z-10">
-                {getStatusBadge(basket.status)}
+                {getStatusBadge(basket)}
               </div>
             </div>
           ))
@@ -158,9 +128,9 @@ export const MyBaskets = () => {
             description={
               activeTab === 'joined'
                 ? "Join your first basket by browsing public baskets on the home screen"
-                : "Create your first basket to start collecting funds for your goal"
+                : "Create your first private basket to start collecting funds for your goal"
             }
-            actionLabel={activeTab === 'joined' ? "Browse Public Baskets" : "Create Basket"}
+            actionLabel={activeTab === 'joined' ? "Browse Public Baskets" : "Create Private Basket"}
             onAction={() => navigate(activeTab === 'joined' ? '/' : '/create/step/1')}
             icon={<Plus className="w-8 h-8" />}
           />

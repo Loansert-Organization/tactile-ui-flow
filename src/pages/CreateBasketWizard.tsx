@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Check, Users, Lock, Eye, Share2, X, Upload, Camera, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Users, Eye, Share2, X, Upload, Camera, Loader2 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +16,7 @@ interface BasketData {
   goal: string;
   frequency: string;
   duration: string;
-  privacy: 'public' | 'private';
+  privacy: 'private'; // Always private for user-created baskets
   anonymity: 'anonymous' | 'named';
   contributionType: 'recurring' | 'one-off';
   profileImage: string | null;
@@ -32,7 +32,7 @@ const CreateBasketWizard = () => {
     goal: '',
     frequency: 'monthly',
     duration: '12',
-    privacy: 'private',
+    privacy: 'private', // Always private for users
     anonymity: 'named',
     contributionType: 'recurring',
     profileImage: null
@@ -60,54 +60,49 @@ const CreateBasketWizard = () => {
   };
 
   const handleComplete = () => {
-    if (basketData.privacy === 'public') {
-      // Show pending review screen instead of confetti
-      navigate('/create/step/4');
-    } else {
-      // Enhanced confetti effect for private baskets
-      const triggerConfetti = () => {
-        const colors = ['#ff006e', '#ff8500', '#06ffa5', '#0099ff', '#8b5cf6', '#ec4899'];
-        const confettiContainer = document.createElement('div');
-        confettiContainer.style.cssText = `
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          pointer-events: none;
-          z-index: 1000;
-        `;
-        document.body.appendChild(confettiContainer);
+    // All user-created baskets are private, so go straight to success
+    const triggerConfetti = () => {
+      const colors = ['#ff006e', '#ff8500', '#06ffa5', '#0099ff', '#8b5cf6', '#ec4899'];
+      const confettiContainer = document.createElement('div');
+      confettiContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 1000;
+      `;
+      document.body.appendChild(confettiContainer);
 
-        for (let i = 0; i < 80; i++) {
-          setTimeout(() => {
-            const confettiPiece = document.createElement('div');
-            confettiPiece.style.cssText = `
-              position: absolute;
-              width: ${Math.random() * 8 + 6}px;
-              height: ${Math.random() * 8 + 6}px;
-              background: ${colors[Math.floor(Math.random() * colors.length)]};
-              top: -20px;
-              left: ${Math.random() * 100}vw;
-              border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
-              animation: enhanced-confetti-fall ${2 + Math.random() * 2}s ease-out forwards;
-              transform: rotate(${Math.random() * 360}deg);
-            `;
-            confettiContainer.appendChild(confettiPiece);
-            setTimeout(() => confettiPiece.remove(), 4000);
-          }, i * 30);
-        }
+      for (let i = 0; i < 80; i++) {
+        setTimeout(() => {
+          const confettiPiece = document.createElement('div');
+          confettiPiece.style.cssText = `
+            position: absolute;
+            width: ${Math.random() * 8 + 6}px;
+            height: ${Math.random() * 8 + 6}px;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            top: -20px;
+            left: ${Math.random() * 100}vw;
+            border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+            animation: enhanced-confetti-fall ${2 + Math.random() * 2}s ease-out forwards;
+            transform: rotate(${Math.random() * 360}deg);
+          `;
+          confettiContainer.appendChild(confettiPiece);
+          setTimeout(() => confettiPiece.remove(), 4000);
+        }, i * 30);
+      }
 
-        setTimeout(() => confettiContainer.remove(), 5000);
-      };
+      setTimeout(() => confettiContainer.remove(), 5000);
+    };
 
-      triggerConfetti();
-      toast.success('🎉 Basket created successfully!', {
-        description: 'Your savings group is ready to go!',
-        duration: 4000,
-      });
-      navigate('/create/step/5');
-    }
+    triggerConfetti();
+    toast.success('🎉 Private basket created successfully!', {
+      description: 'Your private savings group is ready to go!',
+      duration: 4000,
+    });
+    navigate('/create/step/4');
   };
 
   return (
@@ -136,28 +131,12 @@ const CreateBasketWizard = () => {
             basketData={basketData}
             updateBasketData={updateBasketData}
             onBack={() => handleNext('1')}
-            onNext={() => handleNext('3')}
-            handlePress={handlePress}
-          />
-        } />
-        <Route path="/step/3" element={
-          <Step3 
-            basketData={basketData}
-            updateBasketData={updateBasketData}
-            onBack={() => handleNext('2')}
             onNext={handleComplete}
             handlePress={handlePress}
           />
         } />
         <Route path="/step/4" element={
           <Step4 
-            basketData={basketData}
-            onBack={() => navigate('/baskets/mine')}
-            handlePress={handlePress}
-          />
-        } />
-        <Route path="/step/5" element={
-          <Step5 
             basketData={basketData}
             onBack={() => navigate('/baskets/mine')}
             handlePress={handlePress}
@@ -288,14 +267,14 @@ interface StepProps {
   handlePress: (e: React.MouseEvent) => void;
 }
 
-// Enhanced Stepper Component
+// Enhanced Stepper Component - Updated for 2 steps
 const StepperBar = ({ currentStep }: { currentStep: number }) => (
   <div className="text-center mb-8">
     <h1 className="text-xl font-bold mb-4 bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">
-      Create Basket
+      Create Private Basket
     </h1>
     <div className="flex gap-2 justify-center">
-      {[1, 2, 3, 4].map((step) => (
+      {[1, 2].map((step) => (
         <div
           key={step}
           className={`h-2 rounded-full transition-all duration-500 ${
@@ -329,7 +308,7 @@ const CoachMarkOverlay = ({ onDismiss }: { onDismiss: () => void }) => (
         </div>
         <h3 className="text-lg font-semibold gradient-text">Welcome to the Basket Wizard!</h3>
         <p className="text-sm text-gray-300">
-          Follow the steps to create your savings group. Swipe or tap to navigate between steps.
+          Create your private savings group. Only people with the link can join.
         </p>
         <Button onClick={onDismiss} className="w-full neuro-button">
           Got it!
@@ -503,7 +482,7 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
                   className={`glass-input text-white placeholder:text-gray-400 ${
                     errors.name ? 'border-red-500 animate-[shake_0.3s_ease-in-out]' : ''
                   }`}
-                  maxLength={NAME_MAX + 10} // Allow typing over limit for better UX
+                  maxLength={NAME_MAX + 10}
                 />
                 <CharacterCounter 
                   current={basketData.name.length} 
@@ -579,7 +558,7 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
   );
 };
 
-// Step 2: Privacy Settings  
+// Step 2: Contribution Settings (Privacy removed)
 const Step2 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: StepProps) => (
   <div className="wizard-step">
     <GlassCard className="max-w-md mx-auto p-6 mt-20 relative overflow-hidden">
@@ -600,51 +579,12 @@ const Step2 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
         <div className="space-y-6">
           <div className="text-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-3 neuro-button">
-              <Lock className="w-8 h-8 text-purple-300" />
+              <Users className="w-8 h-8 text-purple-300" />
             </div>
             <h2 className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Privacy Settings
+              Contribution Settings
             </h2>
-            <p className="text-gray-400 text-sm mt-1">Choose how your basket will be shared</p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-3 text-gray-200">Basket Visibility</label>
-            <div className="space-y-3">
-              <button
-                onClick={() => updateBasketData?.('privacy', 'private')}
-                className={`w-full p-4 rounded-lg border-2 transition-all neuro-button ${
-                  basketData.privacy === 'private' 
-                    ? 'border-purple-500 bg-purple-500/20 shadow-lg shadow-purple-500/25' 
-                    : 'border-white/20 bg-white/5'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Lock className="w-5 h-5" />
-                  <div className="text-left">
-                    <p className="font-medium">Private</p>
-                    <p className="text-xs text-gray-400">Share via URL link only</p>
-                  </div>
-                </div>
-              </button>
-
-              <button
-                onClick={() => updateBasketData?.('privacy', 'public')}
-                className={`w-full p-4 rounded-lg border-2 transition-all neuro-button ${
-                  basketData.privacy === 'public' 
-                    ? 'border-purple-500 bg-purple-500/20 shadow-lg shadow-purple-500/25' 
-                    : 'border-white/20 bg-white/5'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Users className="w-5 h-5" />
-                  <div className="text-left">
-                    <p className="font-medium">Public</p>
-                    <p className="text-xs text-gray-400">Anyone can discover and join</p>
-                  </div>
-                </div>
-              </button>
-            </div>
+            <p className="text-gray-400 text-sm mt-1">Configure how contributions work</p>
           </div>
 
           <div>
@@ -694,46 +634,6 @@ const Step2 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
               </select>
             </div>
           )}
-
-          <Button 
-            onClick={(e) => { handlePress(e); onNext?.(); }}
-            className="w-full bg-gradient-to-r from-pink-500 to-orange-500 neuro-button text-white font-semibold py-3 text-base"
-          >
-            Next <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
-      </div>
-    </GlassCard>
-  </div>
-);
-
-const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: StepProps) => (
-  <div className="wizard-step">
-    <GlassCard className="max-w-md mx-auto p-6 mt-20 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10" />
-      
-      <div className="relative">
-        <div className="flex items-center justify-between mb-6">
-          <button 
-            onClick={(e) => { handlePress(e); onBack(); }} 
-            className="p-2 rounded-lg hover:bg-white/10 neuro-button"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <StepperBar currentStep={3} />
-          <div className="w-9" />
-        </div>
-
-        <div className="space-y-6">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-pink-500/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3 neuro-button">
-              <Eye className="w-8 h-8 text-orange-300" />
-            </div>
-            <h2 className="text-lg font-semibold bg-gradient-to-r from-pink-400 to-orange-400 bg-clip-text text-transparent">
-              Anonymity Settings
-            </h2>
-            <p className="text-gray-400 text-sm mt-1">Choose how contributions are displayed</p>
-          </div>
 
           <div>
             <label className="block text-sm font-medium mb-3 text-gray-200">Contribution Display</label>
@@ -792,7 +692,7 @@ const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
             className="w-full bg-gradient-to-r from-pink-500 to-orange-500 neuro-button text-white font-semibold py-3 text-base"
             disabled={basketData.contributionType === 'recurring' && !basketData.duration.trim()}
           >
-            Create Basket <Check className="w-4 h-4 ml-2" />
+            Create Private Basket <Check className="w-4 h-4 ml-2" />
           </Button>
         </div>
       </div>
@@ -800,46 +700,11 @@ const Step3 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
   </div>
 );
 
-// Step 4: Pending Review (for public baskets)
+// Step 4: Success (always private now)
 const Step4 = ({ basketData, onBack, handlePress }: StepProps) => {
-  return (
-    <div className="wizard-step">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <GlassCard className="max-w-md mx-auto p-8 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-orange-500/10" />
-          
-          <div className="relative text-center space-y-6">
-            <div className="w-20 h-20 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-full flex items-center justify-center mx-auto neuro-button">
-              <Loader2 className="w-10 h-10 text-yellow-400 animate-spin" />
-            </div>
-
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent mb-2">
-                Pending Review
-              </h1>
-              <p className="text-gray-400">Your public basket is under review. You'll be notified when it's approved.</p>
-            </div>
-
-            <div className="space-y-3">
-              <Button
-                onClick={(e) => { handlePress(e); onBack(); }}
-                className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 neuro-button text-white font-semibold py-3 text-base"
-              >
-                View My Baskets
-              </Button>
-            </div>
-          </div>
-        </GlassCard>
-      </div>
-    </div>
-  );
-};
-
-// Step 5: Success (for private baskets)
-const Step5 = ({ basketData, onBack, handlePress }: StepProps) => {
   const shareBasket = () => {
     const basketUrl = `${window.location.origin}/basket/1`;
-    const message = `Hey! Join my Basket "${basketData.name}" and add your support via MOMO: ${basketUrl}`;
+    const message = `Hey! Join my private Basket "${basketData.name}" and add your support via MOMO: ${basketUrl}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     
     toast.success('📱 Opening WhatsApp…', {
@@ -868,7 +733,7 @@ const Step5 = ({ basketData, onBack, handlePress }: StepProps) => {
         <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-teal-500/10" />
         
         <div className="relative">
-          <StepperBar currentStep={4} />
+          <StepperBar currentStep={2} />
           
           <div className="text-center space-y-6">
             <div className="w-20 h-20 bg-gradient-to-r from-green-500/20 to-teal-500/20 rounded-full flex items-center justify-center mx-auto neuro-button">
@@ -877,9 +742,9 @@ const Step5 = ({ basketData, onBack, handlePress }: StepProps) => {
 
             <div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-teal-400 bg-clip-text text-transparent mb-2">
-                Basket Created!
+                Private Basket Created!
               </h1>
-              <p className="text-gray-400">Your savings basket is ready. Share the link to invite others!</p>
+              <p className="text-gray-400">Your private savings basket is ready. Share the link to invite others!</p>
             </div>
 
             <div className="space-y-3">
