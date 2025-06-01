@@ -53,7 +53,7 @@ export const BasketOverview = () => {
   return (
     <div className="min-h-screen pb-24">
       {/* Header with back button */}
-      <div className="p-6">
+      <div className="p-4">
         <div className="flex items-center mb-6">
           <button
             onClick={() => navigate('/baskets/mine')}
