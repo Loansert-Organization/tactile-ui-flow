@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Lock, Users, Target, Check, Plus, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -122,7 +121,7 @@ export const BasketCard = ({
               </h3>
               <div className="flex items-center gap-2 text-sm text-gray-400">
                 <Users className="w-4 h-4" />
-                <span>{participants} members</span>
+                <span>{participants}</span>
                 {isPrivate && (
                   <>
                     <Lock className="w-4 h-4 ml-2" />
