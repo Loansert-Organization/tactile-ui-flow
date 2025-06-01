@@ -84,15 +84,15 @@ export const ContributionModal = ({
       <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
         <GlassCard className="w-full max-w-md p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold gradient-text">Contribute to {basketName}</h2>
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+            <h2 className="text-xl font-bold gradient-text truncate flex-1 mr-4">Contribute to {basketName}</h2>
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/10 transition-colors flex-shrink-0">
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Amount (RWF)</label>
+              <label className="block text-sm font-medium mb-2 truncate">Amount (RWF)</label>
               <div className="relative">
                 <CreditCard className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                 <input 
@@ -106,7 +106,7 @@ export const ContributionModal = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Payment Number</label>
+              <label className="block text-sm font-medium mb-2 truncate">Payment Number</label>
               <div className="relative">
                 <input 
                   type="text" 
@@ -115,15 +115,15 @@ export const ContributionModal = ({
                   className="w-full px-4 py-3 rounded-lg bg-gray-100/10 border border-white/10 text-gray-400 cursor-not-allowed" 
                 />
               </div>
-              <p className="text-xs text-gray-400 mt-1">Set by basket creator</p>
+              <p className="text-xs text-gray-400 mt-1 truncate">Set by basket creator</p>
             </div>
 
             <div className="flex gap-3 pt-4">
-              <button onClick={onClose} className="flex-1 px-4 py-3 rounded-lg border border-white/20 hover:bg-white/10 transition-colors">
+              <button onClick={onClose} className="flex-1 px-4 py-3 rounded-lg border border-white/20 hover:bg-white/10 transition-colors truncate">
                 Cancel
               </button>
               <GradientButton variant="primary" className="flex-1" onClick={handleContribute} loading={isProcessing} disabled={!amount}>
-                {isProcessing ? 'Processing...' : 'Pay with MOMO'}
+                <span className="truncate">{isProcessing ? 'Processing...' : 'Pay with MOMO'}</span>
               </GradientButton>
             </div>
           </div>

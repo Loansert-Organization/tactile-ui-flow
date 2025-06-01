@@ -30,9 +30,9 @@ export const BasketHeader = ({
 
   return <GlassCard className="p-6">
       <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div>
-            <h1 className="font-bold gradient-text text-xl">{basket.name}</h1>
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex-1 min-w-0">
+            <h1 className="font-bold gradient-text text-xl truncate">{basket.name}</h1>
             <div className="flex items-center gap-4 text-sm text-gray-400">
               <div className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
@@ -45,7 +45,7 @@ export const BasketHeader = ({
             </div>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-shrink-0">
           <ShareButton 
             basketName={basket.name} 
             basketURL={basketURL}

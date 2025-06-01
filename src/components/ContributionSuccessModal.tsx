@@ -43,8 +43,8 @@ export const ContributionSuccessModal = ({
           <Check className="w-10 h-10 text-white animate-bounce" />
         </div>
 
-        <h2 className="text-2xl font-bold gradient-text mb-2">Contribution Successful!</h2>
-        <p className="text-gray-400 mb-6">
+        <h2 className="text-2xl font-bold gradient-text mb-2 truncate">Contribution Successful!</h2>
+        <p className="text-gray-400 mb-6 line-clamp-2">
           You've contributed {formatCurrency(amount)} to {basketName}
         </p>
 
@@ -64,7 +64,7 @@ export const ContributionSuccessModal = ({
             size="md"
             className="w-full bg-green-600 hover:bg-green-700"
           >
-            Share Achievement
+            <span className="truncate">Share Achievement</span>
           </ShareButton>
 
           <GradientButton
@@ -72,7 +72,7 @@ export const ContributionSuccessModal = ({
             className="w-full"
             onClick={handleContinue}
           >
-            Continue
+            <span className="truncate">Continue</span>
           </GradientButton>
         </div>
       </GlassCard>

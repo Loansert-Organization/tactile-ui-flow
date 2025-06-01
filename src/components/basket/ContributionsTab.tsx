@@ -28,7 +28,7 @@ export const ContributionsTab = ({ contributions }: ContributionsTabProps) => {
 
   return (
     <GlassCard className="p-6">
-      <h3 className="text-lg font-semibold mb-4">Recent Contributions</h3>
+      <h3 className="text-lg font-semibold mb-4 truncate">Recent Contributions</h3>
       
       <ScrollArea className="h-96">
         <div className="space-y-4">
@@ -39,15 +39,15 @@ export const ContributionsTab = ({ contributions }: ContributionsTabProps) => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium">{formatCurrency(contribution.amount)}</span>
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
+                  <span className="font-medium truncate">{formatCurrency(contribution.amount)}</span>
+                  <div className="flex items-center gap-1 text-xs text-gray-400 flex-shrink-0">
                     <Clock className="w-3 h-3" />
-                    {formatTimeAgo(contribution.timestamp)}
+                    <span className="whitespace-nowrap">{formatTimeAgo(contribution.timestamp)}</span>
                   </div>
                 </div>
-                <p className="text-sm text-gray-400">Code: {contribution.memberCode}</p>
+                <p className="text-sm text-gray-400 truncate">Code: {contribution.memberCode}</p>
                 {contribution.message && (
-                  <p className="text-sm text-gray-300 mt-1">"{contribution.message}"</p>
+                  <p className="text-sm text-gray-300 mt-1 line-clamp-2">"{contribution.message}"</p>
                 )}
               </div>
             </div>

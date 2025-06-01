@@ -57,11 +57,11 @@ export const BasketOverview = () => {
         <div className="flex items-center mb-6">
           <button
             onClick={() => navigate('/baskets/mine')}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors mr-4"
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors mr-4 flex-shrink-0"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold">Basket Details</h1>
+          <h1 className="text-xl font-bold truncate">Basket Details</h1>
         </div>
       </div>
 

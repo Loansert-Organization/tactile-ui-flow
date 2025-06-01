@@ -23,12 +23,12 @@ export const EmptyState = ({ title, description, actionLabel, onAction, icon }: 
           </div>
         )}
         
-        <h3 className="text-xl font-semibold mb-3 gradient-text">{title}</h3>
-        <p className="text-gray-400 mb-6 leading-relaxed">{description}</p>
+        <h3 className="text-xl font-semibold mb-3 gradient-text truncate">{title}</h3>
+        <p className="text-gray-400 mb-6 leading-relaxed line-clamp-3">{description}</p>
         
         {actionLabel && onAction && (
           <GradientButton onClick={onAction} variant="primary">
-            {actionLabel}
+            <span className="truncate">{actionLabel}</span>
           </GradientButton>
         )}
       </GlassCard>

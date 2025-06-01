@@ -98,7 +98,7 @@ export const ContributionPage = () => {
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold">Contribute to Basket</h1>
+          <h1 className="text-xl font-bold truncate">Contribute to Basket</h1>
         </div>
       </div>
 
@@ -113,7 +113,7 @@ export const ContributionPage = () => {
                 {basketName.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <h2 className="text-2xl font-bold gradient-text">{basketName}</h2>
+            <h2 className="text-2xl font-bold gradient-text text-center line-clamp-2">{basketName}</h2>
           </div>
         </GlassCard>
 
@@ -121,7 +121,7 @@ export const ContributionPage = () => {
         <GlassCard className="p-6">
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-3 text-gray-300">Amount (RWF)</label>
+              <label className="block text-sm font-medium mb-3 text-gray-300 truncate">Amount (RWF)</label>
               <div className="relative">
                 <CreditCard className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
                 <input
@@ -135,7 +135,7 @@ export const ContributionPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-3 text-gray-300">Payment Number</label>
+              <label className="block text-sm font-medium mb-3 text-gray-300 truncate">Payment Number</label>
               <div className="relative">
                 <Phone className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
                 <input
@@ -156,12 +156,12 @@ export const ContributionPage = () => {
                 loading={isProcessing}
                 disabled={!amount}
               >
-                {isProcessing ? 'Processing Payment...' : 'Pay with Mobile Money'}
+                <span className="truncate">{isProcessing ? 'Processing Payment...' : 'Pay with Mobile Money'}</span>
               </GradientButton>
               
               <button
                 onClick={() => navigate(-1)}
-                className="w-full px-4 py-4 rounded-lg border border-white/20 hover:bg-white/10 transition-colors text-center"
+                className="w-full px-4 py-4 rounded-lg border border-white/20 hover:bg-white/10 transition-colors text-center truncate"
               >
                 Cancel
               </button>
@@ -172,7 +172,7 @@ export const ContributionPage = () => {
         {/* Additional Info */}
         <GlassCard className="p-4">
           <div className="text-center">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-400 truncate">
               Secure payment powered by Mobile Money
             </p>
           </div>

@@ -26,9 +26,9 @@ export const BasketInfoCard = ({ basketData }: BasketInfoCardProps) => {
   return (
     <GlassCard className="p-6">
       <div className="flex items-start justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold gradient-text mb-2">{basketData.name}</h1>
-          <div className="flex items-center gap-4 text-sm text-gray-400">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl font-bold gradient-text mb-2 truncate">{basketData.name}</h1>
+          <div className="flex items-center gap-4 text-sm text-gray-400 flex-wrap">
             <div className="flex items-center gap-1">
               <Users className="w-4 h-4" />
               <span>{basketData.members.length} members</span>
@@ -54,7 +54,7 @@ export const BasketInfoCard = ({ basketData }: BasketInfoCardProps) => {
         </div>
       </div>
 
-      <p className="text-gray-300 mb-6">{basketData.description}</p>
+      <p className="text-gray-300 mb-6 line-clamp-3">{basketData.description}</p>
 
       {/* Progress */}
       <div className="space-y-3">
@@ -67,11 +67,11 @@ export const BasketInfoCard = ({ basketData }: BasketInfoCardProps) => {
 
         <div className="flex items-center justify-between text-sm">
           {basketData.privacy === 'private' ? (
-            <span className="text-gray-400 italic">Balance hidden for private baskets</span>
+            <span className="text-gray-400 italic truncate">Balance hidden for private baskets</span>
           ) : (
-            <span className="text-gray-400">{formatCurrency(basketData.currentAmount)}</span>
+            <span className="text-gray-400 truncate">{formatCurrency(basketData.currentAmount)}</span>
           )}
-          <div className="flex items-center gap-1 text-gray-400">
+          <div className="flex items-center gap-1 text-gray-400 flex-shrink-0">
             <Target className="w-4 h-4" />
             <span>{formatCurrency(basketData.goal)}</span>
           </div>
