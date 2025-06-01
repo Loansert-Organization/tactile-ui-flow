@@ -173,12 +173,7 @@ export const BasketCard = ({
 
         {/* Action Buttons */}
         <div className="pt-2">
-          {isPrivate ? (
-            <div className="flex items-center justify-center gap-2 text-gray-500 text-sm py-3">
-              <Lock className="w-4 h-4" />
-              <span>Private Basket</span>
-            </div>
-          ) : (
+          {isPrivate ? null : (
             <div className="flex gap-3">
               {/* Primary Action */}
               <GradientButton 
