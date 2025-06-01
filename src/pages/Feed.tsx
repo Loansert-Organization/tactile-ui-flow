@@ -10,6 +10,7 @@ import { useBaskets } from '@/contexts/BasketContext';
 import { useMyBasketsContext } from '@/contexts/MyBasketsContext';
 
 const Feed = () => {
+  console.log('Feed component rendering');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
