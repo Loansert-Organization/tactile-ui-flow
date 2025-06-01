@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Inbox, AlertCircle } from 'lucide-react';
 import { BasketCard } from '@/components/BasketCard';
@@ -8,7 +7,6 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { useSwipeGesture } from '@/hooks/useInteractions';
 import { useBaskets } from '@/contexts/BasketContext';
-import { useMyBasketsContext } from '@/contexts/MyBasketsContext';
 import { useLoadingState } from '@/hooks/useLoadingState';
 import { useRenderPerformance } from '@/hooks/usePerformanceMonitor';
 
@@ -18,8 +16,7 @@ export const Feed = () => {
     minimumDuration: 800
   });
   
-  const { getNonMemberBaskets } = useBaskets();
-  const { myBaskets } = useMyBasketsContext();
+  const { getPublicBaskets } = useBaskets();
   
   useRenderPerformance('Feed');
 
@@ -28,13 +25,8 @@ export const Feed = () => {
     () => handleRefresh()
   );
 
-  // Only show admin-created public baskets that the user hasn't joined
-  const availableBaskets = getNonMemberBaskets()
-    .filter(basket => 
-      basket.privacy === 'public' && 
-      basket.createdByAdmin === true && 
-      !myBaskets.some(myBasket => myBasket.id === basket.id)
-    );
+  // Get all public baskets (admin-created only)
+  const publicBaskets = getPublicBaskets();
 
   const loadBaskets = async () => {
     // Simulate API call with realistic timing
@@ -112,7 +104,7 @@ export const Feed = () => {
     );
   }
 
-  if (availableBaskets.length === 0) {
+  if (publicBaskets.length === 0) {
     return (
       <div className="p-4">
         <EmptyState
@@ -153,13 +145,13 @@ export const Feed = () => {
 
       {/* Baskets list */}
       <div className="space-y-4">
-        {availableBaskets.map((basket, index) => (
+        {publicBaskets.map((basket, index) => (
           <div 
             key={basket.id}
             className="animate-slide-up"
             style={{ animationDelay: `${index * 100}ms` }}
           >
-            <BasketCard {...basket} onJoinSuccess={handleJoinSuccess} />
+            <BasketCard {...basket} onJoinSuccess={handleJoinSuccess} showOnHomeScreen={true} />
           </div>
         ))}
       </div>

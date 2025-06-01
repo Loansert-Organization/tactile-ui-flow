@@ -118,7 +118,7 @@ export const MyBaskets = () => {
                 id={basket.id}
                 name={basket.name}
                 description={basket.description}
-                isPrivate={basket.isPrivate}
+                privacy={basket.isPrivate ? 'private' : 'public'}
                 progress={basket.progress}
                 goal={basket.goal}
                 currentAmount={basket.currentAmount}
@@ -126,6 +126,7 @@ export const MyBaskets = () => {
                 isMember={basket.isMember}
                 myContribution={basket.myContribution}
                 daysLeft={basket.daysLeft}
+                showOnHomeScreen={false}
               />
               <div className="absolute top-2 right-2 z-10">
                 {getStatusBadge(basket)}

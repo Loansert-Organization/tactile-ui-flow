@@ -6,8 +6,7 @@ export interface Basket {
   name: string;
   description: string;
   privacy: 'public' | 'private';
-  isPrivate?: boolean; // Add this property to fix the TypeScript error
-  createdByAdmin: boolean; // New field to distinguish admin vs user baskets
+  createdByAdmin: boolean; // true for public baskets, false for private baskets
   progress: number;
   goal: number;
   currentAmount: number;
@@ -19,16 +18,16 @@ export interface Basket {
 
 interface BasketContextType {
   baskets: Basket[];
-  getNonMemberBaskets: () => Basket[];
+  getPublicBaskets: () => Basket[]; // Only admin-created public baskets
   getBasket: (basketId: string) => Basket | undefined;
   joinBasket: (basketId: string) => void;
 }
 
 const BasketContext = createContext<BasketContextType | undefined>(undefined);
 
-// Updated dummy data with more variety
+// Updated dummy data - only public baskets created by admin
 const initialBaskets: Basket[] = [
-  // Admin-created public baskets (shows in feed)
+  // Admin-created public baskets only
   {
     id: '1',
     name: 'Community Sports Equipment',
@@ -40,7 +39,7 @@ const initialBaskets: Basket[] = [
     currentAmount: 75000,
     participants: 45,
     daysLeft: 12,
-    isMember: false,
+    isMember: false, // User is not a member
     myContribution: 0,
   },
   {
@@ -54,7 +53,7 @@ const initialBaskets: Basket[] = [
     currentAmount: 80000,
     participants: 68,
     daysLeft: 25,
-    isMember: false,
+    isMember: false, // User is not a member
     myContribution: 0,
   },
   {
@@ -96,22 +95,7 @@ const initialBaskets: Basket[] = [
     currentAmount: 24000,
     participants: 15,
     daysLeft: 30,
-    isMember: false,
-    myContribution: 0,
-  },
-  // User-created private baskets (doesn't show in feed)
-  {
-    id: '2',
-    name: 'Team Jersey Fund',
-    description: 'Getting new jerseys for our football team',
-    privacy: 'private',
-    createdByAdmin: false,
-    progress: 60,
-    goal: 50000,
-    currentAmount: 30000,
-    participants: 15,
-    daysLeft: 8,
-    isMember: false,
+    isMember: false, // User is not a member
     myContribution: 0,
   },
 ];
@@ -119,8 +103,9 @@ const initialBaskets: Basket[] = [
 export const BasketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [baskets, setBaskets] = useState<Basket[]>(initialBaskets);
 
-  const getNonMemberBaskets = () => {
-    return baskets.filter(basket => !basket.isMember);
+  const getPublicBaskets = () => {
+    // Only return admin-created public baskets for home screen
+    return baskets.filter(basket => basket.privacy === 'public' && basket.createdByAdmin === true);
   };
 
   const getBasket = (basketId: string) => {
@@ -140,7 +125,7 @@ export const BasketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   return (
     <BasketContext.Provider value={{
       baskets,
-      getNonMemberBaskets,
+      getPublicBaskets,
       getBasket,
       joinBasket
     }}>

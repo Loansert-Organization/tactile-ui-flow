@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Lock, Users, Target, Check, Plus, Eye, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +15,7 @@ interface BasketCardProps {
   id: string;
   name: string;
   description: string;
-  isPrivate?: boolean;
+  privacy?: 'public' | 'private';
   progress: number;
   goal?: number;
   currentAmount?: number;
@@ -23,13 +24,14 @@ interface BasketCardProps {
   myContribution: number;
   daysLeft?: number;
   onJoinSuccess?: () => void;
+  showOnHomeScreen?: boolean; // New prop to determine if shown on home screen or my baskets
 }
 
 export const BasketCard = ({
   id,
   name,
   description,
-  isPrivate = false,
+  privacy = 'private',
   progress,
   goal,
   currentAmount,
@@ -37,7 +39,8 @@ export const BasketCard = ({
   isMember,
   myContribution,
   daysLeft,
-  onJoinSuccess
+  onJoinSuccess,
+  showOnHomeScreen = false
 }: BasketCardProps) => {
   const [showContributionModal, setShowContributionModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -46,6 +49,9 @@ export const BasketCard = ({
   const { handlePress } = usePressFeedback();
   const navigate = useNavigate();
   const { joinBasket, isJoining } = useMyBasketsContext();
+
+  const isPublic = privacy === 'public';
+  const isPrivate = privacy === 'private';
 
   const handleJoinBasket = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -56,14 +62,19 @@ export const BasketCard = ({
 
   const handlePrimaryAction = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    if (isPrivate) return;
     
-    if (isMember) {
-      // For members: "Contribute More" - show contribution modal
-      setShowContributionModal(true);
+    if (showOnHomeScreen) {
+      // Home screen logic
+      if (isMember) {
+        // Already a member - show contribution modal
+        setShowContributionModal(true);
+      } else {
+        // Not a member - navigate to join/contribute
+        await handleJoinBasket(e);
+      }
     } else {
-      // For non-members: Navigate to contribution screen
-      await handleJoinBasket(e);
+      // My Baskets screen logic - always show contribution modal for members
+      setShowContributionModal(true);
     }
   };
 
@@ -122,7 +133,8 @@ export const BasketCard = ({
               <div className="flex items-center gap-2 text-sm text-gray-400">
                 <Users className="w-4 h-4" />
                 <span>{participants}</span>
-                {!isPrivate && (
+                {/* Show globe icon for public baskets on My Baskets screen */}
+                {isPublic && !showOnHomeScreen && (
                   <Globe className="w-4 h-4 ml-2 text-blue-400" />
                 )}
               </div>
@@ -173,19 +185,29 @@ export const BasketCard = ({
             <div className="flex gap-3">
               {/* Primary Action */}
               <GradientButton 
-                variant={isMember ? "secondary" : "primary"}
+                variant={
+                  showOnHomeScreen && isMember ? "secondary" : "primary"
+                }
                 size="md" 
                 className={`flex-1 transition-all duration-300 ${
-                  isMember ? 'bg-green-500/20 hover:bg-green-500/30 border border-green-500/50' : ''
+                  showOnHomeScreen && isMember ? 'bg-green-500/20 hover:bg-green-500/30 border border-green-500/50' : ''
                 }`}
                 onClick={handlePrimaryAction} 
                 loading={isCurrentlyJoining}
                 disabled={isJoined}
                 style={{ minHeight: '44px' }}
-                aria-label={isMember ? 'Already a member' : 'Join Basket'}
+                aria-label={
+                  showOnHomeScreen 
+                    ? (isMember ? 'Already a member' : 'Join Basket')
+                    : 'Contribute to basket'
+                }
               >
-                {isMember ? (
-                  <Check className="w-5 h-5 text-green-400" />
+                {showOnHomeScreen ? (
+                  isMember ? (
+                    <Check className="w-5 h-5 text-green-400" />
+                  ) : (
+                    <Plus className="w-5 h-5" />
+                  )
                 ) : (
                   <Plus className="w-5 h-5" />
                 )}
