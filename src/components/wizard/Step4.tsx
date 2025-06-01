@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Check, Share2 } from 'lucide-react';
+import { Check, Share2, Eye } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
 import { StepperBar } from './StepperBar';
@@ -67,7 +67,8 @@ export const Step4: React.FC<StepProps> = ({ basketData, onBack, handlePress }) 
                 variant="outline"
                 className="w-full border-white/20 text-white hover:bg-white/10 neuro-button"
               >
-                View My Baskets
+                <Eye className="w-4 h-4 mr-2" />
+                View Basket
               </Button>
             </div>
           </div>
