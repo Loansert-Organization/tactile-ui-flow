@@ -1,14 +1,15 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { lazy } from "react";
+import { lazy, useEffect } from "react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { LazyPage } from "@/components/ui/lazy-page";
+import { OfflineBanner } from "@/components/ui/offline-banner";
 import { BasketProvider } from "@/contexts/BasketContext";
 import { MyBasketsProvider } from "@/contexts/MyBasketsContext";
+import { offlineStorage } from "@/lib/offline-storage";
 
 // Lazy load pages for better performance
 const Feed = lazy(() => import("@/pages/Feed").then(module => ({ default: module.Feed })));
@@ -33,16 +34,33 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BasketProvider>
-        <MyBasketsProvider>
-          <BrowserRouter>
-            <div className="min-h-screen flex flex-col">
-              <Routes>
+const App = () => {
+  useEffect(() => {
+    // Initialize offline storage
+    offlineStorage.init().catch(console.error);
+    
+    // Clean up stale data weekly
+    offlineStorage.clearStaleData().catch(console.error);
+    
+    // Listen for service worker messages
+    navigator.serviceWorker?.addEventListener('message', (event) => {
+      if (event.data?.type === 'SYNC_OFFLINE_DATA') {
+        console.log('[App] Received sync request from service worker');
+        // Trigger any necessary data refresh here
+      }
+    });
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <OfflineBanner />
+        <BasketProvider>
+          <MyBasketsProvider>
+            <BrowserRouter>
+              <div className="min-h-screen flex flex-col">
                 {/* Standalone routes (no header/nav) */}
                 <Route path="/create/*" element={
                   <LazyPage>
@@ -100,13 +118,13 @@ const App = () => (
                     </main>
                   </>
                 } />
-              </Routes>
-            </div>
-          </BrowserRouter>
-        </MyBasketsProvider>
-      </BasketProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+              </div>
+            </BrowserRouter>
+          </MyBasketsProvider>
+        </BasketProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

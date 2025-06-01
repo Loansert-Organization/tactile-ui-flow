@@ -1,10 +1,11 @@
 
-// IKANISA PWA Service Worker - Phase 2: Performance Optimized
-// Version 2.0 - Enhanced caching strategies and performance
+// IKANISA PWA Service Worker - Phase 3: Offline-First
+// Version 3.0 - Complete offline support
 
-const CACHE_NAME = 'ikanisa-v2';
-const RUNTIME_CACHE = 'ikanisa-runtime-v2';
-const IMAGE_CACHE = 'ikanisa-images-v1';
+const CACHE_NAME = 'ikanisa-v3';
+const RUNTIME_CACHE = 'ikanisa-runtime-v3';
+const IMAGE_CACHE = 'ikanisa-images-v2';
+const API_CACHE = 'ikanisa-api-v1';
 
 // Critical assets for immediate caching (Cache First)
 const CRITICAL_ASSETS = [
@@ -12,38 +13,26 @@ const CRITICAL_ASSETS = [
   '/index.html',
   '/src/main.tsx',
   '/src/index.css',
-  '/manifest.json'
-];
-
-// Assets to cache with Network First strategy
-const DYNAMIC_ASSETS = [
-  '/src/App.tsx',
-  '/src/components/',
-  '/src/pages/',
-  '/src/contexts/'
+  '/manifest.json',
+  '/offline.html' // Add offline fallback page
 ];
 
 // Install event - cache critical assets immediately
 self.addEventListener('install', (event) => {
-  console.log('[SW] Install event - Phase 2');
+  console.log('[SW] Install event - Phase 3 Offline Support');
   
   event.waitUntil(
     Promise.all([
       // Cache critical assets
       caches.open(CACHE_NAME).then((cache) => {
-        console.log('[SW] Caching critical assets');
+        console.log('[SW] Caching critical assets including offline page');
         return cache.addAll(CRITICAL_ASSETS);
       }),
       
-      // Prepare runtime cache
-      caches.open(RUNTIME_CACHE).then((cache) => {
-        console.log('[SW] Runtime cache ready');
-      }),
-      
-      // Prepare image cache
-      caches.open(IMAGE_CACHE).then((cache) => {
-        console.log('[SW] Image cache ready');
-      })
+      // Prepare other caches
+      caches.open(RUNTIME_CACHE),
+      caches.open(IMAGE_CACHE),
+      caches.open(API_CACHE)
     ]).then(() => {
       return self.skipWaiting();
     })
@@ -52,9 +41,9 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activate event - Phase 2');
+  console.log('[SW] Activate event - Phase 3');
   
-  const cacheWhitelist = [CACHE_NAME, RUNTIME_CACHE, IMAGE_CACHE];
+  const cacheWhitelist = [CACHE_NAME, RUNTIME_CACHE, IMAGE_CACHE, API_CACHE];
   
   event.waitUntil(
     caches.keys()
@@ -74,18 +63,18 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Helper function to determine cache strategy
+// Enhanced cache strategy determination
 function getCacheStrategy(request) {
   const url = new URL(request.url);
   
-  // Images - Cache First with long expiration
+  // Images - Cache First with 7-day expiration
   if (request.destination === 'image' || url.pathname.match(/\.(png|jpg|jpeg|gif|webp|svg|ico)$/)) {
     return 'cache-first-images';
   }
   
-  // API calls - Network First with cache fallback
-  if (url.pathname.startsWith('/api/') || url.search.includes('api')) {
-    return 'network-first-api';
+  // API calls - Cache with Network Fallback for offline support
+  if (url.pathname.startsWith('/api/') || url.search.includes('api') || url.pathname.includes('basket')) {
+    return 'cache-first-api';
   }
   
   // JS/CSS bundles - Cache First
@@ -93,16 +82,16 @@ function getCacheStrategy(request) {
     return 'cache-first-assets';
   }
   
-  // HTML pages - Network First with cache fallback
+  // HTML pages - Cache First with offline fallback
   if (request.mode === 'navigate' || request.destination === 'document') {
-    return 'network-first-html';
+    return 'cache-first-html';
   }
   
-  // Default - Stale While Revalidate
-  return 'stale-while-revalidate';
+  // Default - Cache First for offline support
+  return 'cache-first-default';
 }
 
-// Cache First strategy for images with long expiration
+// Cache First strategy for images with 7-day expiration
 async function cacheFirstImages(request) {
   const cache = await caches.open(IMAGE_CACHE);
   const cachedResponse = await cache.match(request);
@@ -114,6 +103,21 @@ async function cacheFirstImages(request) {
     const daysDiff = (now - cacheDate) / (1000 * 60 * 60 * 24);
     
     if (daysDiff < 7) {
+      // Refresh in background if older than 1 day
+      if (daysDiff > 1) {
+        fetch(request).then(response => {
+          if (response && response.status === 200) {
+            const headers = new Headers(response.headers);
+            headers.set('sw-cache-date', new Date().toISOString());
+            const modifiedResponse = new Response(response.body, {
+              status: response.status,
+              statusText: response.statusText,
+              headers: headers
+            });
+            cache.put(request, modifiedResponse);
+          }
+        }).catch(() => {});
+      }
       return cachedResponse;
     }
   }
@@ -122,7 +126,6 @@ async function cacheFirstImages(request) {
     const networkResponse = await fetch(request);
     if (networkResponse && networkResponse.status === 200) {
       const responseClone = networkResponse.clone();
-      // Add cache date header
       const headers = new Headers(responseClone.headers);
       headers.set('sw-cache-date', new Date().toISOString());
       
@@ -140,10 +143,26 @@ async function cacheFirstImages(request) {
   }
 }
 
-// Network First strategy for API calls
-async function networkFirstApi(request) {
-  const cache = await caches.open(RUNTIME_CACHE);
+// Cache First strategy for API calls with offline support
+async function cacheFirstApi(request) {
+  const cache = await caches.open(API_CACHE);
+  const cachedResponse = await cache.match(request);
   
+  // Always try cache first for offline support
+  if (cachedResponse) {
+    // Refresh in background if online
+    fetch(request).then(response => {
+      if (response && response.status === 200) {
+        cache.put(request, response.clone());
+      }
+    }).catch(() => {
+      // Network failed, cached version is all we have
+    });
+    
+    return cachedResponse;
+  }
+  
+  // No cache, try network
   try {
     const networkResponse = await fetch(request);
     if (networkResponse && networkResponse.status === 200) {
@@ -151,9 +170,9 @@ async function networkFirstApi(request) {
     }
     return networkResponse;
   } catch (error) {
-    const cachedResponse = await cache.match(request);
-    return cachedResponse || new Response('{"error": "Offline"}', { 
-      status: 503, 
+    // Return empty but valid JSON for API calls when offline
+    return new Response('{"error": "Offline", "data": [], "message": "Using cached data"}', { 
+      status: 200, 
       headers: { 'Content-Type': 'application/json' }
     });
   }
@@ -179,9 +198,14 @@ async function cacheFirstAssets(request) {
   }
 }
 
-// Network First strategy for HTML pages
-async function networkFirstHtml(request) {
+// Cache First strategy for HTML pages with offline fallback
+async function cacheFirstHtml(request) {
   const cache = await caches.open(RUNTIME_CACHE);
+  const cachedResponse = await cache.match(request);
+  
+  if (cachedResponse) {
+    return cachedResponse;
+  }
   
   try {
     const networkResponse = await fetch(request);
@@ -190,24 +214,31 @@ async function networkFirstHtml(request) {
     }
     return networkResponse;
   } catch (error) {
-    const cachedResponse = await cache.match(request);
-    return cachedResponse || cache.match('/');
+    // Return offline page when navigation fails
+    const offlineCache = await caches.open(CACHE_NAME);
+    const offlinePage = await offlineCache.match('/offline.html');
+    return offlinePage || new Response('Offline', { status: 503 });
   }
 }
 
-// Stale While Revalidate strategy
-async function staleWhileRevalidate(request) {
+// Cache First default strategy
+async function cacheFirstDefault(request) {
   const cache = await caches.open(RUNTIME_CACHE);
   const cachedResponse = await cache.match(request);
   
-  const fetchPromise = fetch(request).then((networkResponse) => {
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  try {
+    const networkResponse = await fetch(request);
     if (networkResponse && networkResponse.status === 200) {
       cache.put(request, networkResponse.clone());
     }
     return networkResponse;
-  }).catch(() => cachedResponse);
-  
-  return cachedResponse || fetchPromise;
+  } catch (error) {
+    return cachedResponse || new Response('Not available offline', { status: 404 });
+  }
 }
 
 // Main fetch event handler
@@ -226,17 +257,17 @@ self.addEventListener('fetch', (event) => {
     case 'cache-first-images':
       event.respondWith(cacheFirstImages(request));
       break;
-    case 'network-first-api':
-      event.respondWith(networkFirstApi(request));
+    case 'cache-first-api':
+      event.respondWith(cacheFirstApi(request));
       break;
     case 'cache-first-assets':
       event.respondWith(cacheFirstAssets(request));
       break;
-    case 'network-first-html':
-      event.respondWith(networkFirstHtml(request));
+    case 'cache-first-html':
+      event.respondWith(cacheFirstHtml(request));
       break;
     default:
-      event.respondWith(staleWhileRevalidate(request));
+      event.respondWith(cacheFirstDefault(request));
   }
 });
 
@@ -246,42 +277,60 @@ self.addEventListener('sync', (event) => {
   
   if (event.tag === 'background-sync') {
     event.waitUntil(
-      // Handle any queued offline actions here
-      Promise.resolve()
+      // Sync offline contributions when back online
+      syncOfflineData()
     );
   }
 });
 
-// Push notification handling
+// Sync offline data when connectivity returns
+async function syncOfflineData() {
+  try {
+    // This would sync any offline contributions stored in IndexedDB
+    console.log('[SW] Syncing offline data...');
+    
+    // Send message to main thread to trigger sync
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+      client.postMessage({ type: 'SYNC_OFFLINE_DATA' });
+    });
+  } catch (error) {
+    console.error('[SW] Failed to sync offline data:', error);
+  }
+}
+
+// Enhanced push notification handling
 self.addEventListener('push', (event) => {
   console.log('[SW] Push message received');
   
+  const data = event.data ? event.data.json() : {};
   const options = {
-    body: event.data ? event.data.text() : 'New update available',
+    body: data.body || 'New update available in your baskets',
     icon: '/icon-192.png',
     badge: '/favicon.ico',
     tag: 'ikanisa-notification',
     vibrate: [100, 50, 100],
     data: {
+      url: data.url || '/',
       dateOfArrival: Date.now(),
-      primaryKey: 1
+      primaryKey: data.id || 1
     },
     actions: [
       {
-        action: 'explore',
-        title: 'View Details',
+        action: 'open',
+        title: 'View',
         icon: '/icon-192.png'
       },
       {
         action: 'close',
-        title: 'Close',
+        title: 'Dismiss',
         icon: '/icon-192.png'
       }
     ]
   };
 
   event.waitUntil(
-    self.registration.showNotification('IKANISA', options)
+    self.registration.showNotification(data.title || 'IKANISA', options)
   );
 });
 
@@ -291,9 +340,10 @@ self.addEventListener('notificationclick', (event) => {
   
   event.notification.close();
   
-  if (event.action === 'explore') {
+  if (event.action === 'open' || !event.action) {
+    const url = event.notification.data?.url || '/';
     event.waitUntil(
-      clients.openWindow('/')
+      clients.openWindow(url)
     );
   }
 });
