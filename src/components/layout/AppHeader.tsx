@@ -13,9 +13,16 @@ export const AppHeader = () => {
     <header className="sticky top-0 z-50 w-full">
       <GlassCard className="m-2 px-4 py-3">
         <div className="flex items-center justify-between">
-          <div></div>
-          
-          <h1 className="text-xl font-bold gradient-text">IKANISA</h1>
+          <button
+            onClick={(e) => {
+              handlePress(e);
+              navigate('/');
+            }}
+            className="text-xl font-bold gradient-text hover:opacity-80 transition-opacity focus-gradient rounded-lg px-2 py-1"
+            aria-label="Go to home"
+          >
+            IKANISA
+          </button>
           
           <div className="flex items-center gap-2">
             <button
