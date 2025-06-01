@@ -18,14 +18,15 @@ export interface MyBasket {
   createdAt: Date;
 }
 
-// Initial dummy data for existing baskets
+// Updated dummy data with more variety including public baskets user has joined
 const initialBaskets: MyBasket[] = [
+  // User's private baskets
   {
     id: '3',
     name: 'Lakers Championship Ring',
     description: 'Supporting our team to get that championship ring!',
-    status: 'approved',
-    isPrivate: false,
+    status: 'private',
+    isPrivate: true,
     progress: 65,
     goal: 50000,
     currentAmount: 32500,
@@ -49,6 +50,37 @@ const initialBaskets: MyBasket[] = [
     isMember: true,
     myContribution: 5000,
     createdAt: new Date('2024-05-20')
+  },
+  // Public baskets user has joined (from main basket context)
+  {
+    id: '6',
+    name: 'Local Park Playground',
+    description: 'Building a new playground for children in our neighborhood park',
+    status: 'approved',
+    isPrivate: false, // This is a public basket
+    progress: 60,
+    goal: 150000,
+    currentAmount: 90000,
+    participants: 32,
+    daysLeft: 18,
+    isMember: true,
+    myContribution: 5000,
+    createdAt: new Date('2024-05-10')
+  },
+  {
+    id: '7',
+    name: 'Youth Soccer Team Uniforms',
+    description: 'Getting new uniforms for our local youth soccer team for the upcoming season',
+    status: 'approved',
+    isPrivate: false, // This is a public basket
+    progress: 85,
+    goal: 75000,
+    currentAmount: 63750,
+    participants: 28,
+    daysLeft: 8,
+    isMember: true,
+    myContribution: 2500,
+    createdAt: new Date('2024-05-18')
   }
 ];
 
@@ -67,7 +99,7 @@ export const useMyBaskets = () => {
       name: basketData.name,
       description: basketData.description || 'A community funding basket',
       status: 'approved',
-      isPrivate: false,
+      isPrivate: false, // Joined public baskets are not private
       progress: basketData.progress || 45,
       goal: basketData.goal || 10000,
       currentAmount: basketData.currentAmount || 4500,
