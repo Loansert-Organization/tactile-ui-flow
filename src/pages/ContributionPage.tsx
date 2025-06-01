@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Phone } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { ContributionSuccessModal } from '@/components/ContributionSuccessModal';
 import { toast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/formatters';
 
@@ -12,6 +14,8 @@ export const ContributionPage = () => {
   const navigate = useNavigate();
   const [amount, setAmount] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [contributedAmount, setContributedAmount] = useState(0);
 
   // Mock basket data - in real app this would come from props or API
   const basketName = 'Lakers Championship Ring Fund';
@@ -68,18 +72,19 @@ export const ContributionPage = () => {
       description: "Complete the payment on your phone",
     });
 
-    // Simulate payment processing and navigate back
+    // Simulate payment processing
     setTimeout(() => {
       setIsProcessing(false);
-      // Remove commas before converting to number for display
+      // Remove commas before converting to number
       const numericAmount = Number(amount.replace(/,/g, ''));
-      toast({
-        title: "Payment Successful!",
-        description: `Successfully contributed ${formatCurrency(numericAmount)} to ${basketName}`,
-      });
-      navigate(`/basket/${id}`);
+      setContributedAmount(numericAmount);
+      setShowSuccessModal(true);
       setAmount('');
     }, 3000);
+  };
+
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
   };
 
   return (
@@ -173,6 +178,15 @@ export const ContributionPage = () => {
           </div>
         </GlassCard>
       </div>
+
+      {/* Success Modal */}
+      <ContributionSuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleSuccessModalClose}
+        amount={contributedAmount}
+        basketName={basketName}
+        basketId={id}
+      />
     </div>
   );
 };
