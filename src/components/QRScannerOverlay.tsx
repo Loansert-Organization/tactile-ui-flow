@@ -2,7 +2,9 @@ import React, { useRef, useEffect, useState } from 'react';
 import { X, Camera, AlertCircle, RefreshCw } from 'lucide-react';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { toast } from '@/hooks/use-toast';
-import jsQR from 'jsqr';
+
+// Import jsQR with proper CommonJS handling
+const jsQR = require('jsqr');
 
 interface QRScannerOverlayProps {
   isOpen: boolean;
