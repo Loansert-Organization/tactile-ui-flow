@@ -11,3 +11,12 @@ export function useNativeFeatures() {
     initializeNativeFeatures
   };
 }
+
+// Add the missing useHaptics export
+export function useHaptics() {
+  return {
+    impact: () => {},
+    notification: () => {},
+    selection: () => {}
+  };
+}
