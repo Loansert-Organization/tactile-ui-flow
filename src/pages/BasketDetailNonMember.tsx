@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, Target, Calendar, Lock, Globe } from 'lucide-react';
@@ -46,7 +47,7 @@ export const BasketDetailNonMember = () => {
           </button>
           
           <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm">
-            {basket.isPrivate ? (
+            {basket.privacy === 'private' ? (
               <>
                 <Lock className="w-3 h-3" />
                 <span>Private</span>
