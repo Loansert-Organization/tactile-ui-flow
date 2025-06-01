@@ -1,17 +1,19 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, QrCode } from 'lucide-react';
 import { ContributionSuccessModal } from '@/components/ContributionSuccessModal';
 import { BasketHeader } from '@/components/basket/BasketHeader';
 import { FinancialSummary } from '@/components/basket/FinancialSummary';
 import { BasketActions } from '@/components/basket/BasketActions';
 import { BasketStats } from '@/components/basket/BasketStats';
+import { QRCodeModal } from '@/components/QRCodeModal';
 
 export const BasketOverview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
   const [contributedAmount, setContributedAmount] = useState(0);
 
   // Mock basket data
@@ -54,14 +56,23 @@ export const BasketOverview = () => {
     <div className="min-h-screen pb-24">
       {/* Header with back button */}
       <div className="p-4">
-        <div className="flex items-center mb-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <button
+              onClick={() => navigate('/baskets/mine')}
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors mr-4 flex-shrink-0"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+            <h1 className="text-xl font-bold truncate">Basket Details</h1>
+          </div>
           <button
-            onClick={() => navigate('/baskets/mine')}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors mr-4 flex-shrink-0"
+            onClick={() => setShowQRModal(true)}
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors flex-shrink-0"
+            aria-label="Generate QR Code"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <QrCode className="w-6 h-6 text-blue-400" />
           </button>
-          <h1 className="text-xl font-bold truncate">Basket Details</h1>
         </div>
       </div>
 
@@ -107,6 +118,14 @@ export const BasketOverview = () => {
         amount={contributedAmount}
         basketName={basket.name}
         basketId={id}
+      />
+
+      <QRCodeModal
+        isOpen={showQRModal}
+        onClose={() => setShowQRModal(false)}
+        basketId={id!}
+        basketName={basket.name}
+        basketURL={`${window.location.origin}/basket/${id}`}
       />
     </div>
   );
