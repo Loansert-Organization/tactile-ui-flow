@@ -3,19 +3,25 @@ import React, { useState, useEffect } from 'react';
 import { RefreshCw, Inbox, AlertCircle } from 'lucide-react';
 import { BasketCard } from '@/components/BasketCard';
 import { EmptyState } from '@/components/EmptyState';
-import { Skeleton } from '@/components/ui/skeleton';
+import { BasketCardSkeleton } from '@/components/ui/enhanced-skeleton';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { useSwipeGesture } from '@/hooks/useInteractions';
 import { useBaskets } from '@/contexts/BasketContext';
 import { useMyBasketsContext } from '@/contexts/MyBasketsContext';
+import { useLoadingState } from '@/hooks/useLoadingState';
+import { useRenderPerformance } from '@/hooks/usePerformanceMonitor';
 
 export const Feed = () => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const { isLoading, error, executeWithLoading, retry } = useLoadingState({
+    minimumDuration: 800 // Ensure skeleton shows for at least 800ms
+  });
+  
   const { getNonMemberBaskets } = useBaskets();
   const { myBaskets } = useMyBasketsContext();
+  
+  useRenderPerformance('Feed');
 
   const { handleTouchStart, handleTouchEnd } = useSwipeGesture(
     undefined,
@@ -28,28 +34,32 @@ export const Feed = () => {
   );
 
   const loadBaskets = async () => {
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setError(false);
-    } catch (err) {
-      setError(true);
-    } finally {
-      setLoading(false);
+    // Simulate API call with realistic timing
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    
+    // Simulate occasional failures for testing
+    if (Math.random() < 0.1) {
+      throw new Error('Network error occurred');
     }
   };
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await loadBaskets();
-    setRefreshing(false);
+    try {
+      await executeWithLoading(loadBaskets);
+    } catch (err) {
+      console.error('Refresh failed:', err);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
-  const handleRetry = () => {
-    setLoading(true);
-    setError(false);
-    loadBaskets();
+  const handleRetry = async () => {
+    try {
+      await retry(loadBaskets);
+    } catch (err) {
+      console.error('Retry failed:', err);
+    }
   };
 
   const handleJoinSuccess = () => {
@@ -59,27 +69,22 @@ export const Feed = () => {
   };
 
   useEffect(() => {
-    loadBaskets();
+    executeWithLoading(loadBaskets);
   }, []);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-6 p-4">
+        {/* Skeleton for header */}
+        <div className="text-center py-4 space-y-2">
+          <div className="h-8 w-48 bg-gray-700/50 rounded-lg shimmer mx-auto"></div>
+          <div className="h-4 w-64 bg-gray-700/50 rounded-lg shimmer mx-auto"></div>
+        </div>
+
+        {/* Skeleton for baskets */}
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <GlassCard key={i} className="p-6 space-y-4">
-              <div className="flex items-center gap-3">
-                <Skeleton variant="circle" className="w-12 h-12" />
-                <div className="space-y-2 flex-1">
-                  <Skeleton className="h-4 w-1/3" />
-                  <Skeleton className="h-3 w-1/2" />
-                </div>
-              </div>
-              <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-3 w-3/4" />
-              <Skeleton className="h-2 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </GlassCard>
+            <BasketCardSkeleton key={i} />
           ))}
         </div>
       </div>
@@ -92,7 +97,9 @@ export const Feed = () => {
         <GlassCard className="p-6 text-center">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">Failed to load baskets</h3>
-          <p className="text-gray-400 mb-4">Please check your connection and try again</p>
+          <p className="text-gray-400 mb-4">
+            {error.message || 'Please check your connection and try again'}
+          </p>
           <GradientButton onClick={handleRetry} variant="primary">
             <RefreshCw className="w-4 h-4 mr-2" />
             Retry
