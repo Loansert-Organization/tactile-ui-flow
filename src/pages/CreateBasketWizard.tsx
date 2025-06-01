@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
 import { usePressFeedback } from '@/hooks/useInteractions';
+import { useMyBasketsContext } from '@/contexts/MyBasketsContext';
 import { toast } from 'sonner';
 import { CoachMarkOverlay } from '@/components/wizard/CoachMarkOverlay';
 import { Step1 } from '@/components/wizard/Step1';
@@ -12,6 +13,7 @@ import { BasketData } from '@/types/wizard';
 const CreateBasketWizard = () => {
   const navigate = useNavigate();
   const { handlePress } = usePressFeedback();
+  const { createBasket } = useMyBasketsContext();
   const [showCoachMark, setShowCoachMark] = useState(false);
   const [basketData, setBasketData] = useState<BasketData>({
     name: '',
@@ -47,11 +49,10 @@ const CreateBasketWizard = () => {
   };
 
   const handleComplete = async () => {
-    // Import the hook inside the component
-    const { createBasket } = await import('@/contexts/MyBasketsContext').then(module => module.useMyBasketsContext());
-    
     // Create the actual basket with proper data structure
     try {
+      console.log('Creating basket with data:', basketData);
+      
       await createBasket({
         name: basketData.name,
         description: basketData.description,
