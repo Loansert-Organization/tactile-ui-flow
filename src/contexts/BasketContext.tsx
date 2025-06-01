@@ -6,6 +6,7 @@ export interface Basket {
   name: string;
   description: string;
   privacy: 'public' | 'private';
+  isPrivate?: boolean; // Add this property to fix the TypeScript error
   createdByAdmin: boolean; // New field to distinguish admin vs user baskets
   progress: number;
   goal: number;
