@@ -7,7 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/formatters';
 
-export const ContributionPage = () => {
+const ContributionPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [amount, setAmount] = useState('');
@@ -176,3 +176,5 @@ export const ContributionPage = () => {
     </div>
   );
 };
+
+export default ContributionPage;

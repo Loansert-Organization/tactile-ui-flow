@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Share2, Settings, Send, Eye, EyeOff, Copy } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -28,7 +27,7 @@ const dummyMessages: Message[] = [
   { id: '10', userCode: '012345', amount: 95000, isHidden: false, timestamp: new Date(Date.now() - 60000), type: 'contribution' },
 ];
 
-export const Chat = () => {
+const Chat = () => {
   const [messages, setMessages] = useState<Message[]>(dummyMessages);
   const [showContextMenu, setShowContextMenu] = useState<string | null>(null);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
@@ -251,3 +250,5 @@ export const Chat = () => {
     </div>
   );
 };
+
+export default Chat;

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Crown, Users } from 'lucide-react';
@@ -6,7 +5,7 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { ShareButton } from '@/components/ui/share-button';
 import { formatCurrency } from '@/lib/formatters';
 
-export const BasketParticipants = () => {
+const BasketParticipants = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -128,3 +127,5 @@ export const BasketParticipants = () => {
     </div>
   );
 };
+
+export default BasketParticipants;

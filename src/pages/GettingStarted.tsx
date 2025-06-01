@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ChevronRight, Users, Target, MessageCircle, Share2 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -32,7 +31,7 @@ const steps = [
   }
 ];
 
-export const GettingStarted = () => {
+const GettingStarted = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const navigate = useNavigate();
 
@@ -132,3 +131,5 @@ export const GettingStarted = () => {
     </div>
   );
 };
+
+export default GettingStarted;

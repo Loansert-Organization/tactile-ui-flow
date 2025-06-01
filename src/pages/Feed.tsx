@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Inbox, AlertCircle } from 'lucide-react';
 import { BasketCard } from '@/components/BasketCard';
@@ -10,7 +9,7 @@ import { useSwipeGesture } from '@/hooks/useInteractions';
 import { useBaskets } from '@/contexts/BasketContext';
 import { useMyBasketsContext } from '@/contexts/MyBasketsContext';
 
-export const Feed = () => {
+const Feed = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -161,3 +160,5 @@ export const Feed = () => {
     </div>
   );
 };
+
+export default Feed;

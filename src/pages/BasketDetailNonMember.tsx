@@ -6,7 +6,7 @@ import { GradientButton } from '@/components/ui/gradient-button';
 import { useBaskets } from '@/contexts/BasketContext';
 import { formatCurrency } from '@/lib/formatters';
 
-export const BasketDetailNonMember = () => {
+const BasketDetailNonMember = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getBasket } = useBaskets();
@@ -143,3 +143,5 @@ export const BasketDetailNonMember = () => {
     </div>
   );
 };
+
+export default BasketDetailNonMember;

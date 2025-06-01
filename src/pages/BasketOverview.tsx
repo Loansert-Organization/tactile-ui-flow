@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -8,7 +7,7 @@ import { FinancialSummary } from '@/components/basket/FinancialSummary';
 import { BasketActions } from '@/components/basket/BasketActions';
 import { BasketStats } from '@/components/basket/BasketStats';
 
-export const BasketOverview = () => {
+const BasketOverview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -111,3 +110,5 @@ export const BasketOverview = () => {
     </div>
   );
 };
+
+export default BasketOverview;

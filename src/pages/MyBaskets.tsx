@@ -9,7 +9,7 @@ import { usePressFeedback } from '@/hooks/useInteractions';
 import { Badge } from '@/components/ui/badge';
 import { useMyBasketsContext } from '@/contexts/MyBasketsContext';
 
-export const MyBaskets = () => {
+const MyBaskets = () => {
   const [activeTab, setActiveTab] = useState('joined');
   const navigate = useNavigate();
   const { handlePress } = usePressFeedback();
@@ -169,3 +169,5 @@ export const MyBaskets = () => {
     </div>
   );
 };
+
+export default MyBaskets;

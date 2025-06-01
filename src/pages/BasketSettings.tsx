@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit3, Lock, Unlock, Archive, Trash2 } from 'lucide-react';
@@ -6,7 +5,7 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { toast } from '@/hooks/use-toast';
 
-export const BasketSettings = () => {
+const BasketSettings = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   
@@ -191,3 +190,5 @@ export const BasketSettings = () => {
     </div>
   );
 };
+
+export default BasketSettings;
