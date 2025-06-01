@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
@@ -47,50 +46,71 @@ const CreateBasketWizard = () => {
     navigate(`/create/step/${nextStep}`);
   };
 
-  const handleComplete = () => {
-    // All user-created baskets are private, so go straight to success
-    const triggerConfetti = () => {
-      const colors = ['#ff006e', '#ff8500', '#06ffa5', '#0099ff', '#8b5cf6', '#ec4899'];
-      const confettiContainer = document.createElement('div');
-      confettiContainer.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        pointer-events: none;
-        z-index: 1000;
-      `;
-      document.body.appendChild(confettiContainer);
+  const handleComplete = async () => {
+    // Import the hook inside the component
+    const { createBasket } = await import('@/contexts/MyBasketsContext').then(module => module.useMyBasketsContext());
+    
+    // Create the actual basket with proper data structure
+    try {
+      await createBasket({
+        name: basketData.name,
+        description: basketData.description,
+        status: 'private',
+        isPrivate: true,
+        progress: 0,
+        goal: parseInt(basketData.goal) || 10000,
+        currentAmount: 0,
+        participants: 1,
+        daysLeft: parseInt(basketData.duration) * 30 // Convert months to approximate days
+      });
 
-      for (let i = 0; i < 80; i++) {
-        setTimeout(() => {
-          const confettiPiece = document.createElement('div');
-          confettiPiece.style.cssText = `
-            position: absolute;
-            width: ${Math.random() * 8 + 6}px;
-            height: ${Math.random() * 8 + 6}px;
-            background: ${colors[Math.floor(Math.random() * colors.length)]};
-            top: -20px;
-            left: ${Math.random() * 100}vw;
-            border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
-            animation: enhanced-confetti-fall ${2 + Math.random() * 2}s ease-out forwards;
-            transform: rotate(${Math.random() * 360}deg);
-          `;
-          confettiContainer.appendChild(confettiPiece);
-          setTimeout(() => confettiPiece.remove(), 4000);
-        }, i * 30);
-      }
+      // Trigger confetti and success message
+      const triggerConfetti = () => {
+        const colors = ['#ff006e', '#ff8500', '#06ffa5', '#0099ff', '#8b5cf6', '#ec4899'];
+        const confettiContainer = document.createElement('div');
+        confettiContainer.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          pointer-events: none;
+          z-index: 1000;
+        `;
+        document.body.appendChild(confettiContainer);
 
-      setTimeout(() => confettiContainer.remove(), 5000);
-    };
+        for (let i = 0; i < 80; i++) {
+          setTimeout(() => {
+            const confettiPiece = document.createElement('div');
+            confettiPiece.style.cssText = `
+              position: absolute;
+              width: ${Math.random() * 8 + 6}px;
+              height: ${Math.random() * 8 + 6}px;
+              background: ${colors[Math.floor(Math.random() * colors.length)]};
+              top: -20px;
+              left: ${Math.random() * 100}vw;
+              border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+              animation: enhanced-confetti-fall ${2 + Math.random() * 2}s ease-out forwards;
+              transform: rotate(${Math.random() * 360}deg);
+            `;
+            confettiContainer.appendChild(confettiPiece);
+            setTimeout(() => confettiPiece.remove(), 4000);
+          }, i * 30);
+        }
 
-    triggerConfetti();
-    toast.success('🎉 Private basket created successfully!', {
-      description: 'Your private savings group is ready to go!',
-      duration: 4000,
-    });
-    navigate('/create/step/4');
+        setTimeout(() => confettiContainer.remove(), 5000);
+      };
+
+      triggerConfetti();
+      toast.success('🎉 Private basket created successfully!', {
+        description: 'Your private savings group is ready to go!',
+        duration: 4000,
+      });
+      navigate('/create/step/4');
+    } catch (error) {
+      console.error('Failed to create basket:', error);
+      toast.error('Failed to create basket. Please try again.');
+    }
   };
 
   const handleGoToMyBaskets = () => {

@@ -96,15 +96,20 @@ export const useMyBaskets = () => {
     const newBasket: MyBasket = {
       ...basketData,
       id: `basket-${Date.now()}`,
+      status: 'private', // All user-created baskets are private and live immediately
+      isPrivate: true, // Ensure this is set to true for user-created baskets
       isMember: true,
       myContribution: 0,
+      participants: 1, // Creator is the first participant
+      currentAmount: 0, // Start with 0 contribution
+      progress: 0, // Start with 0% progress
       createdAt: new Date()
     };
 
     setMyBaskets(prev => [newBasket, ...prev]);
     
     toast.success(`Your basket '${basketData.name}' has been created!`, {
-      description: basketData.isPrivate ? 'Your private basket is ready' : 'Your basket is pending approval',
+      description: 'Your private basket is ready and live',
       duration: 3000,
     });
 
