@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Phone } from 'lucide-react';
@@ -32,6 +31,22 @@ export const ContributionPage = () => {
     setAmount(formattedValue);
   };
 
+  const launchUSSDDialer = (phoneNumber: string, amount: string) => {
+    // Remove commas and format the amount
+    const cleanAmount = amount.replace(/,/g, '');
+    // Clean phone number (remove any non-digits)
+    const cleanPhone = phoneNumber.replace(/\D/g, '');
+    
+    // Create USSD code: *182*1*1*[payment number]*[amount]#
+    const ussdCode = `*182*1*1*${cleanPhone}*${cleanAmount}#`;
+    
+    // Create tel: URL to launch phone dialer
+    const telUrl = `tel:${encodeURIComponent(ussdCode)}`;
+    
+    // Launch the dialer
+    window.location.href = telUrl;
+  };
+
   const handleContribute = async () => {
     if (!amount) {
       toast({
@@ -44,13 +59,16 @@ export const ContributionPage = () => {
 
     setIsProcessing(true);
     
-    // Simulate MOMO USSD launch
+    // Launch USSD dialer immediately
+    launchUSSDDialer(basketCreatorPhone, amount);
+    
+    // Show toast notification
     toast({
-      title: "MOMO Payment Initiated",
-      description: "Please check your phone and complete the payment",
+      title: "USSD Dialer Launched",
+      description: "Complete the payment on your phone",
     });
 
-    // Simulate payment processing
+    // Simulate payment processing and navigate back
     setTimeout(() => {
       setIsProcessing(false);
       // Remove commas before converting to number for display
