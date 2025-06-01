@@ -5,16 +5,26 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { BasketCard } from '@/components/BasketCard';
 import { EmptyState } from '@/components/EmptyState';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { usePressFeedback } from '@/hooks/useInteractions';
 import { Badge } from '@/components/ui/badge';
 import { useMyBasketsContext } from '@/contexts/MyBasketsContext';
 
 export const MyBaskets = () => {
-  const [activeTab, setActiveTab] = useState('joined');
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'joined';
+  const [activeTab, setActiveTab] = useState(initialTab);
   const navigate = useNavigate();
   const { handlePress } = usePressFeedback();
   const { myBaskets } = useMyBasketsContext();
+
+  // Update tab when URL changes
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab');
+    if (tabFromUrl && (tabFromUrl === 'joined' || tabFromUrl === 'created')) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
 
   // For demo purposes, all baskets are "joined" 
   const joinedBaskets = myBaskets;

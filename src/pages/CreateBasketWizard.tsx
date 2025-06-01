@@ -93,6 +93,11 @@ const CreateBasketWizard = () => {
     navigate('/create/step/4');
   };
 
+  const handleGoToMyBaskets = () => {
+    // Navigate to My Baskets with created tab active
+    navigate('/baskets/mine?tab=created');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4 relative overflow-hidden">
       {/* Animated background elements */}
@@ -126,7 +131,7 @@ const CreateBasketWizard = () => {
         <Route path="/step/4" element={
           <Step4 
             basketData={basketData}
-            onBack={() => navigate('/baskets/mine')}
+            onBack={handleGoToMyBaskets}
             handlePress={handlePress}
           />
         } />
