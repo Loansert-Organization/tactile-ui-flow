@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -6,7 +5,8 @@ import {
   Share2, 
   Settings,
   AlertCircle,
-  RefreshCcw
+  RefreshCcw,
+  QrCode
 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
@@ -20,6 +20,7 @@ import { TabNavigation } from '@/components/basket/TabNavigation';
 import { MembersTab } from '@/components/basket/MembersTab';
 import { ContributionsTab } from '@/components/basket/ContributionsTab';
 import { FloatingActionButton } from '@/components/basket/FloatingActionButton';
+import { QRCodeModal } from '@/components/QRCodeModal';
 
 interface Member {
   id: string;
@@ -106,6 +107,7 @@ const BasketDetailPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [hideMyPhone, setHideMyPhone] = useState(false);
   const [activeTab, setActiveTab] = useState<'members' | 'contributions'>('members');
+  const [showQRModal, setShowQRModal] = useState(false);
 
   // Load basket data
   useEffect(() => {
@@ -156,6 +158,10 @@ const BasketDetailPage = () => {
   // Handlers
   const handleBack = () => navigate(-1);
   
+  const handleShowQRCode = () => {
+    setShowQRModal(true);
+  };
+
   const handleShare = async () => {
     const basketUrl = `${window.location.origin}/basket/${id}`;
     await navigator.clipboard.writeText(basketUrl);
@@ -249,13 +255,21 @@ const BasketDetailPage = () => {
             
             <div className="flex items-center gap-2">
               <button 
+                onClick={handleShowQRCode}
+                className="p-2 rounded-lg hover:bg-white/10 transition-colors transform hover:scale-110"
+                aria-label="Generate QR Code"
+              >
+                <QrCode className="w-5 h-5" />
+              </button>
+              
+              <button 
                 onClick={handleShare}
                 className="p-2 rounded-lg hover:bg-white/10 transition-colors"
               >
                 <Share2 className="w-5 h-5" />
               </button>
               
-              {basketData.isCreator && (
+              {basketData?.isCreator && (
                 <Sheet>
                   <SheetTrigger asChild>
                     <button className="p-2 rounded-lg hover:bg-white/10 transition-colors">
@@ -283,11 +297,11 @@ const BasketDetailPage = () => {
         </header>
 
         {/* Status Banner */}
-        <StatusBanner status={basketData.status} />
+        <StatusBanner status={basketData?.status || 'pending'} />
 
         <div className="p-4 space-y-6">
           {/* Basket Info */}
-          <BasketInfoCard basketData={basketData} />
+          {basketData && <BasketInfoCard basketData={basketData} />}
 
           {/* Tab Navigation */}
           <TabNavigation 
@@ -296,7 +310,7 @@ const BasketDetailPage = () => {
           />
 
           {/* Members Tab */}
-          {activeTab === 'members' && (
+          {activeTab === 'members' && basketData && (
             <MembersTab
               members={basketData.members}
               basketType={basketData.type}
@@ -310,7 +324,7 @@ const BasketDetailPage = () => {
           )}
 
           {/* Contributions Tab */}
-          {activeTab === 'contributions' && (
+          {activeTab === 'contributions' && basketData && (
             <ContributionsTab contributions={basketData.contributions} />
           )}
         </div>
@@ -320,6 +334,17 @@ const BasketDetailPage = () => {
           isCurrentUserCreator={isCurrentUserCreator}
           onContribute={handleContribute}
         />
+
+        {/* QR Code Modal */}
+        {basketData && (
+          <QRCodeModal
+            isOpen={showQRModal}
+            onClose={() => setShowQRModal(false)}
+            basketId={basketData.id}
+            basketName={basketData.name}
+            basketURL={`${window.location.origin}/basket/${basketData.id}`}
+          />
+        )}
       </div>
     </TooltipProvider>
   );

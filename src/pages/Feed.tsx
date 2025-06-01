@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Inbox, AlertCircle } from 'lucide-react';
+import { RefreshCw, Inbox, AlertCircle, QrCode } from 'lucide-react';
 import { BasketCard } from '@/components/BasketCard';
 import { EmptyState } from '@/components/EmptyState';
 import { BasketCardSkeleton } from '@/components/ui/enhanced-skeleton';
@@ -9,9 +9,14 @@ import { useSwipeGesture } from '@/hooks/useInteractions';
 import { useBaskets } from '@/contexts/BasketContext';
 import { useLoadingState } from '@/hooks/useLoadingState';
 import { useRenderPerformance } from '@/hooks/usePerformanceMonitor';
+import { QRScannerOverlay } from '@/components/QRScannerOverlay';
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 export const Feed = () => {
   const [refreshing, setRefreshing] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+  const navigate = useNavigate();
   const { isLoading, error, executeWithLoading, retry } = useLoadingState({
     minimumDuration: 800
   });
@@ -63,6 +68,30 @@ export const Feed = () => {
     setTimeout(() => setRefreshing(false), 500);
   };
 
+  const handleQRCodeScanned = (url: string) => {
+    setShowScanner(false);
+    
+    // Extract basket ID from URL
+    const basketIdMatch = url.match(/\/basket\/([^/?]+)/);
+    if (basketIdMatch) {
+      const basketId = basketIdMatch[1];
+      
+      // Simulate joining the basket
+      toast({
+        title: "Basket Found!",
+        description: "You've successfully joined this basket",
+      });
+      
+      navigate(`/basket/${basketId}`);
+    } else {
+      toast({
+        title: "Invalid QR Code",
+        description: "This QR code doesn't contain a valid basket link",
+        variant: "destructive"
+      });
+    }
+  };
+
   useEffect(() => {
     executeWithLoading(loadBaskets);
   }, []);
@@ -106,60 +135,85 @@ export const Feed = () => {
 
   if (publicBaskets.length === 0) {
     return (
-      <div className="p-4">
-        <EmptyState
-          title="No Public Baskets Available"
-          description="There are no public baskets available to join at the moment. Check back later!"
-          actionLabel="Refresh"
-          onAction={handleRefresh}
-          icon={<Inbox className="w-10 h-10 text-purple-400" />}
+      <>
+        <div className="p-4">
+          <EmptyState
+            title="No Public Baskets Available"
+            description="There are no public baskets available to join at the moment. Try scanning a QR code or check back later!"
+            actionLabel="Scan QR Code"
+            onAction={() => setShowScanner(true)}
+            icon={<QrCode className="w-10 h-10 text-purple-400" />}
+          />
+        </div>
+        <QRScannerOverlay
+          isOpen={showScanner}
+          onClose={() => setShowScanner(false)}
+          onQRCodeScanned={handleQRCodeScanned}
         />
-      </div>
+      </>
     );
   }
 
   return (
-    <div 
-      className="space-y-6 p-4"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* Pull to refresh indicator */}
-      {refreshing && (
-        <div className="flex items-center justify-center py-4">
-          <div className="flex items-center gap-2 text-purple-400">
-            <RefreshCw className="w-5 h-5 animate-spin" />
-            <span className="text-sm">Refreshing...</span>
+    <>
+      <div 
+        className="space-y-6 p-4"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Pull to refresh indicator */}
+        {refreshing && (
+          <div className="flex items-center justify-center py-4">
+            <div className="flex items-center gap-2 text-purple-400">
+              <RefreshCw className="w-5 h-5 animate-spin" />
+              <span className="text-sm">Refreshing...</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Feed header */}
-      <div className="text-center py-4">
-        <h2 className="text-2xl font-bold gradient-text mb-2">Discover Public Baskets</h2>
-        <p className="text-gray-400">Join official community funding initiatives</p>
-      </div>
-
-      {/* ARIA live region for announcements */}
-      <div className="sr-only" aria-live="polite" id="feed-announcements" />
-
-      {/* Baskets list */}
-      <div className="space-y-4">
-        {publicBaskets.map((basket, index) => (
-          <div 
-            key={basket.id}
-            className="animate-slide-up"
-            style={{ animationDelay: `${index * 100}ms` }}
+        {/* Feed header */}
+        <div className="text-center py-4">
+          <h2 className="text-2xl font-bold gradient-text mb-2">Discover Public Baskets</h2>
+          <p className="text-gray-400 mb-4">Join official community funding initiatives</p>
+          
+          {/* QR Scanner Button */}
+          <GradientButton 
+            variant="secondary" 
+            onClick={() => setShowScanner(true)}
+            className="inline-flex items-center gap-2"
           >
-            <BasketCard {...basket} onJoinSuccess={handleJoinSuccess} showOnHomeScreen={true} />
-          </div>
-        ))}
+            <QrCode className="w-4 h-4" />
+            Scan QR to Join
+          </GradientButton>
+        </div>
+
+        {/* ARIA live region for announcements */}
+        <div className="sr-only" aria-live="polite" id="feed-announcements" />
+
+        {/* Baskets list */}
+        <div className="space-y-4">
+          {publicBaskets.map((basket, index) => (
+            <div 
+              key={basket.id}
+              className="animate-slide-up"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <BasketCard {...basket} onJoinSuccess={handleJoinSuccess} showOnHomeScreen={true} />
+            </div>
+          ))}
+        </div>
+
+        {/* Load more placeholder */}
+        <div className="text-center py-8">
+          <p className="text-gray-500 text-sm">You're up to date! 🎉</p>
+        </div>
       </div>
 
-      {/* Load more placeholder */}
-      <div className="text-center py-8">
-        <p className="text-gray-500 text-sm">You're up to date! 🎉</p>
-      </div>
-    </div>
+      <QRScannerOverlay
+        isOpen={showScanner}
+        onClose={() => setShowScanner(false)}
+        onQRCodeScanned={handleQRCodeScanned}
+      />
+    </>
   );
 };
