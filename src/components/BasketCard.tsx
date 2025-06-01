@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Lock, Users, Target, Check, Plus, Eye, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -174,21 +173,19 @@ export const BasketCard = ({
             <div className="flex gap-3">
               {/* Primary Action */}
               <GradientButton 
-                variant="primary" 
+                variant={isMember ? "secondary" : "primary"}
                 size="md" 
                 className={`flex-1 transition-all duration-300 ${
-                  isJoined ? 'bg-green-500 hover:bg-green-600' : ''
+                  isMember ? 'bg-green-500/20 hover:bg-green-500/30 border border-green-500/50' : ''
                 }`}
                 onClick={handlePrimaryAction} 
                 loading={isCurrentlyJoining}
                 disabled={isJoined}
                 style={{ minHeight: '44px' }}
-                aria-label={isJoined ? 'Joined' : isMember ? 'Contribute More' : 'Join Basket'}
+                aria-label={isMember ? 'Already a member' : 'Join Basket'}
               >
-                {isJoined ? (
-                  <Check className="w-5 h-5" />
-                ) : isMember ? (
-                  <Plus className="w-5 h-5" />
+                {isMember ? (
+                  <Check className="w-5 h-5 text-green-400" />
                 ) : (
                   <Plus className="w-5 h-5" />
                 )}
