@@ -36,11 +36,11 @@ export const BasketHeader = ({
             <div className="flex items-center gap-4 text-sm text-gray-400">
               <div className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
-                <span>{basket.participants} members</span>
+                <span>{basket.participants}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
-                <span>{basket.daysLeft} days left</span>
+                <span>{basket.daysLeft}</span>
               </div>
             </div>
           </div>
