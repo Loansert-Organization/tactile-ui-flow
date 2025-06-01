@@ -11,8 +11,6 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { OfflineBanner } from "@/components/ui/offline-banner";
 import { PerformanceDashboard } from "@/components/dev/PerformanceDashboard";
 import { useNativeFeatures } from "@/hooks/useNativeFeatures";
-import { performanceMonitor } from "@/lib/performance-monitor";
-import { lighthouseOptimizer } from "@/lib/lighthouse-optimizer";
 
 // Lazy load pages for better performance
 const Index = lazy(() => import("@/pages/Index"));
@@ -42,25 +40,9 @@ function App() {
   const { initializeNativeFeatures } = useNativeFeatures();
 
   useEffect(() => {
+    console.log('App initializing...');
     // Initialize native features
     initializeNativeFeatures();
-
-    // Start performance monitoring
-    performanceMonitor.startMeasurement('app-init');
-    
-    // Initialize Lighthouse optimizations
-    lighthouseOptimizer.optimizeFonts();
-    lighthouseOptimizer.deferNonCriticalJS();
-    lighthouseOptimizer.checkPerformanceBudget();
-
-    // Mark app initialization complete
-    setTimeout(() => {
-      performanceMonitor.endMeasurement('app-init');
-    }, 100);
-
-    return () => {
-      lighthouseOptimizer.cleanup();
-    };
   }, [initializeNativeFeatures]);
 
   return (

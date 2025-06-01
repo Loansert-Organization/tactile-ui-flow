@@ -29,27 +29,10 @@ if ('serviceWorker' in navigator) {
             });
           }
         });
-
-        // Register for background sync when online (with proper type checking)
-        if ('sync' in window.ServiceWorkerRegistration.prototype && 'sync' in registration) {
-          (registration as any).sync.register('background-sync').catch((err: any) => {
-            console.log('[PWA] Background sync registration failed:', err);
-          });
-        }
       })
       .catch((error) => {
         console.log('[PWA] Service Worker registration failed:', error);
       });
-  });
-
-  // Listen for service worker messages
-  navigator.serviceWorker.addEventListener('message', (event) => {
-    console.log('[PWA] Message from service worker:', event.data);
-    
-    if (event.data?.type === 'SYNC_OFFLINE_DATA') {
-      // Handle offline data sync
-      console.log('[PWA] Syncing offline data...');
-    }
   });
 }
 
@@ -72,8 +55,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
 window.addEventListener('appinstalled', () => {
   console.log('[PWA] App was installed');
   deferredPrompt = null;
-  
-  // Could track installation analytics here
 });
 
 // Global function to trigger PWA install
@@ -89,17 +70,6 @@ window.addEventListener('appinstalled', () => {
 // Handle online/offline events
 window.addEventListener('online', () => {
   console.log('[PWA] App is online');
-  
-  // Trigger background sync when coming back online (with proper type checking)
-  if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
-    navigator.serviceWorker.ready.then((registration) => {
-      if ('sync' in registration) {
-        return (registration as any).sync.register('background-sync');
-      }
-    }).catch((err) => {
-      console.log('[PWA] Background sync failed:', err);
-    });
-  }
 });
 
 window.addEventListener('offline', () => {
