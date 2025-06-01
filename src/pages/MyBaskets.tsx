@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowLeft, Lock } from 'lucide-react';
+import { Plus, ArrowLeft, Lock, Globe } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { BasketCard } from '@/components/BasketCard';
@@ -33,12 +32,19 @@ export const MyBaskets = () => {
   const baskets = activeTab === 'joined' ? joinedBaskets : createdBaskets;
 
   const getStatusBadge = (basket: any) => {
-    // All user-created baskets are private, no pending review needed
-    return (
-      <Badge className="bg-blue-500 text-white border-0 p-2 rounded-full">
-        <Lock className="w-4 h-4" />
-      </Badge>
-    );
+    if (basket.isPrivate) {
+      return (
+        <Badge className="bg-blue-500 text-white border-0 p-2 rounded-full">
+          <Lock className="w-4 h-4" />
+        </Badge>
+      );
+    } else {
+      return (
+        <Badge className="bg-green-500 text-white border-0 p-2 rounded-full">
+          <Globe className="w-4 h-4" />
+        </Badge>
+      );
+    }
   };
 
   return (
