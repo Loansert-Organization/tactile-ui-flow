@@ -1,12 +1,13 @@
 
-// IKANISA PWA Service Worker
-// Version 1.0 - Basic caching for core assets
+// IKANISA PWA Service Worker - Phase 2: Performance Optimized
+// Version 2.0 - Enhanced caching strategies and performance
 
-const CACHE_NAME = 'ikanisa-v1';
-const RUNTIME_CACHE = 'ikanisa-runtime-v1';
+const CACHE_NAME = 'ikanisa-v2';
+const RUNTIME_CACHE = 'ikanisa-runtime-v2';
+const IMAGE_CACHE = 'ikanisa-images-v1';
 
-// Core assets to cache on install (Cache First strategy)
-const CORE_ASSETS = [
+// Critical assets for immediate caching (Cache First)
+const CRITICAL_ASSETS = [
   '/',
   '/index.html',
   '/src/main.tsx',
@@ -14,33 +15,53 @@ const CORE_ASSETS = [
   '/manifest.json'
 ];
 
-// Install event - cache core assets eagerly
+// Assets to cache with Network First strategy
+const DYNAMIC_ASSETS = [
+  '/src/App.tsx',
+  '/src/components/',
+  '/src/pages/',
+  '/src/contexts/'
+];
+
+// Install event - cache critical assets immediately
 self.addEventListener('install', (event) => {
-  console.log('[SW] Install event');
+  console.log('[SW] Install event - Phase 2');
   
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('[SW] Caching core assets');
-        return cache.addAll(CORE_ASSETS);
+    Promise.all([
+      // Cache critical assets
+      caches.open(CACHE_NAME).then((cache) => {
+        console.log('[SW] Caching critical assets');
+        return cache.addAll(CRITICAL_ASSETS);
+      }),
+      
+      // Prepare runtime cache
+      caches.open(RUNTIME_CACHE).then((cache) => {
+        console.log('[SW] Runtime cache ready');
+      }),
+      
+      // Prepare image cache
+      caches.open(IMAGE_CACHE).then((cache) => {
+        console.log('[SW] Image cache ready');
       })
-      .then(() => {
-        // Force activation of new service worker
-        return self.skipWaiting();
-      })
+    ]).then(() => {
+      return self.skipWaiting();
+    })
   );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activate event');
+  console.log('[SW] Activate event - Phase 2');
+  
+  const cacheWhitelist = [CACHE_NAME, RUNTIME_CACHE, IMAGE_CACHE];
   
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
+            if (!cacheWhitelist.includes(cacheName)) {
               console.log('[SW] Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
@@ -48,13 +69,148 @@ self.addEventListener('activate', (event) => {
         );
       })
       .then(() => {
-        // Take control of all clients
         return self.clients.claim();
       })
   );
 });
 
-// Fetch event - serve from cache first, then network
+// Helper function to determine cache strategy
+function getCacheStrategy(request) {
+  const url = new URL(request.url);
+  
+  // Images - Cache First with long expiration
+  if (request.destination === 'image' || url.pathname.match(/\.(png|jpg|jpeg|gif|webp|svg|ico)$/)) {
+    return 'cache-first-images';
+  }
+  
+  // API calls - Network First with cache fallback
+  if (url.pathname.startsWith('/api/') || url.search.includes('api')) {
+    return 'network-first-api';
+  }
+  
+  // JS/CSS bundles - Cache First
+  if (url.pathname.match(/\.(js|css)$/) || CRITICAL_ASSETS.some(asset => url.pathname.includes(asset))) {
+    return 'cache-first-assets';
+  }
+  
+  // HTML pages - Network First with cache fallback
+  if (request.mode === 'navigate' || request.destination === 'document') {
+    return 'network-first-html';
+  }
+  
+  // Default - Stale While Revalidate
+  return 'stale-while-revalidate';
+}
+
+// Cache First strategy for images with long expiration
+async function cacheFirstImages(request) {
+  const cache = await caches.open(IMAGE_CACHE);
+  const cachedResponse = await cache.match(request);
+  
+  if (cachedResponse) {
+    // Check if cache is older than 7 days
+    const cacheDate = new Date(cachedResponse.headers.get('sw-cache-date') || 0);
+    const now = new Date();
+    const daysDiff = (now - cacheDate) / (1000 * 60 * 60 * 24);
+    
+    if (daysDiff < 7) {
+      return cachedResponse;
+    }
+  }
+  
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse && networkResponse.status === 200) {
+      const responseClone = networkResponse.clone();
+      // Add cache date header
+      const headers = new Headers(responseClone.headers);
+      headers.set('sw-cache-date', new Date().toISOString());
+      
+      const modifiedResponse = new Response(responseClone.body, {
+        status: responseClone.status,
+        statusText: responseClone.statusText,
+        headers: headers
+      });
+      
+      cache.put(request, modifiedResponse);
+    }
+    return networkResponse;
+  } catch (error) {
+    return cachedResponse || new Response('Image not available offline', { status: 404 });
+  }
+}
+
+// Network First strategy for API calls
+async function networkFirstApi(request) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse && networkResponse.status === 200) {
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    const cachedResponse = await cache.match(request);
+    return cachedResponse || new Response('{"error": "Offline"}', { 
+      status: 503, 
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+// Cache First strategy for static assets
+async function cacheFirstAssets(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cachedResponse = await cache.match(request);
+  
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse && networkResponse.status === 200) {
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    return new Response('Asset not available offline', { status: 404 });
+  }
+}
+
+// Network First strategy for HTML pages
+async function networkFirstHtml(request) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse && networkResponse.status === 200) {
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    const cachedResponse = await cache.match(request);
+    return cachedResponse || cache.match('/');
+  }
+}
+
+// Stale While Revalidate strategy
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  const cachedResponse = await cache.match(request);
+  
+  const fetchPromise = fetch(request).then((networkResponse) => {
+    if (networkResponse && networkResponse.status === 200) {
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  }).catch(() => cachedResponse);
+  
+  return cachedResponse || fetchPromise;
+}
+
+// Main fetch event handler
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -64,64 +220,27 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache First strategy for core assets
-  if (CORE_ASSETS.includes(url.pathname) || url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
-    event.respondWith(
-      caches.match(request)
-        .then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          
-          return fetch(request)
-            .then((networkResponse) => {
-              // Cache the response for future use
-              if (networkResponse && networkResponse.status === 200) {
-                const responseClone = networkResponse.clone();
-                caches.open(CACHE_NAME)
-                  .then((cache) => {
-                    cache.put(request, responseClone);
-                  });
-              }
-              return networkResponse;
-            });
-        })
-        .catch(() => {
-          // Return offline fallback for navigation requests
-          if (request.mode === 'navigate') {
-            return caches.match('/');
-          }
-        })
-    );
-    return;
-  }
-
-  // Stale-While-Revalidate for images and API responses
-  if (request.destination === 'image' || url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      caches.open(RUNTIME_CACHE)
-        .then((cache) => {
-          return cache.match(request)
-            .then((cachedResponse) => {
-              const fetchPromise = fetch(request)
-                .then((networkResponse) => {
-                  // Cache successful responses
-                  if (networkResponse && networkResponse.status === 200) {
-                    cache.put(request, networkResponse.clone());
-                  }
-                  return networkResponse;
-                })
-                .catch(() => cachedResponse); // Fallback to cache if network fails
-
-              // Return cached version immediately, update in background
-              return cachedResponse || fetchPromise;
-            });
-        })
-    );
+  const strategy = getCacheStrategy(request);
+  
+  switch (strategy) {
+    case 'cache-first-images':
+      event.respondWith(cacheFirstImages(request));
+      break;
+    case 'network-first-api':
+      event.respondWith(networkFirstApi(request));
+      break;
+    case 'cache-first-assets':
+      event.respondWith(cacheFirstAssets(request));
+      break;
+    case 'network-first-html':
+      event.respondWith(networkFirstHtml(request));
+      break;
+    default:
+      event.respondWith(staleWhileRevalidate(request));
   }
 });
 
-// Background sync for offline actions (basic implementation)
+// Background sync for offline actions
 self.addEventListener('sync', (event) => {
   console.log('[SW] Background sync:', event.tag);
   
@@ -133,7 +252,7 @@ self.addEventListener('sync', (event) => {
   }
 });
 
-// Push notification handling (placeholder for future implementation)
+// Push notification handling
 self.addEventListener('push', (event) => {
   console.log('[SW] Push message received');
   
@@ -141,10 +260,40 @@ self.addEventListener('push', (event) => {
     body: event.data ? event.data.text() : 'New update available',
     icon: '/icon-192.png',
     badge: '/favicon.ico',
-    tag: 'ikanisa-notification'
+    tag: 'ikanisa-notification',
+    vibrate: [100, 50, 100],
+    data: {
+      dateOfArrival: Date.now(),
+      primaryKey: 1
+    },
+    actions: [
+      {
+        action: 'explore',
+        title: 'View Details',
+        icon: '/icon-192.png'
+      },
+      {
+        action: 'close',
+        title: 'Close',
+        icon: '/icon-192.png'
+      }
+    ]
   };
 
   event.waitUntil(
     self.registration.showNotification('IKANISA', options)
   );
+});
+
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  console.log('[SW] Notification click received');
+  
+  event.notification.close();
+  
+  if (event.action === 'explore') {
+    event.waitUntil(
+      clients.openWindow('/')
+    );
+  }
 });
