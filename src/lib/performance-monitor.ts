@@ -1,4 +1,3 @@
-
 // Performance monitoring and analytics for IKANISA
 class PerformanceMonitor {
   private metrics: Map<string, number> = new Map();
@@ -106,9 +105,9 @@ class PerformanceMonitor {
   }
 
   private handleNavigationEntry(entry: PerformanceNavigationTiming) {
-    this.recordMetric('dom-content-loaded', entry.domContentLoadedEventEnd - entry.navigationStart);
-    this.recordMetric('load-complete', entry.loadEventEnd - entry.navigationStart);
-    this.recordMetric('time-to-interactive', entry.domInteractive - entry.navigationStart);
+    this.recordMetric('dom-content-loaded', entry.domContentLoadedEventEnd - entry.startTime);
+    this.recordMetric('load-complete', entry.loadEventEnd - entry.startTime);
+    this.recordMetric('time-to-interactive', entry.domInteractive - entry.startTime);
   }
 
   private handleResourceEntry(entry: PerformanceResourceTiming) {
@@ -140,7 +139,6 @@ class PerformanceMonitor {
       this.recordMetric(name, duration);
       this.startTimes.delete(name);
       
-      // Create performance mark for browser dev tools
       if ('performance' in window && 'mark' in performance) {
         performance.mark(`${name}-end`);
         performance.measure(name, `${name}-start`, `${name}-end`);
@@ -152,7 +150,6 @@ class PerformanceMonitor {
     this.metrics.set(name, value);
     console.log(`[Performance] ${name}: ${value.toFixed(2)}ms`);
     
-    // Store in localStorage for persistence
     try {
       const stored = JSON.parse(localStorage.getItem('ikanisa-performance') || '{}');
       stored[name] = value;
@@ -171,7 +168,6 @@ class PerformanceMonitor {
     const metrics = this.getMetrics();
     let report = '\n=== IKANISA Performance Report ===\n';
     
-    // Core Web Vitals
     report += '\nCore Web Vitals:\n';
     if (metrics['first-contentful-paint']) {
       report += `• FCP: ${metrics['first-contentful-paint'].toFixed(2)}ms\n`;
@@ -183,7 +179,6 @@ class PerformanceMonitor {
       report += `• CLS: ${metrics['cumulative-layout-shift'].toFixed(3)}\n`;
     }
     
-    // Loading Performance
     report += '\nLoading Performance:\n';
     if (metrics['dom-content-loaded']) {
       report += `• DOM Content Loaded: ${metrics['dom-content-loaded'].toFixed(2)}ms\n`;

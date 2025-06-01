@@ -145,3 +145,41 @@ export const useSplashScreen = () => {
 
   return { hideSplash };
 };
+
+// Main hook that combines all native features
+export const useNativeFeatures = () => {
+  const [isNative, setIsNative] = useState(false);
+  const [isPWA, setIsPWA] = useState(false);
+
+  const camera = useCamera();
+  const haptics = useHaptics();
+  const pushNotifications = usePushNotifications();
+  const statusBar = useStatusBar();
+  const splashScreen = useSplashScreen();
+
+  const initializeNativeFeatures = useCallback(async () => {
+    // Check if running as native app
+    setIsNative(Capacitor.isNativePlatform());
+    
+    // Check if running as PWA
+    setIsPWA(window.matchMedia('(display-mode: standalone)').matches);
+
+    // Initialize push notifications if native
+    if (Capacitor.isNativePlatform()) {
+      await pushNotifications.initializePush();
+      await statusBar.setDark();
+      await splashScreen.hideSplash();
+    }
+  }, [pushNotifications, statusBar, splashScreen]);
+
+  return {
+    isNative,
+    isPWA,
+    initializeNativeFeatures,
+    camera,
+    haptics,
+    pushNotifications,
+    statusBar,
+    splashScreen
+  };
+};
