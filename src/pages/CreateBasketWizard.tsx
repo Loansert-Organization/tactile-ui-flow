@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, Users, Lock, Eye, Share2, X, Upload, Camera, Loader2 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,6 @@ interface BasketData {
 
 const CreateBasketWizard = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { handlePress } = usePressFeedback();
   const [showCoachMark, setShowCoachMark] = useState(false);
   const [basketData, setBasketData] = useState<BasketData>({
@@ -37,19 +37,6 @@ const CreateBasketWizard = () => {
     contributionType: 'recurring',
     profileImage: null
   });
-
-  // Get current step from URL path
-  const getCurrentStep = () => {
-    const path = location.pathname;
-    if (path.includes('/step/1')) return 1;
-    if (path.includes('/step/2')) return 2;
-    if (path.includes('/step/3')) return 3;
-    if (path.includes('/step/4')) return 4;
-    if (path.includes('/step/5')) return 5;
-    return 1; // default to step 1
-  };
-
-  const currentStep = getCurrentStep();
 
   useEffect(() => {
     // Show coach mark on first visit
@@ -123,67 +110,6 @@ const CreateBasketWizard = () => {
     }
   };
 
-  const renderCurrentStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <Step1 
-            basketData={basketData}
-            updateBasketData={updateBasketData}
-            onBack={handleBack}
-            onNext={() => handleNext('2')}
-            handlePress={handlePress}
-          />
-        );
-      case 2:
-        return (
-          <Step2 
-            basketData={basketData}
-            updateBasketData={updateBasketData}
-            onBack={() => handleNext('1')}
-            onNext={() => handleNext('3')}
-            handlePress={handlePress}
-          />
-        );
-      case 3:
-        return (
-          <Step3 
-            basketData={basketData}
-            updateBasketData={updateBasketData}
-            onBack={() => handleNext('2')}
-            onNext={handleComplete}
-            handlePress={handlePress}
-          />
-        );
-      case 4:
-        return (
-          <Step4 
-            basketData={basketData}
-            onBack={() => navigate('/baskets/mine')}
-            handlePress={handlePress}
-          />
-        );
-      case 5:
-        return (
-          <Step5 
-            basketData={basketData}
-            onBack={() => navigate('/baskets/mine')}
-            handlePress={handlePress}
-          />
-        );
-      default:
-        return (
-          <Step1 
-            basketData={basketData}
-            updateBasketData={updateBasketData}
-            onBack={handleBack}
-            onNext={() => handleNext('2')}
-            handlePress={handlePress}
-          />
-        );
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4 relative overflow-hidden">
       {/* Animated background elements */}
@@ -195,7 +121,49 @@ const CreateBasketWizard = () => {
       {/* Coach Mark Overlay */}
       {showCoachMark && <CoachMarkOverlay onDismiss={() => setShowCoachMark(false)} />}
 
-      {renderCurrentStep()}
+      <Routes>
+        <Route path="/step/1" element={
+          <Step1 
+            basketData={basketData}
+            updateBasketData={updateBasketData}
+            onBack={handleBack}
+            onNext={() => handleNext('2')}
+            handlePress={handlePress}
+          />
+        } />
+        <Route path="/step/2" element={
+          <Step2 
+            basketData={basketData}
+            updateBasketData={updateBasketData}
+            onBack={() => handleNext('1')}
+            onNext={() => handleNext('3')}
+            handlePress={handlePress}
+          />
+        } />
+        <Route path="/step/3" element={
+          <Step3 
+            basketData={basketData}
+            updateBasketData={updateBasketData}
+            onBack={() => handleNext('2')}
+            onNext={handleComplete}
+            handlePress={handlePress}
+          />
+        } />
+        <Route path="/step/4" element={
+          <Step4 
+            basketData={basketData}
+            onBack={() => navigate('/baskets/mine')}
+            handlePress={handlePress}
+          />
+        } />
+        <Route path="/step/5" element={
+          <Step5 
+            basketData={basketData}
+            onBack={() => navigate('/baskets/mine')}
+            handlePress={handlePress}
+          />
+        } />
+      </Routes>
 
       <style>{`
         @keyframes enhanced-confetti-fall {
@@ -535,7 +503,7 @@ const Step1 = ({ basketData, updateBasketData, onBack, onNext, handlePress }: St
                   className={`glass-input text-white placeholder:text-gray-400 ${
                     errors.name ? 'border-red-500 animate-[shake_0.3s_ease-in-out]' : ''
                   }`}
-                  maxLength={NAME_MAX + 10}
+                  maxLength={NAME_MAX + 10} // Allow typing over limit for better UX
                 />
                 <CharacterCounter 
                   current={basketData.name.length} 

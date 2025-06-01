@@ -2,7 +2,6 @@
 import React from 'react';
 import { Plus, Heart } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
-import { PWAInstall } from '@/components/PWAInstall';
 import { usePressFeedback } from '@/hooks/useInteractions';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,7 +13,7 @@ export const AppHeader = () => {
     <header className="sticky top-0 z-50 w-full">
       <GlassCard className="m-2 px-4 py-3">
         <div className="flex items-center justify-between">
-          <PWAInstall />
+          <div></div>
           
           <h1 className="text-xl font-bold gradient-text">IKANISA</h1>
           
