@@ -19,6 +19,7 @@ export interface Basket {
 interface BasketContextType {
   baskets: Basket[];
   getNonMemberBaskets: () => Basket[];
+  getBasket: (basketId: string) => Basket | undefined;
   joinBasket: (basketId: string) => void;
 }
 
@@ -80,6 +81,10 @@ export const BasketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return baskets.filter(basket => !basket.isMember);
   };
 
+  const getBasket = (basketId: string) => {
+    return baskets.find(basket => basket.id === basketId);
+  };
+
   const joinBasket = (basketId: string) => {
     setBaskets(prev => 
       prev.map(basket => 
@@ -94,6 +99,7 @@ export const BasketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     <BasketContext.Provider value={{
       baskets,
       getNonMemberBaskets,
+      getBasket,
       joinBasket
     }}>
       {children}
