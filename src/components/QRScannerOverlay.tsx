@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { X, Camera, AlertCircle, RefreshCw } from 'lucide-react';
+import { X, Camera, AlertCircle, RefreshCw, Flame } from 'lucide-react';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { toast } from '@/hooks/use-toast';
 import jsQR from 'jsqr';
@@ -144,11 +144,12 @@ export const QRScannerOverlay = ({
       <div className="absolute top-0 left-0 right-0 z-10 p-4 bg-gradient-to-b from-black/80 to-transparent">
         <div className="flex items-center justify-between">
           <div>
-            <h2 id="scanner-title" className="text-white font-bold text-lg">
+            <h2 id="scanner-title" className="text-white font-bold text-lg flex items-center gap-2">
+              <Flame className="w-5 h-5 text-orange-500 animate-pulse" />
               Scan QR Code
             </h2>
             <p id="scanner-description" className="text-gray-300 text-sm">
-              Align QR code within the scanning area
+              Align QR code within the flame-bordered scanning area
             </p>
           </div>
           <button 
@@ -192,12 +193,12 @@ export const QRScannerOverlay = ({
               muted
             />
             
-            {/* Scanning Overlay */}
+            {/* Scanning Overlay with Flame Effects */}
             <div className="absolute inset-0 flex items-center justify-center">
               {/* Darkened background */}
               <div className="absolute inset-0 bg-black/40" />
               
-              {/* Scan Window */}
+              {/* Scan Window with Flame Border */}
               <div className="relative">
                 {/* Transparent window */}
                 <div 
@@ -207,24 +208,48 @@ export const QRScannerOverlay = ({
                     boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)'
                   }}
                 >
-                  {/* Animated corners */}
-                  <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white animate-pulse" />
-                  <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white animate-pulse" />
-                  <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white animate-pulse" />
-                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white animate-pulse" />
+                  {/* Animated flame corners */}
+                  <div className="absolute -top-2 -left-2">
+                    <Flame className="w-8 h-8 text-orange-500 animate-bounce" style={{ animationDelay: '0s' }} />
+                  </div>
+                  <div className="absolute -top-2 -right-2">
+                    <Flame className="w-8 h-8 text-red-500 animate-bounce" style={{ animationDelay: '0.2s' }} />
+                  </div>
+                  <div className="absolute -bottom-2 -left-2">
+                    <Flame className="w-8 h-8 text-yellow-500 animate-bounce" style={{ animationDelay: '0.4s' }} />
+                  </div>
+                  <div className="absolute -bottom-2 -right-2">
+                    <Flame className="w-8 h-8 text-red-400 animate-bounce" style={{ animationDelay: '0.6s' }} />
+                  </div>
                   
-                  {/* Gradient corners for color */}
-                  <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-purple-400" />
-                  <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-blue-400" />
-                  <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-emerald-400" />
-                  <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-pink-400" />
+                  {/* Additional flame decorations on edges */}
+                  <div className="absolute top-1/4 -left-3">
+                    <Flame className="w-6 h-6 text-orange-400 animate-pulse" style={{ animationDelay: '0.1s' }} />
+                  </div>
+                  <div className="absolute top-1/4 -right-3">
+                    <Flame className="w-6 h-6 text-red-400 animate-pulse" style={{ animationDelay: '0.3s' }} />
+                  </div>
+                  <div className="absolute bottom-1/4 -left-3">
+                    <Flame className="w-6 h-6 text-yellow-400 animate-pulse" style={{ animationDelay: '0.5s' }} />
+                  </div>
+                  <div className="absolute bottom-1/4 -right-3">
+                    <Flame className="w-6 h-6 text-orange-500 animate-pulse" style={{ animationDelay: '0.7s' }} />
+                  </div>
                   
-                  {/* Scanning line */}
-                  <div className="absolute inset-x-0 top-1/2 h-0.5 bg-gradient-to-r from-transparent via-white to-transparent animate-pulse" />
+                  {/* Original gradient corners for enhanced effect */}
+                  <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-orange-400" />
+                  <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-red-400" />
+                  <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-yellow-400" />
+                  <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-orange-500" />
+                  
+                  {/* Flame-colored scanning line */}
+                  <div className="absolute inset-x-0 top-1/2 h-0.5 bg-gradient-to-r from-transparent via-orange-400 to-transparent animate-pulse" />
                 </div>
                 
-                <p className="text-white text-center mt-6 text-sm">
-                  {isScanning ? 'Scanning for QR codes...' : 'Position QR code in the frame'}
+                <p className="text-white text-center mt-6 text-sm flex items-center justify-center gap-2">
+                  <Flame className="w-4 h-4 text-orange-400" />
+                  {isScanning ? 'Scanning for QR codes...' : 'Position QR code in the flame frame'}
+                  <Flame className="w-4 h-4 text-red-400" />
                 </p>
               </div>
             </div>
