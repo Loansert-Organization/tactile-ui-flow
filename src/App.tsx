@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -61,63 +62,96 @@ const App = () => {
           <MyBasketsProvider>
             <BrowserRouter>
               <div className="min-h-screen flex flex-col">
-                {/* Standalone routes (no header/nav) */}
-                <Route path="/create/*" element={
-                  <LazyPage>
-                    <CreateBasketWizard />
-                  </LazyPage>
-                } />
-                
-                {/* Main app routes (with header only) */}
-                <Route path="/*" element={
-                  <>
-                    <AppHeader />
-                    <main className="flex-1">
-                      <Routes>
-                        <Route path="/" element={
-                          <LazyPage>
-                            <Feed />
-                          </LazyPage>
-                        } />
-                        <Route path="/baskets/mine" element={
-                          <LazyPage>
-                            <MyBaskets />
-                          </LazyPage>
-                        } />
-                        <Route path="/basket/:id" element={
-                          <LazyPage>
-                            <BasketOverview />
-                          </LazyPage>
-                        } />
-                        <Route path="/basket/:id/join" element={
-                          <LazyPage>
-                            <BasketDetailNonMember />
-                          </LazyPage>
-                        } />
-                        <Route path="/basket/:id/participants" element={
-                          <LazyPage>
-                            <BasketParticipants />
-                          </LazyPage>
-                        } />
-                        <Route path="/basket/:id/settings" element={
-                          <LazyPage>
-                            <BasketSettings />
-                          </LazyPage>
-                        } />
-                        <Route path="/basket/:id/contribute" element={
-                          <LazyPage>
-                            <ContributionPage />
-                          </LazyPage>
-                        } />
-                        <Route path="*" element={
-                          <LazyPage>
-                            <NotFound />
-                          </LazyPage>
-                        } />
-                      </Routes>
-                    </main>
-                  </>
-                } />
+                <Routes>
+                  {/* Standalone routes (no header/nav) */}
+                  <Route path="/create/*" element={
+                    <LazyPage>
+                      <CreateBasketWizard />
+                    </LazyPage>
+                  } />
+                  
+                  {/* Main app routes (with header only) */}
+                  <Route path="/" element={
+                    <>
+                      <AppHeader />
+                      <main className="flex-1">
+                        <LazyPage>
+                          <Feed />
+                        </LazyPage>
+                      </main>
+                    </>
+                  } />
+                  <Route path="/baskets/mine" element={
+                    <>
+                      <AppHeader />
+                      <main className="flex-1">
+                        <LazyPage>
+                          <MyBaskets />
+                        </LazyPage>
+                      </main>
+                    </>
+                  } />
+                  <Route path="/basket/:id" element={
+                    <>
+                      <AppHeader />
+                      <main className="flex-1">
+                        <LazyPage>
+                          <BasketOverview />
+                        </LazyPage>
+                      </main>
+                    </>
+                  } />
+                  <Route path="/basket/:id/join" element={
+                    <>
+                      <AppHeader />
+                      <main className="flex-1">
+                        <LazyPage>
+                          <BasketDetailNonMember />
+                        </LazyPage>
+                      </main>
+                    </>
+                  } />
+                  <Route path="/basket/:id/participants" element={
+                    <>
+                      <AppHeader />
+                      <main className="flex-1">
+                        <LazyPage>
+                          <BasketParticipants />
+                        </LazyPage>
+                      </main>
+                    </>
+                  } />
+                  <Route path="/basket/:id/settings" element={
+                    <>
+                      <AppHeader />
+                      <main className="flex-1">
+                        <LazyPage>
+                          <BasketSettings />
+                        </LazyPage>
+                      </main>
+                    </>
+                  } />
+                  <Route path="/basket/:id/contribute" element={
+                    <>
+                      <AppHeader />
+                      <main className="flex-1">
+                        <LazyPage>
+                          <ContributionPage />
+                        </LazyPage>
+                      </main>
+                    </>
+                  } />
+                  <Route path="*" element={
+                    <>
+                      <AppHeader />
+                      <main className="flex-1">
+                        <LazyPage>
+                          <NotFound />
+                        </LazyPage>
+                      </main>
+                    </>
+                  } />
+                </Routes>
               </div>
             </BrowserRouter>
           </MyBasketsProvider>
