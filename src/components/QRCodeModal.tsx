@@ -1,5 +1,3 @@
-
-
 import React, { useRef } from 'react';
 import { X, Download, Share2 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -151,9 +149,6 @@ export const QRCodeModal = ({
           </div>
           <div className="text-center">
             <h3 className="font-semibold gradient-text-blue">{basketName}</h3>
-            <p className="text-sm text-gray-400 mt-1">
-              Scan to join this basket
-            </p>
           </div>
         </div>
 
@@ -172,4 +167,3 @@ export const QRCodeModal = ({
     </div>
   );
 };
-
