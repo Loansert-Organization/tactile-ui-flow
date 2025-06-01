@@ -1,4 +1,9 @@
 
+// Helper functions (stubs)
+function loadImage(img: HTMLImageElement) {
+  if (img.dataset.src) img.src = img.dataset.src;
+}
+
 // Lighthouse optimization utility with placeholder implementations
 export const lighthouseOptimizer = {
   optimizeFonts: () => {
@@ -24,7 +29,8 @@ export const lighthouseOptimizer = {
     if (typeof performance !== 'undefined' && performance.getEntriesByType) {
       const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
       if (navigation) {
-        console.log('Page load time:', navigation.loadEventEnd - navigation.fetchStart);
+        // Use startTime instead of navigationStart
+        console.log('Page load time:', navigation.loadEventEnd - navigation.startTime);
       }
     }
   },

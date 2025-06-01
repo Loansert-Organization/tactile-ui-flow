@@ -12,7 +12,7 @@ import { OfflineBanner } from "@/components/ui/offline-banner";
 import { PerformanceDashboard } from "@/components/dev/PerformanceDashboard";
 import { useNativeFeatures } from "@/hooks/useNativeFeatures";
 
-// Lazy load pages for better performance
+// Lazy load pages for better performance - all using default imports
 const Index = lazy(() => import("@/pages/Index"));
 const MyBaskets = lazy(() => import("@/pages/MyBaskets"));
 const Feed = lazy(() => import("@/pages/Feed"));

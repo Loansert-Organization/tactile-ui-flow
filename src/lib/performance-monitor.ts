@@ -1,4 +1,10 @@
 
+// Helper functions (stubs)
+async function compressData(data: any) { return data; }
+function loadImage(img: HTMLImageElement) {
+  if (img.dataset.src) img.src = img.dataset.src;
+}
+
 // Performance monitoring utility with placeholder implementations
 export const performanceMonitor = {
   startMeasurement: (name: string) => {
