@@ -12,11 +12,14 @@ export function useNativeFeatures() {
   };
 }
 
-// Add the missing useHaptics export
+// Add the missing useHaptics export with all required methods
 export function useHaptics() {
   return {
     impact: () => {},
     notification: () => {},
-    selection: () => {}
+    selection: () => {},
+    light: () => {},
+    medium: () => {},
+    heavy: () => {}
   };
 }
