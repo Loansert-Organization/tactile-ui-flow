@@ -1,185 +1,112 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+
+import { Suspense, lazy, useEffect } from "react";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { lazy, useEffect } from "react";
-import { AppHeader } from "@/components/layout/AppHeader";
-import { LazyPage } from "@/components/ui/lazy-page";
-import { OfflineBanner } from "@/components/ui/offline-banner";
 import { BasketProvider } from "@/contexts/BasketContext";
 import { MyBasketsProvider } from "@/contexts/MyBasketsContext";
-import { offlineStorage } from "@/lib/offline-storage";
-import { usePushNotifications, useStatusBar, useSplashScreen } from "@/hooks/useNativeFeatures";
-import { Capacitor } from "@capacitor/core";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { BottomNav } from "@/components/layout/BottomNav";
+import { OfflineBanner } from "@/components/ui/offline-banner";
+import { PerformanceDashboard } from "@/components/dev/PerformanceDashboard";
+import { useNativeFeatures } from "@/hooks/useNativeFeatures";
+import { performanceMonitor } from "@/lib/performance-monitor";
+import { lighthouseOptimizer } from "@/lib/lighthouse-optimizer";
 
 // Lazy load pages for better performance
-const Feed = lazy(() => import("@/pages/Feed").then(module => ({ default: module.Feed })));
-const Chat = lazy(() => import("@/pages/Chat").then(module => ({ default: module.Chat })));
-const BasketOverview = lazy(() => import("@/pages/BasketOverview").then(module => ({ default: module.BasketOverview })));
-const BasketDetailNonMember = lazy(() => import("@/pages/BasketDetailNonMember").then(module => ({ default: module.BasketDetailNonMember })));
-const BasketParticipants = lazy(() => import("@/pages/BasketParticipants").then(module => ({ default: module.BasketParticipants })));
-const BasketSettings = lazy(() => import("@/pages/BasketSettings").then(module => ({ default: module.BasketSettings })));
-const ContributionPage = lazy(() => import("@/pages/ContributionPage").then(module => ({ default: module.ContributionPage })));
-const MyBaskets = lazy(() => import("@/pages/MyBaskets").then(module => ({ default: module.MyBaskets })));
+const Index = lazy(() => import("@/pages/Index"));
+const MyBaskets = lazy(() => import("@/pages/MyBaskets"));
+const Feed = lazy(() => import("@/pages/Feed"));
+const Chat = lazy(() => import("@/pages/Chat"));
+const BasketDetailPage = lazy(() => import("@/pages/BasketDetailPage"));
+const BasketDetailNonMember = lazy(() => import("@/pages/BasketDetailNonMember"));
+const BasketOverview = lazy(() => import("@/pages/BasketOverview"));
+const BasketParticipants = lazy(() => import("@/pages/BasketParticipants"));
+const BasketSettings = lazy(() => import("@/pages/BasketSettings"));
+const ContributionPage = lazy(() => import("@/pages/ContributionPage"));
 const CreateBasketWizard = lazy(() => import("@/pages/CreateBasketWizard"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+const GettingStarted = lazy(() => import("@/pages/GettingStarted"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
       gcTime: 10 * 60 * 1000, // 10 minutes
-      retry: 1,
-      refetchOnWindowFocus: false,
     },
   },
 });
 
-const App = () => {
-  const { initializePush } = usePushNotifications();
-  const { setDark } = useStatusBar();
-  const { hideSplash } = useSplashScreen();
+function App() {
+  const { initializeNativeFeatures } = useNativeFeatures();
 
   useEffect(() => {
-    // Initialize offline storage
-    offlineStorage.init().catch(console.error);
+    // Initialize native features
+    initializeNativeFeatures();
+
+    // Start performance monitoring
+    performanceMonitor.startMeasurement('app-init');
     
-    // Clean up stale data weekly
-    offlineStorage.clearStaleData().catch(console.error);
-    
-    // Initialize native features if on mobile
-    if (Capacitor.isNativePlatform()) {
-      console.log('[App] Running on native platform');
-      
-      // Set status bar style
-      setDark().catch(console.error);
-      
-      // Hide splash screen after app loads
-      setTimeout(() => {
-        hideSplash().catch(console.error);
-      }, 1000);
-      
-      // Initialize push notifications
-      initializePush().catch(console.error);
-    }
-    
-    // Listen for service worker messages
-    navigator.serviceWorker?.addEventListener('message', (event) => {
-      if (event.data?.type === 'SYNC_OFFLINE_DATA') {
-        console.log('[App] Received sync request from service worker');
-        // Trigger any necessary data refresh here
-      }
-    });
-  }, [initializePush, setDark, hideSplash]);
+    // Initialize Lighthouse optimizations
+    lighthouseOptimizer.optimizeFonts();
+    lighthouseOptimizer.deferNonCriticalJS();
+    lighthouseOptimizer.checkPerformanceBudget();
+
+    // Mark app initialization complete
+    setTimeout(() => {
+      performanceMonitor.endMeasurement('app-init');
+    }, 100);
+
+    return () => {
+      lighthouseOptimizer.cleanup();
+    };
+  }, [initializeNativeFeatures]);
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <OfflineBanner />
         <BasketProvider>
           <MyBasketsProvider>
             <BrowserRouter>
-              <div className="min-h-screen flex flex-col">
-                <Routes>
-                  {/* Standalone routes (no header/nav) */}
-                  <Route path="/create/*" element={
-                    <LazyPage>
-                      <CreateBasketWizard />
-                    </LazyPage>
-                  } />
-                  
-                  {/* Main app routes (with header only) */}
-                  <Route path="/" element={
-                    <>
-                      <AppHeader />
-                      <main className="flex-1">
-                        <LazyPage>
-                          <Feed />
-                        </LazyPage>
-                      </main>
-                    </>
-                  } />
-                  <Route path="/baskets/mine" element={
-                    <>
-                      <AppHeader />
-                      <main className="flex-1">
-                        <LazyPage>
-                          <MyBaskets />
-                        </LazyPage>
-                      </main>
-                    </>
-                  } />
-                  <Route path="/basket/:id" element={
-                    <>
-                      <AppHeader />
-                      <main className="flex-1">
-                        <LazyPage>
-                          <BasketOverview />
-                        </LazyPage>
-                      </main>
-                    </>
-                  } />
-                  <Route path="/basket/:id/join" element={
-                    <>
-                      <AppHeader />
-                      <main className="flex-1">
-                        <LazyPage>
-                          <BasketDetailNonMember />
-                        </LazyPage>
-                      </main>
-                    </>
-                  } />
-                  <Route path="/basket/:id/participants" element={
-                    <>
-                      <AppHeader />
-                      <main className="flex-1">
-                        <LazyPage>
-                          <BasketParticipants />
-                        </LazyPage>
-                      </main>
-                    </>
-                  } />
-                  <Route path="/basket/:id/settings" element={
-                    <>
-                      <AppHeader />
-                      <main className="flex-1">
-                        <LazyPage>
-                          <BasketSettings />
-                        </LazyPage>
-                      </main>
-                    </>
-                  } />
-                  <Route path="/basket/:id/contribute" element={
-                    <>
-                      <AppHeader />
-                      <main className="flex-1">
-                        <LazyPage>
-                          <ContributionPage />
-                        </LazyPage>
-                      </main>
-                    </>
-                  } />
-                  <Route path="*" element={
-                    <>
-                      <AppHeader />
-                      <main className="flex-1">
-                        <LazyPage>
-                          <NotFound />
-                        </LazyPage>
-                      </main>
-                    </>
-                  } />
-                </Routes>
+              <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-x-hidden">
+                <OfflineBanner />
+                <AppHeader />
+                
+                <main className="pt-16 pb-20">
+                  <Suspense fallback={
+                    <div className="flex items-center justify-center min-h-[50vh]">
+                      <div className="animate-spin rounded-full h-12 w-12 border-2 border-purple-500 border-t-transparent"></div>
+                    </div>
+                  }>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/baskets" element={<MyBaskets />} />
+                      <Route path="/feed" element={<Feed />} />
+                      <Route path="/chat" element={<Chat />} />
+                      <Route path="/basket/:id" element={<BasketDetailPage />} />
+                      <Route path="/basket/:id/join" element={<BasketDetailNonMember />} />
+                      <Route path="/basket/:id/overview" element={<BasketOverview />} />
+                      <Route path="/basket/:id/participants" element={<BasketParticipants />} />
+                      <Route path="/basket/:id/settings" element={<BasketSettings />} />
+                      <Route path="/basket/:id/contribute" element={<ContributionPage />} />
+                      <Route path="/create-basket" element={<CreateBasketWizard />} />
+                      <Route path="/getting-started" element={<GettingStarted />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
+                </main>
+
+                <BottomNav />
+                <PerformanceDashboard />
               </div>
+              <Toaster />
             </BrowserRouter>
           </MyBasketsProvider>
         </BasketProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
-};
+}
 
 export default App;
