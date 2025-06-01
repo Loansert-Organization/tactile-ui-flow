@@ -1,60 +1,65 @@
 
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useBaskets } from '@/contexts/BasketContext';
+import { ArrowLeft, Users, Calendar, Target } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
+import { ShareButton } from '@/components/ui/share-button';
+import { useBaskets } from '@/contexts/BasketContext';
 import { formatCurrency } from '@/lib/formatters';
-import { Users, Target, Calendar, Plus, ArrowLeft } from 'lucide-react';
 
 export default function BasketDetailNonMember() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getBasket } = useBaskets();
+  const { getBasketById, joinBasket } = useBaskets();
   
-  const basket = getBasket(id || '');
-
+  const basket = getBasketById(id || '');
+  
   if (!basket) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">Basket Not Found</h2>
           <p className="text-gray-400 mb-6">The basket you're looking for doesn't exist.</p>
-          <GradientButton onClick={() => navigate('/feed')}>
-            Browse Baskets
+          <GradientButton onClick={() => navigate('/')}>
+            Back to Feed
           </GradientButton>
         </div>
       </div>
     );
   }
 
+  const basketURL = `${window.location.origin}/basket/${id}`;
+
   const handleJoin = () => {
-    navigate(`/basket/${id}/contribute`);
+    if (id) {
+      joinBasket(id);
+      navigate(`/basket/${id}`);
+    }
   };
 
   return (
     <div className="min-h-screen p-4">
       <div className="max-w-2xl mx-auto">
-        {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Back
-        </button>
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h1 className="text-xl font-bold gradient-text">Join Basket</h1>
+        </div>
 
-        {/* Basket Header */}
+        {/* Basket Details */}
         <GlassCard className="p-6 mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-16 h-16 rounded-xl bg-gradient-purple-pink flex items-center justify-center">
-              <span className="text-2xl font-bold text-white">
-                {basket.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold gradient-text">{basket.name}</h1>
-              <div className="flex items-center gap-4 text-sm text-gray-400">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold gradient-text mb-2">{basket.name}</h2>
+              <p className="text-gray-400 mb-4">{basket.description}</p>
+              
+              <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
                 <div className="flex items-center gap-1">
                   <Users className="w-4 h-4" />
                   <span>{basket.participants} members</span>
@@ -65,11 +70,14 @@ export default function BasketDetailNonMember() {
                 </div>
               </div>
             </div>
+            <ShareButton 
+              basketName={basket.name} 
+              basketURL={basketURL}
+              size="md"
+            />
           </div>
 
-          <p className="text-gray-300 mb-6">{basket.description}</p>
-
-          {/* Progress */}
+          {/* Progress Section */}
           <div className="space-y-3 mb-6">
             <div className="flex items-center justify-between">
               <span className="text-gray-400">Progress</span>
@@ -78,7 +86,7 @@ export default function BasketDetailNonMember() {
             
             <div className="relative h-3 bg-gray-700 rounded-full overflow-hidden">
               <div 
-                className="absolute inset-y-0 left-0 bg-gradient-teal-blue rounded-full transition-all duration-700" 
+                className="absolute inset-y-0 left-0 bg-gradient-teal-blue rounded-full transition-all duration-700"
                 style={{ width: `${basket.progress}%` }}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
@@ -97,34 +105,33 @@ export default function BasketDetailNonMember() {
           {/* Join Button */}
           <GradientButton
             variant="primary"
-            size="lg"
             onClick={handleJoin}
             className="w-full"
+            size="lg"
           >
-            <Plus className="w-5 h-5" />
             Join This Basket
           </GradientButton>
         </GlassCard>
 
         {/* Additional Info */}
         <GlassCard className="p-6">
-          <h3 className="text-lg font-semibold mb-4">About This Basket</h3>
-          <div className="space-y-3 text-sm text-gray-300">
+          <h3 className="font-semibold mb-3">About This Basket</h3>
+          <div className="space-y-3 text-sm text-gray-400">
             <div className="flex justify-between">
               <span>Goal Amount:</span>
-              <span className="font-semibold">{formatCurrency(basket.goal)}</span>
+              <span className="text-white">{formatCurrency(basket.goal)}</span>
             </div>
             <div className="flex justify-between">
               <span>Current Amount:</span>
-              <span className="font-semibold">{formatCurrency(basket.currentAmount)}</span>
+              <span className="text-white">{formatCurrency(basket.currentAmount)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Members:</span>
-              <span className="font-semibold">{basket.participants}</span>
+              <span>Remaining:</span>
+              <span className="text-white">{formatCurrency(basket.goal - basket.currentAmount)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Time Remaining:</span>
-              <span className="font-semibold">{basket.daysLeft} days</span>
+              <span>Average per Member:</span>
+              <span className="text-white">{formatCurrency(Math.round(basket.currentAmount / basket.participants))}</span>
             </div>
           </div>
         </GlassCard>

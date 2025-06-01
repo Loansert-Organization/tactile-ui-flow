@@ -1,31 +1,40 @@
 
-import React, { createContext, useContext } from 'react';
-import { useMyBaskets, MyBasket } from '@/hooks/useMyBaskets';
+import React, { createContext, useContext, ReactNode } from 'react';
+import { useBaskets } from './BasketContext';
 
 interface MyBasketsContextType {
-  myBaskets: MyBasket[];
-  joinBasket: (basketData: Partial<MyBasket> & { id: string; name: string }) => Promise<MyBasket>;
-  createBasket: (basketData: Omit<MyBasket, 'id' | 'createdAt' | 'isMember' | 'myContribution'>) => Promise<MyBasket>;
-  updateBasketStatus: (basketId: string, status: 'pending' | 'approved' | 'private') => void;
-  isJoining: string | null;
+  myBaskets: any[];
+  refreshMyBaskets: () => void;
 }
 
 const MyBasketsContext = createContext<MyBasketsContextType | undefined>(undefined);
 
-export const MyBasketsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const basketsData = useMyBaskets();
+export function MyBasketsProvider({ children }: { children: ReactNode }) {
+  const { getMemberBaskets } = useBaskets();
+  
+  const myBaskets = getMemberBaskets();
+
+  const refreshMyBaskets = () => {
+    // Refresh logic would go here
+    console.log('Refreshing my baskets...');
+  };
+
+  const value = {
+    myBaskets,
+    refreshMyBaskets,
+  };
 
   return (
-    <MyBasketsContext.Provider value={basketsData}>
+    <MyBasketsContext.Provider value={value}>
       {children}
     </MyBasketsContext.Provider>
   );
-};
+}
 
-export const useMyBasketsContext = () => {
+export function useMyBaskets() {
   const context = useContext(MyBasketsContext);
   if (context === undefined) {
-    throw new Error('useMyBasketsContext must be used within a MyBasketsProvider');
+    throw new Error('useMyBaskets must be used within a MyBasketsProvider');
   }
   return context;
-};
+}

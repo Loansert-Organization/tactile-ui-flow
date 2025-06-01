@@ -41,12 +41,30 @@ export const performanceMonitor = {
 
   getMetrics: () => {
     // Return placeholder metrics for Core Web Vitals
-    return {
+    const metrics: Record<string, number> = {
       'first-contentful-paint': 1200,
       'largest-contentful-paint': 2500,
       'cumulative-layout-shift': 0.1,
       'time-to-interactive': 3000
     };
+
+    // Try to get real navigation timing if available
+    if (typeof performance !== 'undefined' && performance.getEntriesByType) {
+      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      if (navigation) {
+        // Use correct properties for PerformanceNavigationTiming
+        metrics['navigation-start'] = navigation.startTime;
+        metrics['dom-complete'] = navigation.domComplete - navigation.startTime;
+        metrics['load-complete'] = navigation.loadEventEnd - navigation.startTime;
+        
+        // Only use responseStart if it exists
+        if (navigation.responseStart) {
+          metrics['response-time'] = navigation.responseStart - navigation.startTime;
+        }
+      }
+    }
+
+    return metrics;
   },
 
   generateReport: () => {
@@ -56,6 +74,14 @@ export const performanceMonitor = {
     report += `Largest Contentful Paint: ${metrics['largest-contentful-paint']}ms\n`;
     report += `Cumulative Layout Shift: ${metrics['cumulative-layout-shift']}\n`;
     report += `Time to Interactive: ${metrics['time-to-interactive']}ms\n`;
+    
+    if (metrics['dom-complete']) {
+      report += `DOM Complete: ${metrics['dom-complete']}ms\n`;
+    }
+    if (metrics['load-complete']) {
+      report += `Load Complete: ${metrics['load-complete']}ms\n`;
+    }
+    
     return report;
   }
 };
