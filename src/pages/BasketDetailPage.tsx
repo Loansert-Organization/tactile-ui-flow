@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -59,10 +58,18 @@ interface BasketData {
   progress: number;
   daysLeft: number;
   isCreator: boolean;
+  creatorId: string;
+  privacy: 'private' | 'public';
   members: Member[];
   contributions: Contribution[];
   status: 'pending' | 'approved' | 'private';
 }
+
+// Dummy current user for business logic
+const currentUser = {
+  uid: 'user123',
+  code: '123456'
+};
 
 // Dummy data with status
 const getDummyBasketData = (type: 'private' | 'public'): BasketData => ({
@@ -74,7 +81,9 @@ const getDummyBasketData = (type: 'private' | 'public'): BasketData => ({
   currentAmount: 325000,
   progress: 65,
   daysLeft: 15,
-  isCreator: true,
+  isCreator: Math.random() > 0.5, // Randomly assign creator status for testing
+  creatorId: Math.random() > 0.5 ? 'user123' : 'creator456', // Sometimes current user is creator
+  privacy: type,
   status: type === 'private' ? 'private' : Math.random() > 0.5 ? 'pending' : 'approved',
   members: [
     { id: '1', code: '123456', phone: '0788123456', hidePhone: false, isCurrentUser: true },
@@ -167,6 +176,9 @@ const BasketDetailPage = () => {
     }
   }, [basketData?.status]);
 
+  // Business Rule 1: Check if current user is creator
+  const isCurrentUserCreator = basketData?.creatorId === currentUser.uid;
+
   // Handlers
   const handleBack = () => navigate(-1);
   
@@ -196,6 +208,14 @@ const BasketDetailPage = () => {
   };
 
   const handleContribute = () => {
+    if (isCurrentUserCreator) {
+      toast({
+        title: "Cannot Contribute",
+        description: "You cannot contribute to your own basket",
+        variant: "destructive"
+      });
+      return;
+    }
     navigate(`/basket/${id}/contribute`);
   };
 
@@ -336,7 +356,12 @@ const BasketDetailPage = () => {
               <Progress value={basketData.progress} className="h-3" />
 
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-400">{formatCurrency(basketData.currentAmount)}</span>
+                {/* Business Rule 2: Hide balance for private baskets */}
+                {basketData.privacy === 'private' ? (
+                  <span className="text-gray-400 italic">Balance hidden for private baskets</span>
+                ) : (
+                  <span className="text-gray-400">{formatCurrency(basketData.currentAmount)}</span>
+                )}
                 <div className="flex items-center gap-1 text-gray-400">
                   <Target className="w-4 h-4" />
                   <span>{formatCurrency(basketData.goal)}</span>
@@ -383,7 +408,9 @@ const BasketDetailPage = () => {
                       key={member.id}
                       member={member}
                       basketType={basketData.type}
+                      basketPrivacy={basketData.privacy}
                       isCreator={basketData.isCreator}
+                      isCurrentUserCreator={isCurrentUserCreator}
                       hideMyPhone={hideMyPhone}
                       onTogglePhoneVisibility={handleTogglePhoneVisibility}
                       onCopyCode={handleCopyCode}
@@ -427,13 +454,31 @@ const BasketDetailPage = () => {
           )}
         </div>
 
-        {/* Floating Action Button */}
-        <button
-          onClick={handleContribute}
-          className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-magenta-orange rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform z-50"
-        >
-          <Plus className="w-6 h-6 text-white" />
-        </button>
+        {/* Business Rule 1: Floating Action Button - Disabled for creators */}
+        {isCurrentUserCreator ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                disabled
+                className="fixed bottom-6 right-6 w-14 h-14 bg-gray-500/50 rounded-full shadow-2xl flex items-center justify-center opacity-50 cursor-not-allowed z-50"
+                aria-label="Cannot contribute to own basket"
+              >
+                <Plus className="w-6 h-6 text-white" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>You cannot contribute to your own basket</p>
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <button
+            onClick={handleContribute}
+            className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-magenta-orange rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform z-50"
+            aria-label="Add contribution"
+          >
+            <Plus className="w-6 h-6 text-white" />
+          </button>
+        )}
       </div>
     </TooltipProvider>
   );
@@ -443,7 +488,9 @@ const BasketDetailPage = () => {
 interface MemberCardProps {
   member: Member;
   basketType: 'private' | 'public';
+  basketPrivacy: 'private' | 'public';
   isCreator: boolean;
+  isCurrentUserCreator: boolean;
   hideMyPhone: boolean;
   onTogglePhoneVisibility: (value: boolean) => void;
   onCopyCode: (code: string) => void;
@@ -452,7 +499,9 @@ interface MemberCardProps {
 const MemberCard = ({ 
   member, 
   basketType, 
+  basketPrivacy,
   isCreator, 
+  isCurrentUserCreator,
   hideMyPhone, 
   onTogglePhoneVisibility, 
   onCopyCode 
@@ -460,7 +509,7 @@ const MemberCard = ({
   const { handlePress } = usePressFeedback();
   
   const longPressProps = useLongPress(() => {
-    if (basketType === 'private' && member.phone) {
+    if (basketType === 'private' && member.phone && shouldShowPhone) {
       toast({
         title: "Phone Number",
         description: member.phone,
@@ -474,9 +523,23 @@ const MemberCard = ({
     onCopyCode(member.code);
   };
 
-  const shouldShowPhone = basketType === 'private' && member.phone;
+  // Business Rule 3: Phone visibility logic
+  const shouldShowPhone = basketPrivacy === 'private' && member.phone;
+  const canSeePhoneNumbers = isCurrentUserCreator; // Only creator can see phone numbers in private baskets
   const shouldHidePhone = member.hidePhone && !isCreator && !member.isCurrentUser;
-  const displayPhone = shouldHidePhone ? '••••••••••' : member.phone;
+  
+  // For public baskets, never show phone numbers
+  // For private baskets, only show if user is creator or it's their own phone
+  let displayPhone = '';
+  if (basketPrivacy === 'public') {
+    displayPhone = ''; // Never show for public baskets
+  } else if (basketPrivacy === 'private') {
+    if (canSeePhoneNumbers || member.isCurrentUser) {
+      displayPhone = shouldHidePhone ? '••••••••••' : member.phone;
+    } else {
+      displayPhone = ''; // Hide completely for non-creators
+    }
+  }
 
   return (
     <div className="p-4 rounded-xl bg-gradient-to-r from-white/5 to-white/10 border border-white/10 hover:border-white/20 transition-all">
@@ -506,7 +569,8 @@ const MemberCard = ({
               )}
             </div>
             
-            {shouldShowPhone && (
+            {/* Business Rule 3: Conditional phone display */}
+            {shouldShowPhone && displayPhone && (
               <div className="flex items-center gap-2 mt-1">
                 <Tooltip>
                   <TooltipTrigger asChild>
