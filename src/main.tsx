@@ -30,9 +30,9 @@ if ('serviceWorker' in navigator) {
           }
         });
 
-        // Register for background sync when online
-        if ('sync' in window.ServiceWorkerRegistration.prototype) {
-          registration.sync.register('background-sync').catch((err) => {
+        // Register for background sync when online (with proper type checking)
+        if ('sync' in window.ServiceWorkerRegistration.prototype && 'sync' in registration) {
+          (registration as any).sync.register('background-sync').catch((err: any) => {
             console.log('[PWA] Background sync registration failed:', err);
           });
         }
@@ -90,10 +90,12 @@ window.addEventListener('appinstalled', () => {
 window.addEventListener('online', () => {
   console.log('[PWA] App is online');
   
-  // Trigger background sync when coming back online
+  // Trigger background sync when coming back online (with proper type checking)
   if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
     navigator.serviceWorker.ready.then((registration) => {
-      return registration.sync.register('background-sync');
+      if ('sync' in registration) {
+        return (registration as any).sync.register('background-sync');
+      }
     }).catch((err) => {
       console.log('[PWA] Background sync failed:', err);
     });
