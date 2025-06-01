@@ -1,4 +1,5 @@
 
+
 import React, { useRef } from 'react';
 import { X, Download, Share2 } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -164,10 +165,11 @@ export const QRCodeModal = ({
           </GradientButton>
           <GradientButton variant="primary" className="flex-1" onClick={handleShare}>
             <Share2 className="w-4 h-4 mr-2" />
-            Share via WhatsApp
+            Share
           </GradientButton>
         </div>
       </GlassCard>
     </div>
   );
 };
+
