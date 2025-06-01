@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Lock, Users, Target, Check, Plus, Eye } from 'lucide-react';
+import { Lock, Users, Target, Check, Plus, Eye, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
@@ -122,6 +123,9 @@ export const BasketCard = ({
               <div className="flex items-center gap-2 text-sm text-gray-400">
                 <Users className="w-4 h-4" />
                 <span>{participants}</span>
+                {!isPrivate && (
+                  <Globe className="w-4 h-4 ml-2 text-blue-400" />
+                )}
               </div>
             </div>
           </div>
