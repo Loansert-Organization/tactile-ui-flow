@@ -1,5 +1,6 @@
 
 import { useCallback, useRef } from 'react';
+import { useHaptics } from './useNativeFeatures';
 
 export interface PressEvent {
   target: HTMLElement;
@@ -8,12 +9,18 @@ export interface PressEvent {
 }
 
 export const usePressFeedback = () => {
-  const hapticFeedback = useCallback(() => {
-    // Simulate haptic feedback with a subtle animation
-    if ('vibrate' in navigator) {
-      navigator.vibrate(50);
+  const { light, medium } = useHaptics();
+
+  const hapticFeedback = useCallback(async () => {
+    // Use native haptics if available, fallback to web vibration
+    try {
+      await light();
+    } catch {
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50);
+      }
     }
-  }, []);
+  }, [light]);
 
   const createRipple = useCallback((event: PressEvent) => {
     const element = event.target;
@@ -43,7 +50,7 @@ export const usePressFeedback = () => {
     }, 600);
   }, []);
 
-  const handlePress = useCallback((event: React.MouseEvent<HTMLElement>) => {
+  const handlePress = useCallback(async (event: React.MouseEvent<HTMLElement>) => {
     const target = event.currentTarget;
     
     // Add squeeze animation
@@ -57,8 +64,8 @@ export const usePressFeedback = () => {
       clientY: event.clientY
     });
     
-    // Haptic feedback
-    hapticFeedback();
+    // Enhanced haptic feedback
+    await hapticFeedback();
     
     // Release animation
     setTimeout(() => {
@@ -76,13 +83,14 @@ export const useSwipeGesture = (
 ) => {
   const startX = useRef<number>(0);
   const startY = useRef<number>(0);
+  const { medium } = useHaptics();
 
   const handleTouchStart = useCallback((event: React.TouchEvent) => {
     startX.current = event.touches[0].clientX;
     startY.current = event.touches[0].clientY;
   }, []);
 
-  const handleTouchEnd = useCallback((event: React.TouchEvent) => {
+  const handleTouchEnd = useCallback(async (event: React.TouchEvent) => {
     const endX = event.changedTouches[0].clientX;
     const endY = event.changedTouches[0].clientY;
     
@@ -91,13 +99,15 @@ export const useSwipeGesture = (
     
     // Check if horizontal swipe is more significant than vertical
     if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > threshold) {
+      await medium();
+      
       if (deltaX > 0 && onSwipeRight) {
         onSwipeRight();
       } else if (deltaX < 0 && onSwipeLeft) {
         onSwipeLeft();
       }
     }
-  }, [onSwipeLeft, onSwipeRight, threshold]);
+  }, [onSwipeLeft, onSwipeRight, threshold, medium]);
 
   return { handleTouchStart, handleTouchEnd };
 };
@@ -107,10 +117,14 @@ export const useLongPress = (
   delay = 500
 ) => {
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const { heavy } = useHaptics();
 
-  const start = useCallback(() => {
-    timeoutRef.current = setTimeout(onLongPress, delay);
-  }, [onLongPress, delay]);
+  const start = useCallback(async () => {
+    timeoutRef.current = setTimeout(async () => {
+      await heavy();
+      onLongPress();
+    }, delay);
+  }, [onLongPress, delay, heavy]);
 
   const clear = useCallback(() => {
     if (timeoutRef.current) {

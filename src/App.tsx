@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +10,8 @@ import { OfflineBanner } from "@/components/ui/offline-banner";
 import { BasketProvider } from "@/contexts/BasketContext";
 import { MyBasketsProvider } from "@/contexts/MyBasketsContext";
 import { offlineStorage } from "@/lib/offline-storage";
+import { usePushNotifications, useStatusBar, useSplashScreen } from "@/hooks/useNativeFeatures";
+import { Capacitor } from "@capacitor/core";
 
 // Lazy load pages for better performance
 const Feed = lazy(() => import("@/pages/Feed").then(module => ({ default: module.Feed })));
@@ -36,12 +37,32 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  const { initializePush } = usePushNotifications();
+  const { setDark } = useStatusBar();
+  const { hideSplash } = useSplashScreen();
+
   useEffect(() => {
     // Initialize offline storage
     offlineStorage.init().catch(console.error);
     
     // Clean up stale data weekly
     offlineStorage.clearStaleData().catch(console.error);
+    
+    // Initialize native features if on mobile
+    if (Capacitor.isNativePlatform()) {
+      console.log('[App] Running on native platform');
+      
+      // Set status bar style
+      setDark().catch(console.error);
+      
+      // Hide splash screen after app loads
+      setTimeout(() => {
+        hideSplash().catch(console.error);
+      }, 1000);
+      
+      // Initialize push notifications
+      initializePush().catch(console.error);
+    }
     
     // Listen for service worker messages
     navigator.serviceWorker?.addEventListener('message', (event) => {
@@ -50,7 +71,7 @@ const App = () => {
         // Trigger any necessary data refresh here
       }
     });
-  }, []);
+  }, [initializePush, setDark, hideSplash]);
 
   return (
     <QueryClientProvider client={queryClient}>
