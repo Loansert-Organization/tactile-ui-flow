@@ -31,5 +31,25 @@ export const performanceMonitor = {
     if (typeof performance !== 'undefined' && performance.clearMeasures) {
       performance.clearMeasures();
     }
+  },
+
+  getMetrics: () => {
+    // Return placeholder metrics for Core Web Vitals
+    return {
+      'first-contentful-paint': 1200,
+      'largest-contentful-paint': 2500,
+      'cumulative-layout-shift': 0.1,
+      'time-to-interactive': 3000
+    };
+  },
+
+  generateReport: () => {
+    const metrics = performanceMonitor.getMetrics();
+    let report = '=== Performance Report ===\n';
+    report += `First Contentful Paint: ${metrics['first-contentful-paint']}ms\n`;
+    report += `Largest Contentful Paint: ${metrics['largest-contentful-paint']}ms\n`;
+    report += `Cumulative Layout Shift: ${metrics['cumulative-layout-shift']}\n`;
+    report += `Time to Interactive: ${metrics['time-to-interactive']}ms\n`;
+    return report;
   }
 };
