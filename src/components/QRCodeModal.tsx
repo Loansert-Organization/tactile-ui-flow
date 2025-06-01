@@ -161,7 +161,7 @@ export const QRCodeModal = ({
         <div className="flex gap-3">
           <GradientButton variant="secondary" className="flex-1" onClick={handleDownload}>
             <Download className="w-4 h-4 mr-2" />
-            Save to Gallery
+            Save
           </GradientButton>
           <GradientButton variant="primary" className="flex-1" onClick={handleShare}>
             <Share2 className="w-4 h-4 mr-2" />
