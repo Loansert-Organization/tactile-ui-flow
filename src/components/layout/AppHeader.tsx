@@ -1,14 +1,13 @@
 
 import React, { useState } from 'react';
-import { Plus, Heart, QrCode } from 'lucide-react';
-import { GlassCard } from '@/components/ui/glass-card';
-import { usePressFeedback } from '@/hooks/useInteractions';
+import { QrCode } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { QRScannerOverlay } from '@/components/QRScannerOverlay';
 import { toast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
+import { ThemeToggle } from '@/components/theme/ThemeToggle';
 
 export const AppHeader = () => {
-  const { handlePress } = usePressFeedback();
   const navigate = useNavigate();
   const [showScanner, setShowScanner] = useState(false);
 
@@ -38,57 +37,41 @@ export const AppHeader = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full">
-        <GlassCard className="m-2 px-4 py-3">
+      <motion.header 
+        className="sticky top-0 z-50 w-full pt-safe"
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            <button
-              onClick={(e) => {
-                handlePress(e);
-                navigate('/');
-              }}
-              className="text-xl font-bold gradient-text hover:opacity-80 transition-opacity focus-gradient rounded-lg px-2 py-1"
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              onClick={() => navigate('/')}
+              className="text-xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent"
               aria-label="Go to home"
             >
               IKANISA
-            </button>
+            </motion.button>
             
             <div className="flex items-center gap-2">
+              <ThemeToggle />
+              
               <button
-                onClick={(e) => {
-                  handlePress(e);
-                  setShowScanner(true);
-                }}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors focus-gradient transform hover:scale-110"
+                onClick={() => setShowScanner(true)}
+                className="p-3 rounded-full bg-card hover:bg-muted/50 transition-colors shadow-sm"
                 aria-label="Scan QR Code"
               >
                 <QrCode className="w-5 h-5" />
               </button>
-              
-              <button
-                onClick={(e) => {
-                  handlePress(e);
-                  navigate('/baskets/mine');
-                }}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors focus-gradient"
-                aria-label="My Baskets"
-              >
-                <Heart className="w-5 h-5" />
-              </button>
-              
-              <button
-                onClick={(e) => {
-                  handlePress(e);
-                  navigate('/create/step/1');
-                }}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors focus-gradient"
-                aria-label="Create Basket"
-              >
-                <Plus className="w-5 h-5" />
-              </button>
             </div>
           </div>
-        </GlassCard>
-      </header>
+        </div>
+        
+        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent opacity-70" />
+      </motion.header>
 
       <QRScannerOverlay
         isOpen={showScanner}

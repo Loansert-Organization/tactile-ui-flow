@@ -5,8 +5,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppHeader } from "@/components/layout/AppHeader";
+import { BottomNav } from "@/components/layout/BottomNav";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Feed } from "@/pages/Feed";
-import { Chat } from "@/pages/Chat";
 import { BasketOverview } from "@/pages/BasketOverview";
 import { BasketDetailNonMember } from "@/pages/BasketDetailNonMember";
 import { BasketParticipants } from "@/pages/BasketParticipants";
@@ -62,19 +63,16 @@ const AppContent = () => {
         {/* Standalone routes (no header/nav) */}
         <Route path="/create/*" element={<CreateBasketWizard />} />
         
-        {/* Main app routes (with header only) */}
+        {/* Main app routes (with header and bottom nav) */}
         <Route path="/*" element={
           <>
             <Suspense fallback={<HeaderSkeleton />}>
               <AppHeader />
             </Suspense>
-            <main className="flex-1">
+            <main className="flex-1 pt-2 pb-20">
               <Suspense fallback={
-                <div className="p-4">
-                  <div className="text-center py-8">
-                    <div className="animate-spin w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full mx-auto"></div>
-                    <p className="mt-2 text-gray-400">Loading...</p>
-                  </div>
+                <div className="flex justify-center items-center py-16">
+                  <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
                 </div>
               }>
                 <Routes>
@@ -89,6 +87,7 @@ const AppContent = () => {
                 </Routes>
               </Suspense>
             </main>
+            <BottomNav />
           </>
         } />
       </Routes>
@@ -99,17 +98,19 @@ const AppContent = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BasketProvider>
-        <MyBasketsProvider>
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
-        </MyBasketsProvider>
-      </BasketProvider>
-    </TooltipProvider>
+    <ThemeProvider defaultTheme="system">
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BasketProvider>
+          <MyBasketsProvider>
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </MyBasketsProvider>
+        </BasketProvider>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

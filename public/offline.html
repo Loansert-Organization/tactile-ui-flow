@@ -5,66 +5,175 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IKANISA - Offline</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
   <style>
+    :root {
+      --background: 240 249 255;
+      --foreground: 15 23 42;
+      --primary: 79 70 229;
+      --primary-foreground: 255 255 255;
+      --secondary: 241 245 249;
+      --secondary-foreground: 15 23 42;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: 15 23 42;
+        --foreground: 248 250 252;
+        --primary: 129 140 248;
+        --primary-foreground: 15 23 42;
+        --secondary: 51 65 85;
+        --secondary-foreground: 248 250 252;
+      }
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
     body {
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, sans-serif;
-      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-      color: white;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: rgb(var(--background));
+      color: rgb(var(--foreground));
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
     }
+    
     .container {
       max-width: 400px;
       padding: 2rem;
+      animation: fade-in 0.5s ease-out;
     }
+    
     .icon {
-      width: 80px;
-      height: 80px;
+      width: 96px;
+      height: 96px;
       margin: 0 auto 2rem;
-      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      background: linear-gradient(135deg, rgba(var(--primary), 1), rgba(var(--primary), 0.8));
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
+      font-size: 2.5rem;
+      box-shadow: 0 4px 20px rgba(var(--primary), 0.4);
     }
+    
     h1 {
       margin: 0 0 1rem;
-      font-size: 1.5rem;
+      font-size: 1.75rem;
       font-weight: 600;
+      color: rgb(var(--foreground));
     }
+    
     p {
       margin: 0 0 2rem;
-      opacity: 0.8;
-      line-height: 1.5;
+      line-height: 1.6;
+      color: rgba(var(--foreground), 0.8);
+      font-size: 1.125rem;
     }
+    
     .button {
-      background: linear-gradient(135deg, #ff006e, #ff8500);
-      color: white;
+      background: linear-gradient(135deg, rgba(var(--primary), 1), rgba(var(--primary), 0.8));
+      color: rgb(var(--primary-foreground));
       border: none;
       padding: 0.75rem 1.5rem;
-      border-radius: 0.5rem;
+      border-radius: 0.75rem;
       font-weight: 500;
+      font-size: 1rem;
       text-decoration: none;
-      display: inline-block;
-      transition: transform 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      min-width: 150px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(var(--primary), 0.3);
     }
+    
     .button:hover {
-      transform: scale(1.05);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(var(--primary), 0.4);
+    }
+    
+    .button:active {
+      transform: translateY(0);
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Simple animation for the icon */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .icon {
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    /* Add network status indicator */
+    .status-indicator {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #ef4444; /* Red for offline */
+      box-shadow: 0 0 0 2px rgba(var(--background), 0.8);
     }
   </style>
 </head>
 <body>
+  <div class="status-indicator" title="You're offline"></div>
+  
   <div class="container">
-    <div class="icon">⚡</div>
+    <div class="icon">📶</div>
     <h1>You're Offline</h1>
     <p>It looks like you've lost your internet connection. Don't worry, you can still browse your cached baskets!</p>
-    <a href="/" class="button" onclick="window.location.reload()">Try Again</a>
+    <button class="button" onclick="window.location.reload()">Try to Reconnect</button>
   </div>
+
+  <script>
+    // Add network status monitoring
+    window.addEventListener('online', () => {
+      const indicator = document.querySelector('.status-indicator');
+      indicator.style.backgroundColor = '#22c55e'; // Green for online
+      indicator.title = "You're back online!";
+      
+      // Automatic reload after coming back online
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    });
+
+    // Check for cached data
+    window.addEventListener('load', () => {
+      if ('caches' in window) {
+        caches.keys().then(cacheNames => {
+          if (cacheNames.length > 0) {
+            const cachedContent = document.createElement('p');
+            cachedContent.textContent = 'Some content is available offline.';
+            cachedContent.style.fontSize = '0.875rem';
+            cachedContent.style.marginTop = '2rem';
+            cachedContent.style.color = 'rgba(var(--foreground), 0.6)';
+            document.querySelector('.container').appendChild(cachedContent);
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>

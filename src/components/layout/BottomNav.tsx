@@ -1,12 +1,14 @@
 
 import React from 'react';
-import { Home, Heart } from 'lucide-react';
+import { Home, Heart, Plus } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { usePressFeedback } from '@/hooks/useInteractions';
+import { motion } from 'framer-motion';
 
 const navItems = [
-  { icon: Home, label: 'Feed', path: '/' },
+  { icon: Home, label: 'Home', path: '/' },
+  { icon: Plus, label: 'Create', path: '/create/step/1' },
   { icon: Heart, label: 'My Baskets', path: '/baskets/mine' },
 ];
 
@@ -16,49 +18,55 @@ export const BottomNav = () => {
   const { handlePress } = usePressFeedback();
 
   return (
-    <nav className="fixed bottom-4 left-4 right-4 z-50">
-      <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl px-2 py-3 shadow-2xl">
-        <div className="flex items-center justify-around">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path || 
-              (item.path === '/baskets/mine' && location.pathname.startsWith('/basket/'));
-            const Icon = item.icon;
-            
-            return (
-              <button
-                key={item.path}
-                onClick={(e) => {
-                  handlePress(e);
-                  navigate(item.path);
-                }}
-                className={cn(
-                  "relative flex flex-col items-center gap-1 p-3 rounded-2xl transition-all duration-300 focus-gradient min-w-[80px]",
-                  isActive 
-                    ? "bg-gradient-magenta-orange shadow-lg scale-110" 
-                    : "hover:bg-white/10"
-                )}
-                aria-label={item.label}
-              >
-                <Icon className={cn(
-                  "w-6 h-6 transition-all duration-300",
-                  isActive ? "text-white scale-110" : "text-gray-300"
-                )} />
-                <span className={cn(
-                  "text-xs font-medium transition-all duration-300",
-                  isActive ? "text-white" : "text-gray-400"
-                )}>
-                  {item.label}
-                </span>
-                
-                {/* Active indicator "spill" animation */}
-                {isActive && (
-                  <div className="absolute -inset-1 bg-gradient-magenta-orange rounded-2xl opacity-20 animate-pulse" />
-                )}
-              </button>
-            );
-          })}
+    <motion.nav 
+      className="fixed bottom-0 left-0 right-0 z-50 pb-safe"
+      initial={{ y: 100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.3, delay: 0.2 }}
+    >
+      <div className="mx-4 mb-4">
+        <div className="bg-card/80 backdrop-blur-lg border border-border shadow-xl rounded-2xl">
+          <div className="flex items-center justify-around">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path || 
+                (item.path === '/baskets/mine' && location.pathname.startsWith('/basket/'));
+              const Icon = item.icon;
+              
+              return (
+                <button
+                  key={item.path}
+                  onClick={(e) => {
+                    handlePress(e);
+                    navigate(item.path);
+                  }}
+                  className="relative flex flex-col items-center p-3 min-h-[60px] min-w-[70px]"
+                  aria-label={item.label}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="bottomNavIndicator"
+                      className="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-xl"
+                      transition={{ type: "spring", duration: 0.5 }}
+                    />
+                  )}
+                  
+                  <Icon className={cn(
+                    "h-6 w-6 transition-all duration-200",
+                    isActive ? "text-primary" : "text-muted-foreground"
+                  )} />
+                  
+                  <span className={cn(
+                    "text-xs font-medium transition-all duration-200 mt-1",
+                    isActive ? "text-primary" : "text-muted-foreground"
+                  )}>
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </nav>
+    </motion.nav>
   );
 };
