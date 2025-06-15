@@ -2,7 +2,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "@/lib/i18n";
-import QRCode from "qrcode.react";
+import { QRCode } from "qrcode.react";
 
 export default function QRPreviewScreen() {
   const { t } = useTranslation();

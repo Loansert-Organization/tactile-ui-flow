@@ -3,7 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import { MapPin, Qr, Clock } from "lucide-react";
+import { MapPin, QrCode, Clock } from "lucide-react";
 
 export default function HomeScreen() {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ export default function HomeScreen() {
           className={cn(buttonStyle, gradients.pay)}
           onClick={() => navigate("/pay")}
         >
-          <Qr className="inline-block mr-2" /> {t("pay_with_momo")}
+          <QrCode className="inline-block mr-2" /> {t("pay_with_momo")}
         </button>
         <button
           className={cn(buttonStyle, gradients.history)}

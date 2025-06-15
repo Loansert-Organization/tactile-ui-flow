@@ -4,12 +4,13 @@ import { useSessionId } from "@/hooks/useSessionId";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "@/lib/i18n";
 
+// Match PaymentRecord fields to actual 'payments' table
 interface PaymentRecord {
   id: string;
-  momo_number: string;
+  phone_number: string;
   amount: number;
-  status: string;
-  timestamp: string;
+  status: string | null;
+  created_at: string | null;
 }
 
 export default function HistoryScreen() {
@@ -22,10 +23,10 @@ export default function HistoryScreen() {
     async function fetchHistory() {
       setLoading(true);
       const { data, error } = await supabase
-        .from("parking_payments")
-        .select("id, momo_number, amount, status, timestamp")
+        .from("payments")
+        .select("id, phone_number, amount, status, created_at")
         .eq("session_id", sessionId);
-      if (data) setHistory(data);
+      if (data) setHistory(data as PaymentRecord[]);
       setLoading(false);
     }
     fetchHistory();
@@ -42,8 +43,8 @@ export default function HistoryScreen() {
         <ul className="w-full max-w-md">
           {history.map((item) => (
             <li key={item.id} className="mb-4 px-4 py-3 rounded-xl bg-gradient-to-br from-blue-100 to-purple-100 shadow flex flex-col gap-2">
-              <div className="font-semibold">{item.momo_number} – {item.amount} RWF</div>
-              <div className="text-xs text-gray-600">{item.timestamp}</div>
+              <div className="font-semibold">{item.phone_number} – {item.amount} RWF</div>
+              <div className="text-xs text-gray-600">{item.created_at}</div>
               <div className="text-xs font-bold">{`Status: ${item.status}`}</div>
             </li>
           ))}
