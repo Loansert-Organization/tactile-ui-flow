@@ -24,7 +24,8 @@ export const useQRCamera = (isOpen: boolean, onQRCodeScanned: QRCallback) => {
     if (stream) {
       for (const track of stream.getVideoTracks()) {
         const capabilities = track.getCapabilities?.() || {};
-        if ('torch' in capabilities) {
+        // Patch: safely access .torch, cast to any to bypass TS error
+        if ((capabilities as any).torch !== undefined) {
           try {
             // @ts-ignore
             await track.applyConstraints({ advanced: [{ torch: wantTorch }] });
@@ -38,7 +39,8 @@ export const useQRCamera = (isOpen: boolean, onQRCodeScanned: QRCallback) => {
   // Recognize torch support when camera available (on start)
   const checkTorchSupport = (stream: MediaStream) => {
     const track = stream.getVideoTracks()[0];
-    const supported = !!(track && track.getCapabilities && track.getCapabilities().torch);
+    // Patch: safely access .torch, cast to any to bypass TS error
+    const supported = !!(track && track.getCapabilities && (track.getCapabilities() as any).torch);
     setIsTorchAvailable(supported);
     setIsTorchOn(false);
   };
