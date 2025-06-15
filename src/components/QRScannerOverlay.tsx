@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { X, Flashlight } from 'lucide-react';
 import { GradientButton } from '@/components/ui/gradient-button';
@@ -31,6 +30,10 @@ export const QRScannerOverlay = ({
     isTorchAvailable,
     isTorchOn
   } = useQRCamera(isOpen, onQRCodeScanned);
+
+  // Scan area sizing (these must be synced to SmartScannerFrame logic)
+  const SCAN_AREA_SIZE_PX = 330; // Should roughly match SmartScannerFrame's center
+  const SCAN_AREA_RADIUS = 12;
 
   // Scan UI states
   const [scanState, setScanState] = useState<'scanning'|'success'|'failed'>('scanning');
@@ -138,8 +141,30 @@ export const QRScannerOverlay = ({
                 WebkitTapHighlightColor: 'transparent'
               }}
             />
+            {/* Overlay mask: transparent cutout for scan area */}
+            <div
+              className="absolute inset-0 z-10 pointer-events-none"
+              aria-hidden="true"
+              style={{
+                // This uses two linear-gradient masks to make a central cutout (scan area) transparent
+                // and keeps the rest dimmed
+                WebkitMaskImage: `
+                  radial-gradient(circle at 50% 50%, 
+                    transparent ${SCAN_AREA_SIZE_PX/2 - 6}px, /* match inner of frame */
+                    rgba(0,0,0,0.65) ${SCAN_AREA_SIZE_PX/2 + 22}px
+                  )
+                `,
+                maskImage: `
+                  radial-gradient(circle at 50% 50%, 
+                    transparent ${SCAN_AREA_SIZE_PX/2 - 6}px,
+                    rgba(0,0,0,0.65) ${SCAN_AREA_SIZE_PX/2 + 22}px
+                  )
+                `,
+                background: 'rgba(20,20,28,0.66)'
+              }}
+            />
             {/* Minimal scanning frame / overlay */}
-            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+            <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
               <SmartScannerFrame
                 borderColor="#396afc"
                 borderThickness={3}
