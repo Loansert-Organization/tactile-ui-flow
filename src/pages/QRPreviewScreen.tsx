@@ -1,16 +1,36 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "@/lib/i18n";
-import { QRCode } from "qrcode.react";
+import QRCode from "qrcode.react";
+import { supabase } from "@/integrations/supabase/client";
+import { useSessionId } from "@/hooks/useSessionId";
 
 export default function QRPreviewScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const sessionId = useSessionId();
   const params = new URLSearchParams(location.search);
   const momo = params.get("momo") || "";
   const amount = params.get("amount") || "";
+
+  // Production: log QR generation to Supabase
+  useEffect(() => {
+    async function logQR() {
+      if (!momo || !amount) return;
+      const ussd_string = `*182*1*1*${momo}*${amount}#`;
+      await supabase.from("qr_history").insert({
+        phone_number: momo,
+        amount: +amount,
+        session_id: sessionId,
+        type: "generate",
+        ussd_string,
+      });
+      // ignore error for user experience
+    }
+    logQR();
+  }, [momo, amount, sessionId]);
 
   // USSD format: *182*1*1*momo*amount#
   const qrData = `*182*1*1*${momo}*${amount}#`;
