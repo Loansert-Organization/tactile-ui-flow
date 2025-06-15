@@ -132,6 +132,33 @@ export type Database = {
         }
         Relationships: []
       }
+      trips: {
+        Row: {
+          client_name: string
+          created_at: string
+          destination: string
+          fare: number
+          id: string
+          session_id: string
+        }
+        Insert: {
+          client_name: string
+          created_at?: string
+          destination: string
+          fare: number
+          id?: string
+          session_id: string
+        }
+        Update: {
+          client_name?: string
+          created_at?: string
+          destination?: string
+          fare?: number
+          id?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -143,6 +170,14 @@ export type Database = {
       }
       generate_ussd_string: {
         Args: { input_value: string; amount: number }
+        Returns: string
+      }
+      record_payment: {
+        Args: { qr_content: string }
+        Returns: string
+      }
+      start_trip: {
+        Args: { name: string; destination: string; fare: number }
         Returns: string
       }
     }
