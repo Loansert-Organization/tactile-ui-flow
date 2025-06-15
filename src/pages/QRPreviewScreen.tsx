@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "@/lib/i18n";
-import QRCode from "qrcode.react";
+import { QRCodeSVG } from "qrcode.react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionId } from "@/hooks/useSessionId";
 
@@ -38,7 +38,7 @@ export default function QRPreviewScreen() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gradient-bg px-4">
       <div className="p-6 bg-white/70 dark:bg-black/70 rounded-2xl shadow-xl flex flex-col gap-4 items-center backdrop-blur-2xl">
-        <QRCode value={qrData} size={256} bgColor="transparent" fgColor="#2948ff" />
+        <QRCodeSVG value={qrData} size={256} bgColor="transparent" fgColor="#2948ff" />
         <div className="text-lg font-bold mt-4">{`Pay ${amount} to ${momo}`}</div>
         <button
           onClick={() => navigate("/pay")}
