@@ -1,6 +1,7 @@
-
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
+import { useSessionId } from "@/hooks/useSessionId";
 
 export interface MyBasket {
   id: string;
@@ -85,16 +86,26 @@ const initialBaskets: MyBasket[] = [
 ];
 
 export const useMyBaskets = () => {
+  const sessionId = useSessionId();
   const [myBaskets, setMyBaskets] = useState<MyBasket[]>(initialBaskets);
   const [isJoining, setIsJoining] = useState<string | null>(null);
 
+  // Placeholder demo
+  // In the future, this should call supabase.from('baskets')...
+
   const joinBasket = useCallback(async (basketData: Partial<MyBasket> & { id: string; name: string }) => {
     setIsJoining(basketData.id);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+
+    // Example: insert event in events table for Supabase linkage
+    await supabase.from('events').insert({
+      session_id: sessionId,
+      event_type: 'basket_joined',
+      event_data: basketData,
+    });
+
+    // For demo, just update locally
     const newBasket: MyBasket = {
+      ...basketData,
       id: basketData.id,
       name: basketData.name,
       description: basketData.description || 'A community funding basket',
@@ -108,45 +119,49 @@ export const useMyBaskets = () => {
       isMember: true,
       myContribution: 0,
       createdAt: new Date()
-    };
+    } as MyBasket;
 
     setMyBaskets(prev => [newBasket, ...prev]);
     setIsJoining(null);
-    
+
     toast.success(`You've joined '${basketData.name}'!`, {
       description: 'Start contributing to reach the goal together',
       duration: 3000,
     });
 
     return newBasket;
-  }, []);
+  }, [sessionId]);
 
   const createBasket = useCallback(async (basketData: Omit<MyBasket, 'id' | 'createdAt' | 'isMember' | 'myContribution'>) => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
+    // Example: insert event in events table for Supabase linkage
+    await supabase.from('events').insert({
+      session_id: sessionId,
+      event_type: 'basket_created',
+      event_data: basketData,
+    });
+
     const newBasket: MyBasket = {
       ...basketData,
       id: `basket-${Date.now()}`,
       status: 'private', // All user-created baskets are private and live immediately
-      isPrivate: true, // Ensure this is set to true for user-created baskets
+      isPrivate: true,
       isMember: true,
       myContribution: 0,
-      participants: 1, // Creator is the first participant
-      currentAmount: 0, // Start with 0 contribution
-      progress: 0, // Start with 0% progress
+      participants: 1,
+      currentAmount: 0,
+      progress: 0,
       createdAt: new Date()
     };
 
     setMyBaskets(prev => [newBasket, ...prev]);
-    
+
     toast.success(`Your basket '${basketData.name}' has been created!`, {
       description: 'Your private basket is ready and live',
       duration: 3000,
     });
 
     return newBasket;
-  }, []);
+  }, [sessionId]);
 
   const updateBasketStatus = useCallback((basketId: string, status: 'pending' | 'approved' | 'private') => {
     setMyBaskets(prev => 
