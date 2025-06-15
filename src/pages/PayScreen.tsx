@@ -67,10 +67,11 @@ export default function PayScreen() {
           <label className="block font-semibold text-base mb-2">{t("amount")}</label>
           <input
             className="w-full rounded-xl p-3 border focus:ring-2 focus:ring-blue-400"
-            type="number"
+            type="text"
             value={amount}
             onChange={e => setAmount(e.target.value)}
             inputMode="numeric"
+            pattern="[0-9]*"
             min="100"
             required
           />
