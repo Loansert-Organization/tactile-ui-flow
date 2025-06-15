@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +18,20 @@ export interface MyBasket {
   isMember: boolean;
   myContribution: number;
   createdAt: Date;
+}
+
+// Helper: recursively convert Dates to ISO strings to comply with Supabase JSON requirements
+function makeJsonSafe(value: any): any {
+  if (value instanceof Date) return value.toISOString();
+  if (Array.isArray(value)) return value.map(makeJsonSafe);
+  if (value && typeof value === "object") {
+    const obj: any = {};
+    for (const k in value) {
+      obj[k] = makeJsonSafe(value[k]);
+    }
+    return obj;
+  }
+  return value;
 }
 
 // Updated dummy data with more variety including public baskets user has joined
@@ -96,11 +111,11 @@ export const useMyBaskets = () => {
   const joinBasket = useCallback(async (basketData: Partial<MyBasket> & { id: string; name: string }) => {
     setIsJoining(basketData.id);
 
-    // Example: insert event in events table for Supabase linkage
+    // Serialize any Dates in the event_data
     await supabase.from('events').insert({
       session_id: sessionId,
       event_type: 'basket_joined',
-      event_data: basketData,
+      event_data: makeJsonSafe(basketData),
     });
 
     // For demo, just update locally
@@ -133,11 +148,11 @@ export const useMyBaskets = () => {
   }, [sessionId]);
 
   const createBasket = useCallback(async (basketData: Omit<MyBasket, 'id' | 'createdAt' | 'isMember' | 'myContribution'>) => {
-    // Example: insert event in events table for Supabase linkage
+    // Serialize any Dates in the event_data
     await supabase.from('events').insert({
       session_id: sessionId,
       event_type: 'basket_created',
-      event_data: basketData,
+      event_data: makeJsonSafe(basketData),
     });
 
     const newBasket: MyBasket = {
