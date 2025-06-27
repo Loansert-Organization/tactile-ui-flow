@@ -15,12 +15,7 @@ import { BasketParticipants } from "@/pages/BasketParticipants";
 import { BasketSettings } from "@/pages/BasketSettings";
 import { ContributionPage } from "@/pages/ContributionPage";
 import { MyBaskets } from "@/pages/MyBaskets";
-import CreateBasketWizard from "@/pages/CreateBasketWizard";
-import { PayScreen } from "@/pages/PayScreen";
-import { QRPreviewScreen } from "@/pages/QRPreviewScreen";
 import { HistoryScreen } from "@/pages/HistoryScreen";
-import { ScanScreen } from "@/pages/ScanScreen";
-import { PaymentConfirmScreen } from "@/pages/PaymentConfirmScreen";
 import { Phone } from "@/pages/auth/Phone";
 import { WhatsApp } from "@/pages/auth/WhatsApp";
 import { Otp } from "@/pages/auth/Otp";
@@ -80,11 +75,6 @@ const AppContent = () => {
         <Route path="/whatsapp-otp" element={<Otp />} />
         
         {/* Standalone routes (no header/nav) */}
-        <Route path="/create/*" element={<CreateBasketWizard />} />
-        <Route path="/pay" element={<PayScreen />} />
-        <Route path="/qr-preview" element={<QRPreviewScreen />} />
-        <Route path="/scan" element={<ScanScreen />} />
-        <Route path="/payment-confirm" element={<PaymentConfirmScreen />} />
         <Route path="/history" element={<HistoryScreen />} />
         
         {/* Main app routes (with header and bottom nav) */}

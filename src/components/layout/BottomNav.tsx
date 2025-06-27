@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, Heart, Plus, QrCode, User } from 'lucide-react';
+import { Home, Heart, Plus, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { usePressFeedback } from '@/hooks/useInteractions';
@@ -8,8 +8,7 @@ import { motion } from 'framer-motion';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/' },
-  { icon: QrCode, label: 'Pay', path: '/pay' },
-  { icon: Plus, label: 'Create', path: '/create/step/1' },
+  { icon: Plus, label: 'Create', path: '/baskets/mine' }, // Navigate to My Baskets instead
   { icon: Heart, label: 'My Baskets', path: '/baskets/mine' },
   { icon: User, label: 'Profile', path: '/profile' },
 ];
