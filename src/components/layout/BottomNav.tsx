@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, Heart, Plus } from 'lucide-react';
+import { Home, Heart, Plus, QrCode, History } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { usePressFeedback } from '@/hooks/useInteractions';
@@ -8,7 +8,9 @@ import { motion } from 'framer-motion';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/' },
+  { icon: QrCode, label: 'Pay', path: '/pay' },
   { icon: Plus, label: 'Create', path: '/create/step/1' },
+  { icon: History, label: 'History', path: '/history' },
   { icon: Heart, label: 'My Baskets', path: '/baskets/mine' },
 ];
 
@@ -39,7 +41,7 @@ export const BottomNav = () => {
                     handlePress(e);
                     navigate(item.path);
                   }}
-                  className="relative flex flex-col items-center p-3 min-h-[60px] min-w-[70px]"
+                  className="relative flex flex-col items-center p-2 min-h-[60px] min-w-[60px]"
                   aria-label={item.label}
                 >
                   {isActive && (
@@ -51,7 +53,7 @@ export const BottomNav = () => {
                   )}
                   
                   <Icon className={cn(
-                    "h-6 w-6 transition-all duration-200",
+                    "h-5 w-5 transition-all duration-200",
                     isActive ? "text-primary" : "text-muted-foreground"
                   )} />
                   
