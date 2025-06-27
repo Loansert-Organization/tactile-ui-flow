@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, Heart, Plus, QrCode, History } from 'lucide-react';
+import { Home, Heart, Plus, QrCode, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { usePressFeedback } from '@/hooks/useInteractions';
@@ -10,8 +10,8 @@ const navItems = [
   { icon: Home, label: 'Home', path: '/' },
   { icon: QrCode, label: 'Pay', path: '/pay' },
   { icon: Plus, label: 'Create', path: '/create/step/1' },
-  { icon: History, label: 'History', path: '/history' },
   { icon: Heart, label: 'My Baskets', path: '/baskets/mine' },
+  { icon: User, label: 'Profile', path: '/profile' },
 ];
 
 export const BottomNav = () => {
@@ -31,7 +31,8 @@ export const BottomNav = () => {
           <div className="flex items-center justify-around">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path || 
-                (item.path === '/baskets/mine' && location.pathname.startsWith('/basket/'));
+                (item.path === '/baskets/mine' && location.pathname.startsWith('/basket/')) ||
+                (item.path === '/profile' && location.pathname.startsWith('/profile'));
               const Icon = item.icon;
               
               return (

@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { Feed } from "@/pages/Feed";
 import { BasketOverview } from "@/pages/BasketOverview";
 import { BasketDetailNonMember } from "@/pages/BasketDetailNonMember";
@@ -20,8 +21,10 @@ import { QRPreviewScreen } from "@/pages/QRPreviewScreen";
 import { HistoryScreen } from "@/pages/HistoryScreen";
 import { ScanScreen } from "@/pages/ScanScreen";
 import { PaymentConfirmScreen } from "@/pages/PaymentConfirmScreen";
-import { WhatsAppLogin } from "@/pages/WhatsAppLogin";
-import { WhatsAppOTP } from "@/pages/WhatsAppOTP";
+import { Phone } from "@/pages/auth/Phone";
+import { WhatsApp } from "@/pages/auth/WhatsApp";
+import { Otp } from "@/pages/auth/Otp";
+import { Profile } from "@/pages/profile";
 import NotFound from "./pages/NotFound";
 import { BasketProvider } from "@/contexts/BasketContext";
 import { MyBasketsProvider } from "@/contexts/MyBasketsContext";
@@ -68,8 +71,13 @@ const AppContent = () => {
     <div className="min-h-screen flex flex-col">
       <Routes>
         {/* Authentication routes (no header/nav) */}
-        <Route path="/whatsapp-login" element={<WhatsAppLogin />} />
-        <Route path="/whatsapp-otp" element={<WhatsAppOTP />} />
+        <Route path="/auth/phone" element={<Phone />} />
+        <Route path="/auth/whatsapp" element={<WhatsApp />} />
+        <Route path="/auth/otp" element={<Otp />} />
+        
+        {/* Legacy WhatsApp routes - redirect to new auth flow */}
+        <Route path="/whatsapp-login" element={<Phone />} />
+        <Route path="/whatsapp-otp" element={<Otp />} />
         
         {/* Standalone routes (no header/nav) */}
         <Route path="/create/*" element={<CreateBasketWizard />} />
@@ -99,6 +107,7 @@ const AppContent = () => {
                   <Route path="/basket/:id/participants" element={<BasketParticipants />} />
                   <Route path="/basket/:id/settings" element={<BasketSettings />} />
                   <Route path="/basket/:id/contribute" element={<ContributionPage />} />
+                  <Route path="/profile" element={<Profile />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
@@ -118,13 +127,15 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BasketProvider>
-          <MyBasketsProvider>
-            <BrowserRouter>
-              <AppContent />
-            </BrowserRouter>
-          </MyBasketsProvider>
-        </BasketProvider>
+        <AuthProvider>
+          <BasketProvider>
+            <MyBasketsProvider>
+              <BrowserRouter>
+                <AppContent />
+              </BrowserRouter>
+            </MyBasketsProvider>
+          </BasketProvider>
+        </AuthProvider>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
