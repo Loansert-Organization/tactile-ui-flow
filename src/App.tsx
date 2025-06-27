@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,10 +22,6 @@ import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import React, { Suspense, useEffect } from "react";
 import { HeaderSkeleton } from "@/components/ui/enhanced-skeleton";
-import HomeScreen from "@/pages/HomeScreen";
-import PayScreen from "@/pages/PayScreen";
-import QRPreviewScreen from "@/pages/QRPreviewScreen";
-import HistoryScreen from "@/pages/HistoryScreen";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,11 +60,6 @@ const AppContent = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Routes>
-        {/* New Lifuti routes */}
-        <Route path="/" element={<HomeScreen />} />
-        <Route path="/pay" element={<PayScreen />} />
-        <Route path="/qr-preview" element={<QRPreviewScreen />} />
-        <Route path="/history" element={<HistoryScreen />} />
         {/* Standalone routes (no header/nav) */}
         <Route path="/create/*" element={<CreateBasketWizard />} />
         

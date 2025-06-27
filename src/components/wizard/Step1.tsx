@@ -107,25 +107,24 @@ export const Step1: React.FC<StepProps> = ({ basketData, updateBasketData, onBac
   const canProceed = basketData.name.trim() && basketData.goal.trim() && !isNameError && !isDescError;
 
   return (
-    <div className="wizard-step min-h-screen flex items-center justify-center px-2 py-10 sm:p-6">
-      {/* Removed the gradient background layer for a minimalist look */}
-      {/* <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10" /> */}
-      
-      <GlassCard className="w-full max-w-md p-6 relative overflow-hidden shadow-xl rounded-[2rem] border backdrop-blur-md" variant="strong">
+    <div className="wizard-step">
+      <GlassCard className="max-w-md mx-auto p-6 mt-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10" />
+        
         <div className="relative">
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center justify-between mb-6">
             <button 
               onClick={(e) => { handlePress(e); onBack(); }} 
-              className="p-2 rounded-lg hover:bg-white/10"
+              className="p-2 rounded-lg hover:bg-white/10 neuro-button"
             >
-              <ArrowLeft className="w-5 h-5 font-bold" />
+              <ArrowLeft className="w-5 h-5" />
             </button>
             <StepperBar currentStep={1} />
             <div className="w-9" />
           </div>
 
           <div className="space-y-6">
-            <div className="space-y-5 sm:space-y-6">
+            <div className="space-y-4">
               {/* Profile Image Upload */}
               <div className="text-center">
                 <div className="flex justify-center">
@@ -140,7 +139,7 @@ export const Step1: React.FC<StepProps> = ({ basketData, updateBasketData, onBac
                       <AvatarImage src={basketData.profileImage || undefined} alt="Basket profile" />
                       <AvatarFallback className="bg-gradient-to-r from-pink-500 to-orange-500 text-white">
                         {basketData.name ? (
-                          <span className="text-2xl font-extrabold">{basketData.name.charAt(0)}</span>
+                          <span className="text-2xl font-bold">{basketData.name.charAt(0)}</span>
                         ) : (
                           <Camera className="w-8 h-8" />
                         )}
@@ -156,7 +155,7 @@ export const Step1: React.FC<StepProps> = ({ basketData, updateBasketData, onBac
               </div>
 
               <div>
-                <label className="block font-bold text-lg mb-1 sm:mb-2 text-gray-200">
+                <label className="block text-sm font-medium mb-2 text-gray-200">
                   Basket Name
                 </label>
                 <Input
@@ -164,7 +163,7 @@ export const Step1: React.FC<StepProps> = ({ basketData, updateBasketData, onBac
                   onChange={(e) => handleInputChange('name', e.target.value)}
                   onBlur={() => handleBlur('name')}
                   placeholder="Enter basket name..."
-                  className={`glass-input text-white placeholder:text-gray-400 text-base font-semibold py-2 px-3 ${
+                  className={`glass-input text-white placeholder:text-gray-400 ${
                     errors.name ? 'border-red-500 animate-[shake_0.3s_ease-in-out]' : ''
                   }`}
                   maxLength={NAME_MAX + 10}
@@ -182,7 +181,7 @@ export const Step1: React.FC<StepProps> = ({ basketData, updateBasketData, onBac
               </div>
 
               <div>
-                <label className="block font-bold text-lg mb-1 sm:mb-2 text-gray-200">
+                <label className="block text-sm font-medium mb-2 text-gray-200">
                   Description
                 </label>
                 <Textarea
@@ -190,7 +189,7 @@ export const Step1: React.FC<StepProps> = ({ basketData, updateBasketData, onBac
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   onBlur={() => handleBlur('description')}
                   placeholder="Describe your savings goal..."
-                  className={`glass-input text-white placeholder:text-gray-400 text-base font-normal resize-none py-2 px-3 ${
+                  className={`glass-input text-white placeholder:text-gray-400 resize-none ${
                     errors.description ? 'border-red-500 animate-[shake_0.3s_ease-in-out]' : ''
                   }`}
                   rows={3}
@@ -209,7 +208,7 @@ export const Step1: React.FC<StepProps> = ({ basketData, updateBasketData, onBac
               </div>
 
               <div>
-                <label className="block font-bold text-lg mb-1 sm:mb-2 text-gray-200">
+                <label className="block text-sm font-medium mb-2 text-gray-200">
                   Target Goal (RWF)
                 </label>
                 <Input
@@ -217,7 +216,7 @@ export const Step1: React.FC<StepProps> = ({ basketData, updateBasketData, onBac
                   value={basketData.goal}
                   onChange={handleGoalChange}
                   placeholder="1,000"
-                  className={`glass-input text-white placeholder:text-gray-400 text-base font-semibold py-2 px-3 ${
+                  className={`glass-input text-white placeholder:text-gray-400 ${
                     errors.goal ? 'border-red-500 animate-[shake_0.3s_ease-in-out]' : ''
                   }`}
                 />
@@ -230,10 +229,10 @@ export const Step1: React.FC<StepProps> = ({ basketData, updateBasketData, onBac
 
               <Button 
                 onClick={(e) => { handlePress(e); handleNext(); }}
-                className="w-full bg-gradient-to-r from-pink-500 to-orange-500 neuro-button text-white font-extrabold py-3 text-lg sm:text-xl tracking-wide"
+                className="w-full bg-gradient-to-r from-pink-500 to-orange-500 neuro-button text-white font-semibold py-3 text-base"
                 disabled={!canProceed}
               >
-                Next <ArrowRight className="w-5 h-5 ml-2" />
+                Next <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
           </div>
