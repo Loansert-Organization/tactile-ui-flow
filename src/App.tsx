@@ -20,6 +20,8 @@ import { QRPreviewScreen } from "@/pages/QRPreviewScreen";
 import { HistoryScreen } from "@/pages/HistoryScreen";
 import { ScanScreen } from "@/pages/ScanScreen";
 import { PaymentConfirmScreen } from "@/pages/PaymentConfirmScreen";
+import { WhatsAppLogin } from "@/pages/WhatsAppLogin";
+import { WhatsAppOTP } from "@/pages/WhatsAppOTP";
 import NotFound from "./pages/NotFound";
 import { BasketProvider } from "@/contexts/BasketContext";
 import { MyBasketsProvider } from "@/contexts/MyBasketsContext";
@@ -65,6 +67,10 @@ const AppContent = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Routes>
+        {/* Authentication routes (no header/nav) */}
+        <Route path="/whatsapp-login" element={<WhatsAppLogin />} />
+        <Route path="/whatsapp-otp" element={<WhatsAppOTP />} />
+        
         {/* Standalone routes (no header/nav) */}
         <Route path="/create/*" element={<CreateBasketWizard />} />
         <Route path="/pay" element={<PayScreen />} />
