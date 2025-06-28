@@ -81,7 +81,8 @@
     "logoutSuccess": "Logged out successfully",
     "logoutFailed": "Logout failed. Please try again",
     "avatarUpload": "Avatar Upload",
-    "photoUploadSoon": "Photo upload feature coming soon"
+    "photoUploadSoon": "Photo upload feature coming soon",
+    "settingsUpdated": "Settings updated successfully"
   },
   "basket": {
     "totalContributions": "Total Contributions",
@@ -131,7 +132,14 @@
     "publicDesc": "Anyone can see and contribute to this basket",
     "privateBasket": "Private Basket",
     "privateDesc": "Only people you invite can contribute",
-    "summary": "Summary"
+    "summary": "Summary",
+    "basketNameLabel": "Basket Name",
+    "basketNameRequired": "Basket name is required",
+    "descriptionLabel": "Description",
+    "goalAmountLabel": "Goal Amount (RWF)",
+    "goalAmountRequired": "Please enter a valid amount (1 - 10,000,000 RWF)",
+    "durationLabel": "Duration",
+    "privateBasketNote": "Only people you invite can see and contribute to this basket"
   },
   "currency": {
     "rwf": "RWF",

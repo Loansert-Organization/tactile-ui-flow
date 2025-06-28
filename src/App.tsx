@@ -108,10 +108,10 @@ const AppContent = () => {
               <Suspense fallback={<HeaderSkeleton />}>
                 <AppHeader />
               </Suspense>
-              <main className="flex-1 pt-2 pb-20">
+              <main id="main-content" className="flex-1 pt-2 pb-20" role="main">
                 <ErrorBoundary>
                   <Suspense fallback={
-                    <div className="flex justify-center items-center py-16">
+                    <div className="flex justify-center items-center py-16" role="status" aria-label="Loading">
                       <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
                     </div>
                   }>
