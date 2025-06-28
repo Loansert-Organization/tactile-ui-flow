@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { usePressFeedback } from '@/hooks/useInteractions';
 
 interface FABProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'destructive';
+  variant?: 'primary' | 'secondary' | 'gradient' | 'glass';
   size?: 'sm' | 'md' | 'lg';
   icon: React.ReactNode;
   label?: string;
@@ -26,9 +26,10 @@ export const FAB = React.forwardRef<HTMLButtonElement, FABProps>(
     const { handlePress } = usePressFeedback();
     
     const variantClasses = {
-      primary: "bg-gradient-magenta-orange text-white",
-      secondary: "bg-gradient-teal-blue text-white",
-      destructive: "bg-destructive text-destructive-foreground",
+      primary: "bg-gradient-primary text-white shadow-glass-lg",
+      secondary: "bg-gradient-accent text-white shadow-glass-lg",
+      gradient: "bg-gradient-hero text-white shadow-glass-xl",
+      glass: "backdrop-blur-md bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 text-foreground shadow-glass-md hover:bg-white/15 dark:hover:bg-white/8",
     };
     
     const sizeClasses = {
@@ -48,7 +49,7 @@ export const FAB = React.forwardRef<HTMLButtonElement, FABProps>(
       <button
         ref={ref}
         className={cn(
-          "fixed bottom-20 right-4 z-50 rounded-full shadow-lg transition-all duration-300 active:scale-95 overflow-hidden flex items-center justify-center",
+          "fixed bottom-20 right-4 z-50 rounded-full transition-all duration-300 active:scale-95 overflow-hidden flex items-center justify-center touch-manipulation",
           variantClasses[variant],
           sizeClasses[size],
           expandedClasses,
@@ -58,10 +59,15 @@ export const FAB = React.forwardRef<HTMLButtonElement, FABProps>(
         aria-label={label || "Action button"}
         {...props}
       >
-        <span className="flex-shrink-0">{icon}</span>
+        {/* Glass shine effect */}
+        {(variant === 'gradient' || variant === 'glass') && (
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+        )}
+        
+        <span className="flex-shrink-0 relative z-10">{icon}</span>
         
         {expanded && label && (
-          <span className="font-medium ml-1">{label}</span>
+          <span className="font-medium ml-1 relative z-10">{label}</span>
         )}
       </button>
     );
