@@ -16,6 +16,7 @@ export interface AIAnalysisOptions {
   codeSnippet?: string;
   codeFiles?: any[];
   targetFramework?: string;
+  [key: string]: any; // Add index signature for JSON compatibility
 }
 
 export interface AIAnalysisResult {
@@ -66,15 +67,19 @@ export const useAIAnalysis = () => {
 
       setResults(prev => [result, ...prev]);
       
-      // Store in database for persistence
-      await supabase.from('ai_suggestions').insert({
+      // Store in database for persistence - fix the insert data structure
+      const { error: insertError } = await supabase.from('ai_suggestions').insert({
         suggestion_type: type,
         ai_model: 'multi-model',
-        input_data: options,
-        suggestion_content: data,
+        input_data: options as any, // Cast to any for JSON compatibility
+        suggestion_content: data as any, // Cast to any for JSON compatibility
         confidence_score: result.confidence,
         status: 'pending'
       });
+
+      if (insertError) {
+        console.error('Failed to store AI suggestion:', insertError);
+      }
 
       toast({
         title: `${type.replace('_', ' ')} Complete`,
@@ -82,7 +87,7 @@ export const useAIAnalysis = () => {
       });
 
       return result;
-    } catch (error) {
+    } catch (error: any) {
       const errorResult: AIAnalysisResult = {
         id: crypto.randomUUID(),
         type,
