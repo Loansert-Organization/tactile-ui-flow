@@ -92,6 +92,45 @@ export type Database = {
           },
         ]
       }
+      basket_members: {
+        Row: {
+          basket_id: string
+          id: string
+          is_creator: boolean | null
+          joined_at: string | null
+          user_id: string
+        }
+        Insert: {
+          basket_id: string
+          id?: string
+          is_creator?: boolean | null
+          joined_at?: string | null
+          user_id: string
+        }
+        Update: {
+          basket_id?: string
+          id?: string
+          is_creator?: boolean | null
+          joined_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "basket_members_basket_id_fkey"
+            columns: ["basket_id"]
+            isOneToOne: false
+            referencedRelation: "baskets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "basket_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       baskets: {
         Row: {
           category: string | null
@@ -151,45 +190,6 @@ export type Database = {
           {
             foreignKeyName: "baskets_creator_id_fkey"
             columns: ["creator_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      basket_members: {
-        Row: {
-          id: string
-          basket_id: string
-          user_id: string
-          joined_at: string | null
-          is_creator: boolean | null
-        }
-        Insert: {
-          id?: string
-          basket_id: string
-          user_id: string
-          joined_at?: string | null
-          is_creator?: boolean | null
-        }
-        Update: {
-          id?: string
-          basket_id?: string
-          user_id?: string
-          joined_at?: string | null
-          is_creator?: boolean | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "basket_members_basket_id_fkey"
-            columns: ["basket_id"]
-            isOneToOne: false
-            referencedRelation: "baskets"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "basket_members_user_id_fkey"
-            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -420,7 +420,6 @@ export type Database = {
           mobile_money_number: string | null
           phone_number: string | null
           whatsapp_number: string | null
-          role: string | null
         }
         Insert: {
           auth_method?: string | null
@@ -434,7 +433,6 @@ export type Database = {
           mobile_money_number?: string | null
           phone_number?: string | null
           whatsapp_number?: string | null
-          role?: string | null
         }
         Update: {
           auth_method?: string | null
@@ -448,7 +446,6 @@ export type Database = {
           mobile_money_number?: string | null
           phone_number?: string | null
           whatsapp_number?: string | null
-          role?: string | null
         }
         Relationships: []
       }
