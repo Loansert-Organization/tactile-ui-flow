@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext } from 'react';
 import { useMyBaskets, MyBasket } from '@/hooks/useMyBaskets';
 
@@ -22,14 +21,14 @@ export const MyBasketsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Mock implementations for missing methods
   const joinBasket = async (basketData: Partial<MyBasket> & { id: string; name: string }): Promise<MyBasket> => {
-    // This would typically call a backend API to join a basket
-    console.log('Joining basket:', basketData.id);
+    if (import.meta.env.DEV) console.log('Joining basket:', basketData.id);
+    // TODO: Implement actual basket joining logic
     return basketData as MyBasket;
   };
 
   const updateBasketStatus = (basketId: string, status: 'pending' | 'approved' | 'private') => {
-    console.log('Updating basket status:', basketId, status);
-    // This would typically update the basket status in the backend
+    if (import.meta.env.DEV) console.log('Updating basket status:', basketId, status);
+    // TODO: Implement actual status update logic
   };
 
   const contextValue: MyBasketsContextType = {

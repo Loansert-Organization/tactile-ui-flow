@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Share } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -36,44 +35,35 @@ export const ShareButton = ({
   };
 
   const handleShare = async () => {
-    console.log('Share button clicked');
-    console.log('Basket name:', basketName);
-    console.log('Basket URL:', basketURL);
-    
-    const message = `Hey! Join my Basket "${basketName}" and add your support via MOMO: ${basketURL}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    
-    console.log('WhatsApp URL:', whatsappUrl);
-    console.log('Opening WhatsApp...');
-    
-    // Show opening toast
-    toast({
-      title: "Opening WhatsApp…",
-      description: "Redirecting to WhatsApp to share your basket",
-    });
+    if (import.meta.env.DEV) {
+      console.log('Share button clicked');
+      console.log('Basket name:', basketName);
+      console.log('Basket URL:', basketURL);
+    }
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
+      `Join my basket "${basketName}" on IKANISA: ${basketURL}`
+    )}`;
+
+    if (import.meta.env.DEV) {
+      console.log('WhatsApp URL:', whatsappUrl);
+      console.log('Opening WhatsApp...');
+    }
 
     try {
-      // For mobile devices, try using window.location.href first
-      if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        console.log('Mobile device detected, using location.href');
+      if (isMobile) {
+        if (import.meta.env.DEV) console.log('Mobile device detected, using location.href');
         window.location.href = whatsappUrl;
       } else {
-        // For desktop, try window.open
-        console.log('Desktop device detected, using window.open');
-        const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-        
-        if (!opened || opened.closed || typeof opened.closed === 'undefined') {
-          console.log('Window.open failed, falling back to location.href');
+        if (import.meta.env.DEV) console.log('Desktop device detected, using window.open');
+        const newWindow = window.open(whatsappUrl, '_blank');
+        if (!newWindow) {
+          if (import.meta.env.DEV) console.log('Window.open failed, falling back to location.href');
           window.location.href = whatsappUrl;
         }
       }
     } catch (error) {
-      console.error('Error opening WhatsApp:', error);
-      toast({
-        title: "Couldn't open WhatsApp",
-        description: "Please try again or share the link manually",
-        variant: "destructive",
-      });
+      if (import.meta.env.DEV) console.error('Error opening WhatsApp:', error);
     }
   };
 

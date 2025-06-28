@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +12,7 @@ export interface AuthUser extends User {
   avatar?: string;
   mobileMoneyNumber?: string;
   whatsappNumber?: string;
+  role: 'user' | 'admin';
   // Make Supabase properties required for compatibility
   app_metadata: any;
   user_metadata: any;
@@ -31,6 +31,11 @@ interface AuthContextType {
   updateUser: (userData: Partial<AuthUser>) => void;
   ensureAnonymousAuth: () => Promise<void>;
   refreshUserData: () => Promise<void>;
+  // New authentication methods
+  signInAnonymous: () => Promise<void>;
+  signInEmail: (email: string, password?: string) => Promise<void>;
+  signInGoogle: () => Promise<void>;
+  signInWhatsApp: (phoneNumber: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,12 +50,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { data: userData, error } = await supabase
         .from('users')
-        .select('display_name, mobile_money_number, whatsapp_number, country')
+        .select('display_name, mobile_money_number, whatsapp_number, country, role')
         .eq('id', supabaseUser.id)
         .single();
 
       if (error) {
-        console.log('No user data found in users table, using defaults');
+        if (import.meta.env.DEV) console.log('No user data found in users table, using defaults');
       }
 
       return {
@@ -62,13 +67,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         lastLogin: supabaseUser.last_sign_in_at || supabaseUser.created_at,
         mobileMoneyNumber: userData?.mobile_money_number,
         whatsappNumber: userData?.whatsapp_number,
+        role: userData?.role || 'user',
         app_metadata: supabaseUser.app_metadata || { provider: 'anonymous' },
         user_metadata: supabaseUser.user_metadata || {},
         aud: supabaseUser.aud || 'authenticated',
         created_at: supabaseUser.created_at
       };
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      if (import.meta.env.DEV) console.error('Error fetching user data:', error);
       return convertToAuthUser(supabaseUser);
     }
   };
@@ -82,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       language: 'en' as 'en' | 'rw',
       createdAt: supabaseUser.created_at,
       lastLogin: supabaseUser.last_sign_in_at || supabaseUser.created_at,
+      role: 'user',
       app_metadata: supabaseUser.app_metadata || { provider: 'anonymous' },
       user_metadata: supabaseUser.user_metadata || {},
       aud: supabaseUser.aud || 'authenticated',
@@ -98,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(updatedUser);
       }
     } catch (error) {
-      console.error('Error refreshing user data:', error);
+      if (import.meta.env.DEV) console.error('Error refreshing user data:', error);
     }
   };
 
@@ -109,19 +116,96 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       
       if (currentSession?.user) {
-        console.log('Using existing session:', currentSession.user.id);
+        if (import.meta.env.DEV) console.log('Using existing session:', currentSession.user.id);
         return;
       }
 
       // Only create new anonymous session if we don't have one
       const { data, error } = await supabase.auth.signInAnonymously();
       if (error) {
-        console.error('Failed to create anonymous session:', error);
+        if (import.meta.env.DEV) console.error('Failed to create anonymous session:', error);
       } else {
-        console.log('New anonymous session created:', data.session?.user?.id);
+        if (import.meta.env.DEV) console.log('New anonymous session created:', data.session?.user?.id);
       }
     } catch (error) {
-      console.error('Anonymous auth error:', error);
+      if (import.meta.env.DEV) console.error('Anonymous auth error:', error);
+    }
+  };
+
+  // New authentication methods
+  const signInAnonymous = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (error) {
+        if (import.meta.env.DEV) console.error('Anonymous sign in error:', error);
+        throw error;
+      }
+      if (import.meta.env.DEV) console.log('Anonymous sign in successful:', data.session?.user?.id);
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Anonymous sign in exception:', error);
+      throw error;
+    }
+  };
+
+  const signInEmail = async (email: string, password?: string) => {
+    try {
+      if (password) {
+        // Sign in with password
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        if (error) throw error;
+      } else {
+        // Send magic link
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`
+          }
+        });
+        if (error) throw error;
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Email sign in error:', error);
+      throw error;
+    }
+  };
+
+  const signInGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Google sign in error:', error);
+      throw error;
+    }
+  };
+
+  const signInWhatsApp = async (phoneNumber: string) => {
+    try {
+      // Format phone number (ensure it starts with +)
+      let formattedPhone = phoneNumber.trim();
+      if (!formattedPhone.startsWith('+')) {
+        formattedPhone = '+' + formattedPhone.replace(/^\+/, '');
+      }
+
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: formattedPhone,
+        options: {
+          channel: 'whatsapp'
+        }
+      });
+      
+      if (error) throw error;
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('WhatsApp sign in error:', error);
+      throw error;
     }
   };
 
@@ -129,7 +213,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
+        if (import.meta.env.DEV) console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         
         if (session?.user) {
@@ -139,7 +223,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               const authUser = await fetchUserData(session.user);
               setUser(authUser);
             } catch (error) {
-              console.error('Error setting user data:', error);
+              if (import.meta.env.DEV) console.error('Error setting user data:', error);
               setUser(convertToAuthUser(session.user));
             }
           }, 0);
@@ -160,7 +244,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(authUser);
         }
       } catch (error) {
-        console.error('Auth initialization error:', error);
+        if (import.meta.env.DEV) console.error('Auth initialization error:', error);
       }
       setLoading(false);
     };
@@ -174,7 +258,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await supabase.auth.signOut();
     } catch (error) {
-      console.error('Sign out error:', error);
+      if (import.meta.env.DEV) console.error('Sign out error:', error);
     }
   };
 
@@ -202,7 +286,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         updateUser,
         ensureAnonymousAuth,
-        refreshUserData
+        refreshUserData,
+        signInAnonymous,
+        signInEmail,
+        signInGoogle,
+        signInWhatsApp
       }}
     >
       {children}

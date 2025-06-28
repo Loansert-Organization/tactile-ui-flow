@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -58,12 +57,13 @@ const queryClient = new QueryClient({
 const AppContent = () => {
   const { measureTiming, getNetworkInfo } = usePerformanceMonitor();
   const [showSplash, setShowSplash] = useState(true);
+  const [networkInfo, setNetworkInfo] = useState({ online: false, type: 'offline' });
 
   useEffect(() => {
-    const networkInfo = getNetworkInfo();
-    if (networkInfo) {
-      console.log('[Network]', networkInfo);
-    }
+    const handleOnline = () => {
+      setNetworkInfo({ online: true, type: 'online' });
+      if (import.meta.env.DEV) console.log('[Network]', networkInfo);
+    };
 
     measureTiming('preload-critical-pages', () => {
       import('@/pages/Feed');
@@ -95,17 +95,20 @@ const AppContent = () => {
           <Route path="/auth/verify-otp" element={<OtpVerification />} />
           
           {/* Analysis routes for codebase review - No headers/nav */}
-          <Route path="/analysis" element={
-            <Suspense fallback={<div>Loading Analysis...</div>}>
-              {React.createElement(React.lazy(() => import('@/pages/Analysis')))}
-            </Suspense>
-          } />
-          
-          <Route path="/basket-audit" element={
-            <Suspense fallback={<div>Loading Basket Audit...</div>}>
-              {React.createElement(React.lazy(() => import('@/pages/BasketAudit')))}
-            </Suspense>
-          } />
+          {import.meta.env.DEV && (
+            <Route path="/analysis" element={
+              <Suspense fallback={<div>Loading Analysis...</div>}>
+                {React.createElement(React.lazy(() => import('@/pages/Analysis')))}
+              </Suspense>
+            } />
+          )}
+          {import.meta.env.DEV && (
+            <Route path="/basket-audit" element={
+              <Suspense fallback={<div>Loading Basket Audit...</div>}>
+                {React.createElement(React.lazy(() => import('@/pages/BasketAudit')))}
+              </Suspense>
+            } />
+          )}
           
           {/* Standalone routes - No headers/nav */}
           <Route path="/history" element={<HistoryScreen />} />

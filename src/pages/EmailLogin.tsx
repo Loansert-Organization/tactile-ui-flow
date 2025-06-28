@@ -1,14 +1,14 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Mail } from 'lucide-react';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 const EmailLogin = () => {
   const navigate = useNavigate();
+  const { signInEmail } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
@@ -27,23 +27,11 @@ const EmailLogin = () => {
       if (isLogin) {
         if (!password) {
           // Send magic link
-          const { error } = await supabase.auth.signInWithOtp({
-            email,
-            options: {
-              emailRedirectTo: `${window.location.origin}/`
-            }
-          });
-          
-          if (error) throw error;
+          await signInEmail(email);
           toast.success('Check your email for the login link!');
         } else {
           // Sign in with password
-          const { error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-          });
-          
-          if (error) throw error;
+          await signInEmail(email, password);
           navigate('/');
         }
       } else {
@@ -53,15 +41,7 @@ const EmailLogin = () => {
           return;
         }
         
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`
-          }
-        });
-        
-        if (error) throw error;
+        await signInEmail(email, password);
         toast.success('Check your email to confirm your account!');
       }
     } catch (error: any) {
@@ -76,22 +56,21 @@ const EmailLogin = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
-        <div className="flex items-center mb-8">
+        <div className="text-center space-y-4">
           <Button
             variant="ghost"
             size="sm"
+            className="absolute top-4 left-4"
             onClick={() => navigate('/login-options')}
-            className="p-2 -ml-2"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
           </Button>
-        </div>
-
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 mx-auto bg-blue-50 rounded-full flex items-center justify-center mb-6">
-            <Mail className="w-8 h-8 text-blue-600" />
+          
+          <div className="w-20 h-20 mx-auto bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-6">
+            <Mail className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             {isLogin ? 'Sign In' : 'Create Account'}
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
@@ -101,8 +80,8 @@ const EmailLogin = () => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Email Address
             </label>
             <input
@@ -116,8 +95,8 @@ const EmailLogin = () => {
             />
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <div className="space-y-2">
+            <label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Password {isLogin && <span className="text-sm text-gray-500">(optional - leave blank for magic link)</span>}
             </label>
             <input
@@ -136,24 +115,25 @@ const EmailLogin = () => {
             variant="primary"
             size="lg"
             className="w-full"
-            loading={isLoading}
+            disabled={isLoading}
           >
-            {isLogin ? (password ? 'Sign In' : 'Send Magic Link') : 'Create Account'}
+            {isLoading ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            ) : (
+              <>{isLogin ? (password ? 'Sign In' : 'Send Magic Link') : 'Create Account'}</>
+            )}
           </GradientButton>
         </form>
 
         {/* Toggle */}
         <div className="text-center">
-          <button
-            type="button"
-            onClick={() => {
-              setIsLogin(!isLogin);
-              setPassword('');
-            }}
-            className="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-medium"
+          <Button
+            variant="ghost"
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
           >
             {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

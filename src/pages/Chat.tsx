@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Share2, Settings, Send, Eye, EyeOff, Copy } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -39,9 +38,18 @@ export const Chat = () => {
 
   const progress = (currentTotal / goal) * 100;
 
+  const swipeActions = {
+    left: () => {
+      if (import.meta.env.DEV) console.log('Swipe left - open menu');
+    },
+    right: () => {
+      if (import.meta.env.DEV) console.log('Swipe right - go back');
+    }
+  };
+
   const { handleTouchStart, handleTouchEnd } = useSwipeGesture(
-    () => console.log('Swipe left - open menu'),
-    () => console.log('Swipe right - go back')
+    swipeActions.left,
+    swipeActions.right
   );
 
   const handleLongPressMessage = (messageId: string, event: React.MouseEvent) => {
@@ -50,7 +58,9 @@ export const Chat = () => {
   };
 
   const longPressProps = (messageId: string) => useLongPress(
-    () => console.log('Long press detected for message:', messageId),
+    () => {
+      if (import.meta.env.DEV) console.log('Long press detected for message:', messageId);
+    },
     500
   );
 

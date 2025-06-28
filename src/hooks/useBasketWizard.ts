@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMyBaskets } from '@/hooks/useMyBaskets';
@@ -11,6 +10,7 @@ import {
   initialErrors 
 } from '@/components/wizard/forms/BasketWizardFormData';
 import { validateStep1, validateStep2 } from '@/components/wizard/forms/BasketWizardValidation';
+import { useAdmin } from '@/hooks/useAdmin';
 
 export const useBasketWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -23,6 +23,7 @@ export const useBasketWizard = () => {
   const navigate = useNavigate();
   const { createBasket } = useMyBaskets();
   const { ensureAnonymousAuth } = useAuthContext();
+  const { isAdmin } = useAdmin();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -76,7 +77,13 @@ export const useBasketWizard = () => {
       // Ensure anonymous auth is available
       await ensureAnonymousAuth();
       
-      console.log('Creating basket with form data:', formData);
+      // Enforce admin-only public basket creation
+      const isPublic = formData.isPublic;
+      if (isPublic && !isAdmin) {
+        toast.error('Only admins can create public baskets.');
+        setIsCreating(false);
+        return;
+      }
       
       await createBasket({
         name: formData.name,
@@ -85,7 +92,7 @@ export const useBasketWizard = () => {
         duration: parseInt(formData.duration),
         category: formData.category,
         country: formData.country,
-        isPrivate: true,
+        isPrivate: !isPublic,
         tags: []
       });
       

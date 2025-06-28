@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Download, X } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -48,23 +47,17 @@ export const PWAInstallPrompt = () => {
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
-
-    try {
-      await deferredPrompt.prompt();
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      
       if (outcome === 'accepted') {
-        console.log('User accepted the install prompt');
+        if (import.meta.env.DEV) console.log('User accepted the install prompt');
+        setShowPrompt(false);
       } else {
-        console.log('User dismissed the install prompt');
+        if (import.meta.env.DEV) console.log('User dismissed the install prompt');
       }
-    } catch (error) {
-      console.error('Error showing install prompt:', error);
+      setDeferredPrompt(null);
     }
-
-    setDeferredPrompt(null);
-    setShowPrompt(false);
   };
 
   const handleDismiss = () => {

@@ -7,6 +7,7 @@ import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationSetting, defaultNotifications } from '@/components/profile/notifications/NotificationData';
 import { NotificationCategorySection } from '@/components/profile/notifications/NotificationCategorySection';
+import { toast } from 'react-hot-toast';
 
 export const NotificationsSettings = () => {
   const { t } = useTranslation();
@@ -44,16 +45,10 @@ export const NotificationsSettings = () => {
 
   const categories = Object.keys(groupedNotifications);
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Saving notification preferences:', notifications);
-      navigate(-1);
-    } finally {
-      setIsSaving(false);
-    }
+  const handleSave = () => {
+    if (import.meta.env.DEV) console.log('Saving notification preferences:', notifications);
+    // TODO: Implement saving to backend
+    toast.success('Notification preferences saved');
   };
 
   return (

@@ -1,28 +1,18 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, MessageCircle } from 'lucide-react';
+import { Mail, MessageCircle, User } from 'lucide-react';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 const LoginOptions = () => {
   const navigate = useNavigate();
+  const { signInAnonymous, signInGoogle } = useAuthContext();
 
   const handleGoogleLogin = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`
-        }
-      });
-      
-      if (error) {
-        console.error('Google login error:', error);
-        toast.error('Failed to login with Google');
-      }
+      await signInGoogle();
     } catch (error) {
       console.error('Google login exception:', error);
       toast.error('Failed to login with Google');
@@ -35,6 +25,17 @@ const LoginOptions = () => {
 
   const handleWhatsAppLogin = () => {
     navigate('/auth/whatsapp');
+  };
+
+  const handleAnonymousLogin = async () => {
+    try {
+      await signInAnonymous();
+      navigate('/');
+      toast.success('Welcome! You can now use the app anonymously.');
+    } catch (error) {
+      console.error('Anonymous login error:', error);
+      toast.error('Failed to continue as guest');
+    }
   };
 
   const handleSkipLogin = () => {
@@ -94,6 +95,16 @@ const LoginOptions = () => {
           >
             <MessageCircle className="w-5 h-5" />
             Continue with WhatsApp
+          </GradientButton>
+
+          <GradientButton
+            variant="outline"
+            size="lg"
+            className="w-full"
+            onClick={handleAnonymousLogin}
+          >
+            <User className="w-5 h-5" />
+            Continue as Guest
           </GradientButton>
         </div>
 

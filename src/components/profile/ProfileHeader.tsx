@@ -145,7 +145,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         description: "Your mobile money number has been successfully updated"
       });
 
-      console.log('Mobile money number updated:', fullMobileNumber);
+      if (import.meta.env.DEV) console.log('Mobile money number updated:', fullMobileNumber);
     }
 
     if (data.displayName !== displayName) {
@@ -154,7 +154,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         description: "Your username has been successfully updated"
       });
 
-      console.log('Username updated:', data.displayName);
+      if (import.meta.env.DEV) console.log('Username updated:', data.displayName);
     }
 
     await onSubmit({

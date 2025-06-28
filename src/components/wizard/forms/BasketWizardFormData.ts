@@ -1,4 +1,3 @@
-
 export interface BasketWizardFormData {
   name: string;
   description: string;
@@ -6,6 +5,7 @@ export interface BasketWizardFormData {
   duration: string;
   category: string;
   country: string;
+  isPublic: boolean;
 }
 
 export interface BasketWizardErrors {
@@ -20,7 +20,8 @@ export const initialFormData: BasketWizardFormData = {
   goal: '',
   duration: '30',
   category: 'personal',
-  country: 'RW'
+  country: 'RW',
+  isPublic: false
 };
 
 export const initialErrors: BasketWizardErrors = {

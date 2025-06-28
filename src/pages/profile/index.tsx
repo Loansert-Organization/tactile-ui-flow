@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { WalletSummary } from '@/components/profile/WalletSummary';
@@ -16,12 +15,17 @@ interface ProfileFormData {
 }
 
 const Profile = () => {
-  const { user, refreshUserData } = useAuthContext();
+  const { user, refreshUserData, signOut } = useAuthContext();
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleLogout = () => {
-    // Logout functionality would be implemented here
-    console.log('Logout clicked');
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast.success('Logged out successfully');
+    } catch (error) {
+      if (import.meta.env.DEV) console.error('Logout error:', error);
+      toast.error('Failed to logout');
+    }
   };
 
   const handleEditToggle = () => {
@@ -40,13 +44,39 @@ const Profile = () => {
         toast.error('Failed to update profile');
       }
     } catch (error) {
-      console.error('Profile update error:', error);
+      if (import.meta.env.DEV) console.error('Profile update error:', error);
       toast.error('Failed to update profile');
     }
   };
 
+  const handleNotificationsChange = (notifications: boolean) => {
+    if (import.meta.env.DEV) console.log('Notifications updated:', notifications);
+    // TODO: Implement notifications update
+  };
+
+  const handleDarkModeChange = (isDark: boolean) => {
+    if (import.meta.env.DEV) console.log('Dark mode:', isDark);
+    // TODO: Implement dark mode toggle
+  };
+
   if (!user) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+  if (user === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 mb-4">Failed to load profile. Please try again.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -65,9 +95,9 @@ const Profile = () => {
           <QuickActions />
           <PreferencesCard 
             notifications={true}
-            onNotificationsChange={(notifications) => console.log('Notifications updated:', notifications)}
+            onNotificationsChange={handleNotificationsChange}
             isDarkMode={false}
-            onDarkModeChange={(isDark) => console.log('Dark mode:', isDark)}
+            onDarkModeChange={handleDarkModeChange}
           />
         </div>
         
