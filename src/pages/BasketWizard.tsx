@@ -33,6 +33,7 @@ const BasketWizard = () => {
     description: false,
     goal: false
   });
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -155,66 +156,93 @@ const BasketWizard = () => {
 
       {/* Content */}
       <div className="relative z-10 px-6 pb-32">
-        {currentStep === 1 && <div className="wizard-step space-y-6">
-              
-
-              <GlassCard className="p-6 space-y-6">
-                <div className="space-y-2">
-                  <label className="block text-white font-medium">Basket Name *</label>
-                  <input type="text" value={formData.name} onChange={e => handleInputChange('name', e.target.value)} placeholder="Enter basket name" className={`w-full p-4 rounded-lg glass-input text-white placeholder-gray-400 ${errors.name ? 'border-red-400 animate-[shake_0.5s_ease-in-out]' : ''}`} maxLength={50} />
-                  <CharacterCounter current={formData.name.length} max={50} error={errors.name} />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-white font-medium">Description *</label>
-                  <textarea value={formData.description} onChange={e => handleInputChange('description', e.target.value)} placeholder="What's this basket for?" className={`w-full p-4 rounded-lg glass-input text-white placeholder-gray-400 min-h-24 resize-none ${errors.description ? 'border-red-400 animate-[shake_0.5s_ease-in-out]' : ''}`} maxLength={200} rows={3} />
-                  <CharacterCounter current={formData.description.length} max={200} error={errors.description} />
-                </div>
-              </GlassCard>
-            </div>}
-
-          {currentStep === 2 && <div className="wizard-step space-y-6">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold text-white mb-2">Set Your Goal</h2>
-                <p className="text-gray-300">How much do you want to raise?</p>
+        {currentStep === 1 && (
+          <div className="wizard-step space-y-6">
+            <GlassCard className="p-6 space-y-6">
+              <div className="space-y-2">
+                <label className="block text-white font-medium">Basket Name *</label>
+                <input 
+                  type="text" 
+                  value={formData.name} 
+                  onChange={e => handleInputChange('name', e.target.value)} 
+                  placeholder="Enter basket name" 
+                  className={`w-full p-4 rounded-lg glass-input text-white placeholder-gray-400 ${errors.name ? 'border-red-400 animate-[shake_0.5s_ease-in-out]' : ''}`} 
+                  maxLength={50} 
+                />
+                <CharacterCounter current={formData.name.length} max={50} error={errors.name} />
               </div>
 
-              <GlassCard className="p-6 space-y-6">
-                <div className="space-y-2">
-                  <label className="block text-white font-medium flex items-center gap-2">
-                    <Target className="w-5 h-5" />
-                    Goal Amount (RWF) *
-                  </label>
-                  <input type="number" value={formData.goal} onChange={e => handleInputChange('goal', e.target.value)} placeholder="10000" className={`w-full p-4 rounded-lg glass-input text-white placeholder-gray-400 text-center text-xl font-semibold ${errors.goal ? 'border-red-400 animate-[shake_0.5s_ease-in-out]' : ''}`} min={1} max={10000000} />
-                  {errors.goal && <p className="text-red-400 text-sm">Please enter a valid amount (1 - 10,000,000 RWF)</p>}
-                </div>
+              <div className="space-y-2">
+                <label className="block text-white font-medium">Description *</label>
+                <textarea 
+                  value={formData.description} 
+                  onChange={e => handleInputChange('description', e.target.value)} 
+                  placeholder="What's this basket for?" 
+                  className={`w-full p-4 rounded-lg glass-input text-white placeholder-gray-400 min-h-24 resize-none ${errors.description ? 'border-red-400 animate-[shake_0.5s_ease-in-out]' : ''}`} 
+                  maxLength={200} 
+                  rows={3} 
+                />
+                <CharacterCounter current={formData.description.length} max={200} error={errors.description} />
+              </div>
+            </GlassCard>
+          </div>
+        )}
 
-                <div className="space-y-2">
-                  <label className="block text-white font-medium flex items-center gap-2">
-                    <Clock className="w-5 h-5" />
-                    Duration
-                  </label>
-                  <select value={formData.duration} onChange={e => handleInputChange('duration', e.target.value)} className="w-full p-4 rounded-lg glass-input text-white">
-                    <option value="7">7 days</option>
-                    <option value="14">14 days</option>
-                    <option value="30">30 days</option>
-                    <option value="60">60 days</option>
-                    <option value="90">90 days</option>
-                  </select>
-                </div>
+        {currentStep === 2 && (
+          <div className="wizard-step space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-white mb-2">Set Your Goal</h2>
+              <p className="text-gray-300">How much do you want to raise?</p>
+            </div>
 
-                <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Shield className="w-5 h-5 text-green-400" />
-                    <span className="text-white font-medium">Private Basket</span>
-                  </div>
-                  <p className="text-gray-300 text-sm">
-                    Only people you invite can see and contribute to this basket
-                  </p>
+            <GlassCard className="p-6 space-y-6">
+              <div className="space-y-2">
+                <label className="block text-white font-medium flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Goal Amount (RWF) *
+                </label>
+                <input 
+                  type="number" 
+                  value={formData.goal} 
+                  onChange={e => handleInputChange('goal', e.target.value)} 
+                  placeholder="10000" 
+                  className={`w-full p-4 rounded-lg glass-input text-white placeholder-gray-400 text-center text-xl font-semibold ${errors.goal ? 'border-red-400 animate-[shake_0.5s_ease-in-out]' : ''}`} 
+                  min={1} 
+                  max={10000000} 
+                />
+                {errors.goal && <p className="text-red-400 text-sm">Please enter a valid amount (1 - 10,000,000 RWF)</p>}
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-white font-medium flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  Duration
+                </label>
+                <select 
+                  value={formData.duration} 
+                  onChange={e => handleInputChange('duration', e.target.value)} 
+                  className="w-full p-4 rounded-lg glass-input text-white"
+                >
+                  <option value="7">7 days</option>
+                  <option value="14">14 days</option>
+                  <option value="30">30 days</option>
+                  <option value="60">60 days</option>
+                  <option value="90">90 days</option>
+                </select>
+              </div>
+
+              <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                <div className="flex items-center gap-3 mb-2">
+                  <Shield className="w-5 h-5 text-green-400" />
+                  <span className="text-white font-medium">Private Basket</span>
                 </div>
-              </GlassCard>
-            </div>}
-        </div>
+                <p className="text-gray-300 text-sm">
+                  Only people you invite can see and contribute to this basket
+                </p>
+              </div>
+            </GlassCard>
+          </div>
+        )}
       </div>
     </div>
   );
