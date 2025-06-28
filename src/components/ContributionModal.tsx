@@ -40,44 +40,64 @@ export const ContributionModal = ({
   };
 
   const handleContribute = async () => {
+    console.log('[CONTRIBUTE] Starting contribution process...');
     if (!amount || !basketId) {
       toast.error('Please enter a valid amount.');
+      console.error('[CONTRIBUTE_ERROR] Missing amount or basketId.', { amount, basketId });
       return;
     }
 
     const numericAmount = Number(amount.replace(/,/g, ''));
     if (numericAmount <= 0) {
       toast.error('Please enter a valid amount.');
+      console.error('[CONTRIBUTE_ERROR] Invalid numeric amount.', { numericAmount });
       return;
     }
 
     setIsProcessing(true);
+    console.log(`[CONTRIBUTE] Processing amount: ${numericAmount} for basket: ${basketId}`);
 
     try {
       const amountUsd = numericAmount / 1300; // Approximate RWF to USD conversion
-
-      const { data: momoCode, error } = await supabase.rpc('create_contribution_and_get_momo_code', {
+      const rpcParams = {
         p_basket_id: basketId,
         p_amount_local: numericAmount,
         p_amount_usd: amountUsd
-      });
+      };
 
-      if (error) throw error;
+      console.log('[CONTRIBUTE] Calling RPC `create_contribution_and_get_momo_code` with params:', rpcParams);
+      const { data: momoCode, error } = await supabase.rpc('create_contribution_and_get_momo_code', rpcParams);
+
+      if (error) {
+        console.error('[CONTRIBUTE_ERROR] RPC call failed:', error);
+        throw new Error(`Contribution failed: ${error.message}`);
+      }
+      
+      if (!momoCode) {
+        console.error('[CONTRIBUTE_ERROR] RPC returned no momoCode.');
+        throw new Error('Could not generate payment code. Please try again.');
+      }
+
+      console.log(`[CONTRIBUTE] RPC success, received momoCode: ${momoCode}`);
 
       // Launch phone dialer with USSD code
+      console.log('[CONTRIBUTE] Launching phone dialer...');
       window.location.href = `tel:${momoCode.replace(/#/g, '%23')}`;
 
       // Show success message immediately
+      console.log('[CONTRIBUTE] Showing success modal...');
       setContributedAmount(numericAmount);
       onSuccess(numericAmount);
       setShowSuccessModal(true);
       setAmount('');
+      console.log('[CONTRIBUTE] Contribution process complete.');
 
     } catch (error: any) {
-      console.error('Contribution error:', error);
+      console.error('[CONTRIBUTE_ERROR] Caught an exception in handleContribute:', error);
       toast.error(error.message || 'Failed to initiate contribution.');
     } finally {
       setIsProcessing(false);
+      console.log('[CONTRIBUTE] Finished, processing set to false.');
     }
   };
 
