@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { Camera, MessageCircle, Wallet, Check, X, Mail, Edit2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -230,14 +228,14 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             </div>
 
             {/* User information */}
-            <div className="space-y-3 pt-4 border-t border-border">
+            <div className="space-y-4 pt-4 border-t border-border">
               <div className="space-y-2">
-                <p className="text-xs font-bold text-foreground">User ID</p>
-                <p className="text-sm text-muted-foreground font-mono bg-muted/50 px-3 py-2 rounded">{simpleUserId}</p>
+                <p className="text-sm font-bold text-foreground">User ID</p>
+                <p className="text-base text-muted-foreground font-mono bg-muted/50 px-3 py-2 rounded">{simpleUserId}</p>
               </div>
               
               <div className="space-y-2">
-                <p className="text-xs font-bold text-foreground">Mobile Money Number</p>
+                <p className="text-sm font-bold text-foreground">Mobile Money Number</p>
                 {isEditing ? (
                   <div className="space-y-2">
                     <div className="flex gap-2">
@@ -280,7 +278,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                                   {...field} 
                                   type="tel" 
                                   placeholder="780123456" 
-                                  className="border-0 p-0 h-auto text-sm bg-transparent" 
+                                  className="border-0 p-0 h-auto text-base bg-transparent" 
                                 />
                               </div>
                             </FormControl>
@@ -293,7 +291,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 ) : (
                   <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded">
                     <Wallet className="w-4 h-4 text-blue-600" />
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-base text-muted-foreground">
                       {existingNumber || 'Not set'}
                     </p>
                   </div>
@@ -318,4 +316,3 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     </Card>
   );
 };
-
