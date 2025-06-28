@@ -37,6 +37,37 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Create a fallback anonymous user when Supabase auth is unavailable
+const createFallbackAnonymousUser = (): AuthUser => {
+  const userId = localStorage.getItem('fallback_user_id') || `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  localStorage.setItem('fallback_user_id', userId);
+  
+  return {
+    id: userId,
+    displayName: 'Anonymous User',
+    country: 'RW',
+    language: 'en' as 'en' | 'rw',
+    createdAt: new Date().toISOString(),
+    lastLogin: new Date().toISOString(),
+    app_metadata: { provider: 'anonymous' },
+    user_metadata: {},
+    aud: 'authenticated',
+    created_at: new Date().toISOString(),
+    email: undefined,
+    phone: undefined,
+    email_confirmed_at: undefined,
+    phone_confirmed_at: undefined,
+    confirmation_sent_at: undefined,
+    confirmed_at: undefined,
+    last_sign_in_at: new Date().toISOString(),
+    role: 'authenticated',
+    updated_at: new Date().toISOString(),
+    identities: [],
+    factors: [],
+    is_anonymous: true
+  };
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -67,17 +98,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   };
 
-  // Ensure anonymous authentication for all users
+  // Ensure anonymous authentication - with fallback if Supabase fails
   const ensureAnonymousAuth = async () => {
-    const { data: { session: currentSession } } = await supabase.auth.getSession();
-    
-    if (!currentSession) {
-      const { data, error } = await supabase.auth.signInAnonymously();
-      if (error) {
-        console.error('Failed to create anonymous session:', error);
-      } else {
-        console.log('Anonymous session created:', data.session?.user?.id);
+    try {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!currentSession) {
+        const { data, error } = await supabase.auth.signInAnonymously();
+        if (error) {
+          console.error('Failed to create anonymous session:', error);
+          // Use fallback authentication
+          const fallbackUser = createFallbackAnonymousUser();
+          setUser(fallbackUser);
+          console.log('Using fallback anonymous authentication:', fallbackUser.id);
+        } else {
+          console.log('Anonymous session created:', data.session?.user?.id);
+        }
       }
+    } catch (error) {
+      console.error('Anonymous auth error:', error);
+      // Use fallback authentication
+      const fallbackUser = createFallbackAnonymousUser();
+      setUser(fallbackUser);
+      console.log('Using fallback anonymous authentication after error:', fallbackUser.id);
     }
   };
 
@@ -91,7 +134,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(convertToAuthUser(session.user));
         } else {
           setUser(null);
-          // If no session, create anonymous one
+          // If no session, try to create anonymous one or use fallback
           await ensureAnonymousAuth();
         }
         setLoading(false);
@@ -100,12 +143,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Get initial session or create anonymous one
     const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setSession(session);
-        setUser(convertToAuthUser(session.user));
-      } else {
-        await ensureAnonymousAuth();
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setSession(session);
+          setUser(convertToAuthUser(session.user));
+        } else {
+          await ensureAnonymousAuth();
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        // Use fallback authentication
+        const fallbackUser = createFallbackAnonymousUser();
+        setUser(fallbackUser);
+        console.log('Using fallback anonymous authentication on init:', fallbackUser.id);
       }
       setLoading(false);
     };
@@ -116,8 +167,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    // After sign out, create new anonymous session
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+    // Clear fallback user data
+    localStorage.removeItem('fallback_user_id');
+    // After sign out, create new anonymous session or use fallback
     await ensureAnonymousAuth();
   };
 
@@ -141,9 +198,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     window.location.href = '/auth/phone';
   };
 
-  // All users are considered logged in (either authenticated or anonymous)
-  const isLoggedIn = !!session;
-  // No one is considered a guest anymore - all have anonymous auth
+  // All users are considered logged in (either authenticated, anonymous, or fallback)
+  const isLoggedIn = !!session || !!user;
+  // No one is considered a guest anymore - all have some form of auth
   const isGuest = false;
 
   return (

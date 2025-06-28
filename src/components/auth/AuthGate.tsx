@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 interface AuthGateProps {
   children: React.ReactNode;
@@ -12,7 +13,20 @@ export const AuthGate: React.FC<AuthGateProps> = ({
   feature, 
   fallback 
 }) => {
-  // Since all users now have anonymous auth, no gating is needed
-  // Just render the children directly
-  return <>{children}</>;
+  const { user, loading } = useAuthContext();
+  
+  // Show loading state while auth is initializing
+  if (loading) {
+    return <div className="flex justify-center items-center py-8">
+      <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+    </div>;
+  }
+  
+  // Allow access if we have any user (authenticated, anonymous, or fallback)
+  if (user) {
+    return <>{children}</>;
+  }
+  
+  // Show fallback if provided, otherwise show children (no restrictions)
+  return <>{fallback || children}</>;
 };
