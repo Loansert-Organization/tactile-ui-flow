@@ -66,7 +66,6 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       });
       
       // TODO: Trigger WhatsApp OTP verification flow
-      // This would redirect to /auth/phone with the new number for verification
       console.log('Mobile money number change requires OTP verification:', newMomoNumber);
     }
     
@@ -104,22 +103,6 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                         </FormItem>
                       )} 
                     />
-                    <FormField 
-                      control={form.control} 
-                      name="momoNumber" 
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm">Mobile Money Number</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="tel" placeholder="+250780123456" />
-                          </FormControl>
-                          <FormMessage />
-                          <p className="text-xs text-amber-600">
-                            Changing this number will require WhatsApp verification
-                          </p>
-                        </FormItem>
-                      )} 
-                    />
                   </div>
                 ) : (
                   <>
@@ -147,11 +130,32 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               
               <div className="space-y-2">
                 <p className="text-sm font-medium text-gray-700">Mobile Money Number</p>
-                <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded">
-                  <Wallet className="w-4 h-4 text-blue-600" />
-                  <p className="text-sm text-gray-700">{user.phone}</p>
-                  <span className="text-xs bg-blue-100 px-2 py-1 rounded text-blue-700">Payments</span>
-                </div>
+                {isEditing ? (
+                  <FormField 
+                    control={form.control} 
+                    name="momoNumber" 
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div className="flex items-center gap-2 bg-white border rounded px-3 py-2">
+                            <Wallet className="w-4 h-4 text-blue-600" />
+                            <Input {...field} type="tel" placeholder="+250780123456" className="border-0 p-0 h-auto text-sm" />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                        <p className="text-xs text-amber-600">
+                          Changing this number will require WhatsApp verification
+                        </p>
+                      </FormItem>
+                    )} 
+                  />
+                ) : (
+                  <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded">
+                    <Wallet className="w-4 h-4 text-blue-600" />
+                    <p className="text-sm text-gray-700">{user.phone}</p>
+                    <span className="text-xs bg-blue-100 px-2 py-1 rounded text-blue-700">Payments</span>
+                  </div>
+                )}
               </div>
             </div>
 
