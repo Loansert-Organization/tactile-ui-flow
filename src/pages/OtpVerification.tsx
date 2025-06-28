@@ -40,14 +40,25 @@ const OtpVerification = () => {
     setIsVerifying(true);
 
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        phone: phoneNumber,
-        email: email,
-        token: otp,
-        type: method === 'whatsapp' ? 'sms' : 'email'
-      });
+      let result;
+      
+      if (phoneNumber) {
+        // Phone verification
+        result = await supabase.auth.verifyOtp({
+          phone: phoneNumber,
+          token: otp,
+          type: 'sms'
+        });
+      } else if (email) {
+        // Email verification
+        result = await supabase.auth.verifyOtp({
+          email: email,
+          token: otp,
+          type: 'email'
+        });
+      }
 
-      if (error) throw error;
+      if (result?.error) throw result.error;
 
       toast.success('Successfully verified!');
       navigate('/');
