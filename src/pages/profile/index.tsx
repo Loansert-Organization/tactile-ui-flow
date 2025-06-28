@@ -21,6 +21,7 @@ import { formatCurrencyLocale, formatDateTimeLocale, formatDateLocale } from '@/
 interface ProfileFormData {
   displayName: string;
   email: string;
+  momoNumber: string;
 }
 
 export const Profile = () => {
@@ -35,6 +36,7 @@ export const Profile = () => {
     defaultValues: {
       displayName: user?.displayName || '',
       email: user?.email || '',
+      momoNumber: user?.phone || '', // Initialize with phone number
     },
   });
 
@@ -73,6 +75,7 @@ export const Profile = () => {
       form.reset({
         displayName: user.displayName,
         email: user.email || '',
+        momoNumber: user.phone || '',
       });
     }
     setIsEditing(!isEditing);
@@ -83,6 +86,7 @@ export const Profile = () => {
       updateUser({
         displayName: data.displayName,
         email: data.email,
+        phone: data.momoNumber, // Update phone with momo number
       });
       
       toast({
@@ -180,11 +184,33 @@ export const Profile = () => {
                               </FormItem>
                             )}
                           />
+                          <FormField
+                            control={form.control}
+                            name="momoNumber"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm">Mobile Money Number</FormLabel>
+                                <FormControl>
+                                  <Input {...field} type="tel" placeholder="+250780123456" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
                       ) : (
                         <>
                           <h2 className="text-xl font-semibold">{user.displayName}</h2>
-                          <p className="text-muted-foreground">{user.phone}</p>
+                          <div className="space-y-1 mt-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">WhatsApp</span>
+                              <p className="text-sm text-muted-foreground">{user.phone}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Mobile Money</span>
+                              <p className="text-sm text-muted-foreground">{user.phone}</p>
+                            </div>
+                          </div>
                           <div className="flex items-center gap-2 mt-2">
                             <span className="text-2xl">🇷🇼</span>
                             <Badge variant="secondary">{t('profile.premiumMember')}</Badge>
