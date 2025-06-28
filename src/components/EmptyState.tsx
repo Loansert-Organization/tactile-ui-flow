@@ -39,7 +39,7 @@ export const EmptyState = ({
             {
               icon: Users,
               title: "Invite Friends",
-              description: "Share your basket with trusted friends and family members first."
+              description: "Share your basket with trusted friends and family members."
             },
             {
               icon: Heart,
@@ -79,7 +79,7 @@ export const EmptyState = ({
             {
               icon: Heart,
               title: "Build Trust",
-              description: "Start by inviting close friends and family who share your goals."
+              description: "Start by inviting people who share your goals and values."
             },
             {
               icon: Gift,

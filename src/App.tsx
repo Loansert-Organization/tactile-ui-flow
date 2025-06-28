@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { BottomNav } from "@/components/layout/BottomNav";
-import { GuestBanner } from "@/components/auth/GuestBanner";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Feed } from "@/pages/Feed";
@@ -121,7 +120,6 @@ const AppContent = () => {
           {/* Main app routes */}
           <Route path="/*" element={
             <>
-              <GuestBanner />
               <Suspense fallback={<HeaderSkeleton />}>
                 <AppHeader />
               </Suspense>

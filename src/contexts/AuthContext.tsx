@@ -32,6 +32,7 @@ interface AuthContextType {
   login: (user: AuthUser, tokens: { accessToken: string; refreshToken: string }) => void;
   updateUser: (userData: Partial<AuthUser>) => void;
   upgradeToWhatsapp: () => void;
+  ensureAnonymousAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -51,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                    supabaseUser.user_metadata?.name || 
                    supabaseUser.user_metadata?.display_name || 
                    supabaseUser.email?.split('@')[0] || 
-                   'User',
+                   'Anonymous User',
       country: supabaseUser.user_metadata?.country || 'RW',
       language: (supabaseUser.user_metadata?.language as 'en' | 'rw') || 'en',
       createdAt: supabaseUser.created_at,
@@ -66,39 +67,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   };
 
+  // Ensure anonymous authentication for all users
+  const ensureAnonymousAuth = async () => {
+    const { data: { session: currentSession } } = await supabase.auth.getSession();
+    
+    if (!currentSession) {
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (error) {
+        console.error('Failed to create anonymous session:', error);
+      } else {
+        console.log('Anonymous session created:', data.session?.user?.id);
+      }
+    }
+  };
+
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         if (session?.user) {
           setUser(convertToAuthUser(session.user));
         } else {
           setUser(null);
+          // If no session, create anonymous one
+          await ensureAnonymousAuth();
         }
         setLoading(false);
       }
     );
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    // Get initial session or create anonymous one
+    const initializeAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
+        setSession(session);
         setUser(convertToAuthUser(session.user));
       } else {
-        setUser(null);
+        await ensureAnonymousAuth();
       }
       setLoading(false);
-    });
+    };
+
+    initializeAuth();
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
+    // After sign out, create new anonymous session
+    await ensureAnonymousAuth();
   };
 
   const logout = async () => {
@@ -121,8 +141,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     window.location.href = '/auth/phone';
   };
 
-  const isLoggedIn = !!user && !!session;
-  const isGuest = !user || !session;
+  // All users are considered logged in (either authenticated or anonymous)
+  const isLoggedIn = !!session;
+  // No one is considered a guest anymore - all have anonymous auth
+  const isGuest = false;
 
   return (
     <AuthContext.Provider 
@@ -137,7 +159,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         login,
         updateUser,
-        upgradeToWhatsapp
+        upgradeToWhatsapp,
+        ensureAnonymousAuth
       }}
     >
       {children}

@@ -1,7 +1,5 @@
 
-import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { UpgradePromptModal } from './UpgradePromptModal';
+import React from 'react';
 
 interface AuthGateProps {
   children: React.ReactNode;
@@ -14,27 +12,7 @@ export const AuthGate: React.FC<AuthGateProps> = ({
   feature, 
   fallback 
 }) => {
-  const { isLoggedIn } = useAuth();
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-
-  if (isLoggedIn) {
-    return <>{children}</>;
-  }
-
-  if (fallback) {
-    return <>{fallback}</>;
-  }
-
-  return (
-    <>
-      <div onClick={() => setShowUpgradeModal(true)}>
-        {children}
-      </div>
-      <UpgradePromptModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        feature={feature}
-      />
-    </>
-  );
+  // Since all users now have anonymous auth, no gating is needed
+  // Just render the children directly
+  return <>{children}</>;
 };

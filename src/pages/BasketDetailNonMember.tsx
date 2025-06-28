@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, Target, Calendar, Lock, Globe } from 'lucide-react';
@@ -5,14 +6,12 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { GuestContributionModal } from '@/components/auth/GuestContributionModal';
 import { useBaskets } from '@/contexts/BasketContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { formatCurrency } from '@/lib/formatters';
 
 export const BasketDetailNonMember = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getBasket } = useBaskets();
-  const { isGuest } = useAuth();
   const [showContributionModal, setShowContributionModal] = useState(false);
 
   const basket = getBasket(id || '');
@@ -32,11 +31,8 @@ export const BasketDetailNonMember = () => {
   }
 
   const handleContribute = () => {
-    if (isGuest) {
-      setShowContributionModal(true);
-    } else {
-      navigate(`/basket/${basket.id}/contribute`);
-    }
+    // All users can contribute directly
+    navigate(`/basket/${basket.id}/contribute`);
   };
 
   const handleBack = () => navigate(-1);
@@ -132,7 +128,7 @@ export const BasketDetailNonMember = () => {
               {formatCurrency(0)}
             </div>
             <p className="text-gray-400 text-sm">
-              {isGuest ? 'Contribute as guest or join this basket' : 'Join this basket to start contributing'}
+              Join this basket to start contributing and track your progress
             </p>
           </div>
         </GlassCard>
@@ -144,12 +140,12 @@ export const BasketDetailNonMember = () => {
             className="w-full py-4 text-lg font-semibold"
             onClick={handleContribute}
           >
-            {isGuest ? 'Contribute as Guest' : 'Join Basket'}
+            Join & Contribute
           </GradientButton>
         </div>
       </div>
 
-      {/* Guest Contribution Modal */}
+      {/* Contribution Modal */}
       <GuestContributionModal
         isOpen={showContributionModal}
         onClose={() => setShowContributionModal(false)}

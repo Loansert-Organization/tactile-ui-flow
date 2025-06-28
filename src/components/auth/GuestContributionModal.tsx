@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Coins } from 'lucide-react';
+import { Coins, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,10 +26,12 @@ export const GuestContributionModal: React.FC<GuestContributionModalProps> = ({
   onSuccess
 }) => {
   const { t } = useTranslation();
-  const { upgradeToWhatsapp } = useAuth();
+  const { upgradeToWhatsapp, user } = useAuth();
   const [amount, setAmount] = useState('');
   const [contributorName, setContributorName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isAnonymous = !user?.email && !user?.phone;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +57,7 @@ export const GuestContributionModal: React.FC<GuestContributionModalProps> = ({
 
       toast({
         title: t('common.success'),
-        description: t('contribution.guestSuccess')
+        description: t('contribution.success')
       });
 
       onSuccess();
@@ -116,11 +118,21 @@ export const GuestContributionModal: React.FC<GuestContributionModalProps> = ({
             />
           </div>
 
-          <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg">
-            <p className="text-xs text-amber-800 dark:text-amber-200">
-              {t('contribution.guestDisclaimer')}
-            </p>
-          </div>
+          {isAnonymous && (
+            <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg">
+              <div className="flex items-start gap-2">
+                <Crown className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-xs text-amber-800 dark:text-amber-200 font-medium">
+                    Anonymous Contribution
+                  </p>
+                  <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                    Your contribution will be saved temporarily. Create an account to track your contributions across sessions.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-2">
             <Button
@@ -140,16 +152,19 @@ export const GuestContributionModal: React.FC<GuestContributionModalProps> = ({
             </Button>
           </div>
 
-          <div className="pt-2 border-t">
-            <Button
-              type="button"
-              variant="link"
-              onClick={upgradeToWhatsapp}
-              className="w-full text-sm"
-            >
-              {t('auth.upgradeToTrackContributions')}
-            </Button>
-          </div>
+          {isAnonymous && (
+            <div className="pt-2 border-t">
+              <Button
+                type="button"
+                variant="link"
+                onClick={upgradeToWhatsapp}
+                className="w-full text-sm"
+              >
+                <Crown className="w-4 h-4 mr-1" />
+                {t('auth.upgradeToTrackContributions')}
+              </Button>
+            </div>
+          )}
         </form>
       </DialogContent>
     </Dialog>

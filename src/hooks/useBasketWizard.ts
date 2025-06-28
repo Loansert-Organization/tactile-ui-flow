@@ -22,7 +22,7 @@ export const useBasketWizard = () => {
 
   const navigate = useNavigate();
   const { createBasket } = useMyBaskets();
-  const { user } = useAuthContext();
+  const { ensureAnonymousAuth } = useAuthContext();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -53,11 +53,8 @@ export const useBasketWizard = () => {
     } else if (currentStep === 3) {
       setCurrentStep(4);
     } else if (currentStep === 4) {
-      if (!user) {
-        setShowAuthPrompt(true);
-      } else {
-        handleCreateBasket();
-      }
+      // No auth prompt needed - proceed directly to basket creation
+      handleCreateBasket();
     }
   };
 
@@ -76,6 +73,9 @@ export const useBasketWizard = () => {
   const handleCreateBasket = async () => {
     setIsCreating(true);
     try {
+      // Ensure anonymous auth is available
+      await ensureAnonymousAuth();
+      
       console.log('Creating basket with form data:', formData);
       
       await createBasket({
@@ -110,10 +110,7 @@ export const useBasketWizard = () => {
 
   const handleProceedAsGuest = () => {
     setShowAuthPrompt(false);
-    toast.info('Demo basket created', {
-      description: 'This is a demo basket. Sign up to create real baskets!'
-    });
-    navigate('/baskets/mine');
+    handleCreateBasket();
   };
 
   const getStepTitle = () => {
