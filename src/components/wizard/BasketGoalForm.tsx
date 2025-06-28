@@ -18,9 +18,7 @@ export const BasketGoalForm: React.FC<BasketGoalFormProps> = ({
 }) => {
   return <div className="wizard-step space-y-4 sm:space-y-6 animate-fade-in">
       <div className="text-center mb-6 sm:mb-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2 bg-gradient-to-r from-pink-400 to-orange-400 dark:from-pink-300 dark:to-orange-300 light:from-pink-600 light:to-orange-600 bg-clip-text text-transparent">
-          Set Your Goal
-        </h2>
+        
         
       </div>
 
