@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Clock, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -129,14 +128,20 @@ export const HistoryScreen = () => {
     }
   };
 
+  const handleBackClick = () => {
+    console.log('Back button clicked');
+    navigate(-1);
+  };
+
   return (
     <div className="min-h-screen pb-24">
       {/* Header */}
       <div className="p-6">
         <div className="flex items-center gap-3 mb-6">
           <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+            onClick={handleBackClick}
+            className="p-3 rounded-lg hover:bg-white/20 active:bg-white/30 transition-all duration-200 touch-manipulation cursor-pointer"
+            aria-label="Go back"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
