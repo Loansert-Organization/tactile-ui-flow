@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { ArrowLeft, Target, Clock, Shield, Plus } from 'lucide-react';
+import { ArrowLeft, Target, Clock, Shield, Plus, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
@@ -263,7 +262,7 @@ const BasketWizard = () => {
             ) : currentStep === 1 ? (
               <>
                 Next Step
-                <Target className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-5 h-5 ml-2" />
               </>
             ) : (
               <>
