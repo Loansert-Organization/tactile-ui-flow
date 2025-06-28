@@ -48,6 +48,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Fetch additional user data from users table
   const fetchUserData = async (supabaseUser: User): Promise<AuthUser> => {
     try {
+      console.log('[AUTH_FETCH] Fetching user data for:', supabaseUser.id);
+      
       const { data: userData, error } = await supabase
         .from('users')
         .select('display_name, mobile_money_number, whatsapp_number, country, role')
@@ -55,9 +57,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
 
       if (error) {
-        if (import.meta.env.DEV) console.log('No user data found in users table, using defaults');
+        console.log('[AUTH_FETCH] User data fetch failed:', error);
+        
+        if (error.code === '42501') {
+          console.log('[AUTH_FETCH] RLS permission denied - using defaults');
+        } else if (error.code === 'PGRST116') {
+          console.log('[AUTH_FETCH] No user profile found - using defaults');
+        } else {
+          console.warn('[AUTH_FETCH] Unexpected error:', error);
+        }
+        
+        // Return user with defaults if fetch fails
+        return convertToAuthUser(supabaseUser);
       }
 
+      console.log('[AUTH_FETCH] User data loaded successfully');
+      
       return {
         ...supabaseUser,
         displayName: userData?.display_name || supabaseUser.email || 'Anonymous User',
@@ -74,7 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         created_at: supabaseUser.created_at
       };
     } catch (error) {
-      if (import.meta.env.DEV) console.error('Error fetching user data:', error);
+      console.error('[AUTH_FETCH] Exception fetching user data:', error);
       return convertToAuthUser(supabaseUser);
     }
   };
