@@ -17,6 +17,7 @@ interface Transaction {
   status: 'completed' | 'pending' | 'failed';
   type: 'sent' | 'received';
   basketName?: string;
+  isBasketTransaction?: boolean;
 }
 
 export const HistoryScreen = () => {
@@ -37,15 +38,15 @@ export const HistoryScreen = () => {
   };
 
   useEffect(() => {
-    // Updated dummy data with basket-focused descriptions
+    // Updated dummy data with cleaner basket/wallet descriptions
     const dummyTransactions: Transaction[] = [
       {
         id: '1',
         amount: 15000,
         recipient: 'John Doe',
         recipientId: 'user_john_123',
-        message: 'Contributed to Lakers Championship Ring Fund',
         basketName: 'Lakers Championship Ring Fund',
+        isBasketTransaction: true,
         timestamp: '2024-01-15T10:30:00Z',
         status: 'completed',
         type: 'sent'
@@ -55,8 +56,8 @@ export const HistoryScreen = () => {
         amount: 25000,
         recipient: 'Jane Smith',
         recipientId: 'user_jane_456',
-        message: 'Received contribution for Emergency Medical Fund',
         basketName: 'Emergency Medical Fund',
+        isBasketTransaction: true,
         timestamp: '2024-01-14T14:20:00Z',
         status: 'completed',
         type: 'received'
@@ -66,8 +67,8 @@ export const HistoryScreen = () => {
         amount: 8000,
         recipient: 'Bob Wilson',
         recipientId: 'user_bob_789',
-        message: 'Contributed to Community Garden Project',
         basketName: 'Community Garden Project',
+        isBasketTransaction: true,
         timestamp: '2024-01-13T09:15:00Z',
         status: 'pending',
         type: 'sent'
@@ -77,8 +78,7 @@ export const HistoryScreen = () => {
         amount: 50000,
         recipient: 'Alice Johnson',
         recipientId: 'user_alice_101',
-        message: 'Contributed to Wedding Celebration Fund',
-        basketName: 'Wedding Celebration Fund',
+        isBasketTransaction: false,
         timestamp: '2024-01-12T16:45:00Z',
         status: 'completed',
         type: 'sent'
@@ -115,6 +115,17 @@ export const HistoryScreen = () => {
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getTransactionMessage = (transaction: Transaction) => {
+    if (transaction.isBasketTransaction && transaction.basketName) {
+      return transaction.basketName;
+    } else {
+      const userCode = generateUniqueCode(transaction.recipientId || transaction.recipient);
+      return transaction.type === 'sent' 
+        ? `Wallet transfer to ${userCode}` 
+        : `Wallet receipt from ${userCode}`;
     }
   };
 
@@ -195,11 +206,9 @@ export const HistoryScreen = () => {
                     </span>
                   </div>
                   
-                  {transaction.message && (
-                    <p className="text-sm text-gray-600 mb-2">
-                      {transaction.message}
-                    </p>
-                  )}
+                  <p className="text-sm text-gray-600 mb-2">
+                    {getTransactionMessage(transaction)}
+                  </p>
                   
                   <p className="text-xs text-gray-500">
                     {formatDate(transaction.timestamp)}
