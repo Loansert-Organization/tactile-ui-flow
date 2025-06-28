@@ -9,7 +9,347 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      ai_model_metrics: {
+        Row: {
+          average_confidence: number | null
+          average_response_time: number | null
+          created_at: string
+          id: string
+          model_name: string
+          successful_requests: number | null
+          suggestion_type: string
+          total_requests: number | null
+          updated_at: string
+        }
+        Insert: {
+          average_confidence?: number | null
+          average_response_time?: number | null
+          created_at?: string
+          id?: string
+          model_name: string
+          successful_requests?: number | null
+          suggestion_type: string
+          total_requests?: number | null
+          updated_at?: string
+        }
+        Update: {
+          average_confidence?: number | null
+          average_response_time?: number | null
+          created_at?: string
+          id?: string
+          model_name?: string
+          successful_requests?: number | null
+          suggestion_type?: string
+          total_requests?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_suggestions: {
+        Row: {
+          ai_model: string
+          confidence_score: number | null
+          created_at: string
+          id: string
+          input_data: Json
+          status: string
+          suggestion_content: Json
+          suggestion_type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          ai_model: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          input_data: Json
+          status?: string
+          suggestion_content: Json
+          suggestion_type: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          ai_model?: string
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          input_data?: Json
+          status?: string
+          suggestion_content?: Json
+          suggestion_type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_suggestions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      baskets: {
+        Row: {
+          country: string | null
+          created_at: string | null
+          creator_id: string | null
+          currency: string | null
+          description: string | null
+          id: string
+          status: string | null
+          title: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string | null
+          creator_id?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          status?: string | null
+          title?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string | null
+          creator_id?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          status?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "baskets_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      code_analysis_sessions: {
+        Row: {
+          analysis_type: string
+          completed_at: string | null
+          created_at: string
+          files_analyzed: Json
+          id: string
+          session_name: string
+          status: string
+          total_suggestions: number | null
+          user_id: string | null
+        }
+        Insert: {
+          analysis_type: string
+          completed_at?: string | null
+          created_at?: string
+          files_analyzed: Json
+          id?: string
+          session_name: string
+          status?: string
+          total_suggestions?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          analysis_type?: string
+          completed_at?: string | null
+          created_at?: string
+          files_analyzed?: Json
+          id?: string
+          session_name?: string
+          status?: string
+          total_suggestions?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "code_analysis_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contributions: {
+        Row: {
+          amount_local: number | null
+          amount_usd: number | null
+          basket_id: string | null
+          confirmed: boolean | null
+          created_at: string | null
+          currency: string | null
+          id: string
+          momo_code: string | null
+          payment_method: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount_local?: number | null
+          amount_usd?: number | null
+          basket_id?: string | null
+          confirmed?: boolean | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          momo_code?: string | null
+          payment_method?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount_local?: number | null
+          amount_usd?: number | null
+          basket_id?: string | null
+          confirmed?: boolean | null
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          momo_code?: string | null
+          payment_method?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contributions_basket_id_fkey"
+            columns: ["basket_id"]
+            isOneToOne: false
+            referencedRelation: "baskets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contributions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      countries: {
+        Row: {
+          code: string
+          local_currency: string | null
+          momo_prefix: string | null
+          name: string | null
+        }
+        Insert: {
+          code: string
+          local_currency?: string | null
+          momo_prefix?: string | null
+          name?: string | null
+        }
+        Update: {
+          code?: string
+          local_currency?: string | null
+          momo_prefix?: string | null
+          name?: string | null
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount_usd: number | null
+          created_at: string | null
+          id: string
+          related_basket: string | null
+          type: string | null
+          wallet_id: string | null
+        }
+        Insert: {
+          amount_usd?: number | null
+          created_at?: string | null
+          id?: string
+          related_basket?: string | null
+          type?: string | null
+          wallet_id?: string | null
+        }
+        Update: {
+          amount_usd?: number | null
+          created_at?: string | null
+          id?: string
+          related_basket?: string | null
+          type?: string | null
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_related_basket_fkey"
+            columns: ["related_basket"]
+            isOneToOne: false
+            referencedRelation: "baskets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          auth_method: string | null
+          country: string | null
+          created_at: string | null
+          id: string
+          is_anonymous: boolean | null
+          phone_number: string | null
+        }
+        Insert: {
+          auth_method?: string | null
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          phone_number?: string | null
+        }
+        Update: {
+          auth_method?: string | null
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          phone_number?: string | null
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          balance_usd: number | null
+          id: string
+          last_updated: string | null
+          user_id: string | null
+        }
+        Insert: {
+          balance_usd?: number | null
+          id?: string
+          last_updated?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          balance_usd?: number | null
+          id?: string
+          last_updated?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
