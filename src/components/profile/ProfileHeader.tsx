@@ -95,7 +95,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       name="displayName" 
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm">Display Name</FormLabel>
+                          <FormLabel className="text-sm text-foreground">Display Name</FormLabel>
                           <FormControl>
                             <Input {...field} className="text-lg font-semibold" />
                           </FormControl>
@@ -113,23 +113,23 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             </div>
 
             {/* Always show user information */}
-            <div className="space-y-3 pt-4 border-t">
+            <div className="space-y-3 pt-4 border-t border-border">
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">User ID</p>
-                <p className="text-sm text-muted-foreground font-mono bg-gray-50 px-3 py-2 rounded">{userUniqueCode}</p>
+                <p className="text-sm font-medium text-foreground">User ID</p>
+                <p className="text-sm text-muted-foreground font-mono bg-muted px-3 py-2 rounded">{userUniqueCode}</p>
               </div>
               
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">WhatsApp Number</p>
-                <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded">
+                <p className="text-sm font-medium text-foreground">WhatsApp Number</p>
+                <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded">
                   <MessageCircle className="w-4 h-4 text-green-600" />
-                  <p className="text-sm text-gray-700">{user.phone}</p>
-                  <span className="text-xs bg-green-100 px-2 py-1 rounded text-green-700">Login</span>
+                  <p className="text-sm text-foreground">{user.phone}</p>
+                  <span className="text-xs bg-green-100 dark:bg-green-900 px-2 py-1 rounded text-green-700 dark:text-green-300">Login</span>
                 </div>
               </div>
               
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">Mobile Money Number</p>
+                <p className="text-sm font-medium text-foreground">Mobile Money Number</p>
                 {isEditing ? (
                   <FormField 
                     control={form.control} 
@@ -137,23 +137,23 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center gap-2 bg-white border rounded px-3 py-2">
+                          <div className="flex items-center gap-2 bg-background border border-input rounded px-3 py-2">
                             <Wallet className="w-4 h-4 text-blue-600" />
-                            <Input {...field} type="tel" placeholder="+250780123456" className="border-0 p-0 h-auto text-sm" />
+                            <Input {...field} type="tel" placeholder="+250780123456" className="border-0 p-0 h-auto text-sm bg-transparent" />
                           </div>
                         </FormControl>
                         <FormMessage />
-                        <p className="text-xs text-amber-600">
+                        <p className="text-xs text-amber-600 dark:text-amber-400">
                           Changing this number will require WhatsApp verification
                         </p>
                       </FormItem>
                     )} 
                   />
                 ) : (
-                  <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded">
+                  <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded">
                     <Wallet className="w-4 h-4 text-blue-600" />
-                    <p className="text-sm text-gray-700">{user.phone}</p>
-                    <span className="text-xs bg-blue-100 px-2 py-1 rounded text-blue-700">Payments</span>
+                    <p className="text-sm text-foreground">{user.phone}</p>
+                    <span className="text-xs bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded text-blue-700 dark:text-blue-300">Payments</span>
                   </div>
                 )}
               </div>
