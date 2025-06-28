@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return {
         ...supabaseUser,
-        displayName: userData?.display_name || 'Anonymous User',
+        displayName: userData?.display_name || supabaseUser.email || 'Anonymous User',
         country: userData?.country || 'RW',
         language: 'en' as 'en' | 'rw',
         createdAt: supabaseUser.created_at,
@@ -77,7 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const convertToAuthUser = (supabaseUser: User): AuthUser => {
     return {
       ...supabaseUser,
-      displayName: 'Anonymous User',
+      displayName: supabaseUser.email || 'Anonymous User',
       country: 'RW',
       language: 'en' as 'en' | 'rw',
       createdAt: supabaseUser.created_at,
@@ -109,7 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       
       if (currentSession?.user) {
-        console.log('Using existing anonymous session:', currentSession.user.id);
+        console.log('Using existing session:', currentSession.user.id);
         return; // Don't create a new one if we already have one
       }
 
@@ -133,14 +133,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
+        
         if (session?.user) {
-          const authUser = await fetchUserData(session.user);
-          setUser(authUser);
+          // Defer user data fetching to prevent auth state change deadlocks
+          setTimeout(async () => {
+            try {
+              const authUser = await fetchUserData(session.user);
+              setUser(authUser);
+            } catch (error) {
+              console.error('Error setting user data:', error);
+              setUser(convertToAuthUser(session.user));
+            }
+          }, 0);
         } else {
           setUser(null);
           // Only try to create anonymous auth if we haven't initialized yet
           if (!initialized) {
-            await ensureAnonymousAuth();
+            setTimeout(() => {
+              ensureAnonymousAuth();
+            }, 0);
           }
         }
         setLoading(false);
@@ -178,7 +189,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Sign out error:', error);
     }
     // After sign out, create new anonymous session
-    await ensureAnonymousAuth();
+    setTimeout(() => {
+      ensureAnonymousAuth();
+    }, 100);
   };
 
   const logout = async () => {

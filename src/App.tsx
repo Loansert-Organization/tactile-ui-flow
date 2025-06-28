@@ -86,6 +86,28 @@ const AppContent = () => {
           <Route path="/splash" element={<SplashScreen />} />
           <Route path="/welcome" element={<WelcomeExperience />} />
           
+          {/* Authentication Routes */}
+          <Route path="/login-options" element={
+            <Suspense fallback={<div>Loading...</div>}>
+              {React.createElement(React.lazy(() => import('@/pages/LoginOptions')))}
+            </Suspense>
+          } />
+          <Route path="/auth/email" element={
+            <Suspense fallback={<div>Loading...</div>}>
+              {React.createElement(React.lazy(() => import('@/pages/EmailLogin')))}
+            </Suspense>
+          } />
+          <Route path="/auth/whatsapp" element={
+            <Suspense fallback={<div>Loading...</div>}>
+              {React.createElement(React.lazy(() => import('@/pages/WhatsAppLogin')))}
+            </Suspense>
+          } />
+          <Route path="/auth/verify-otp" element={
+            <Suspense fallback={<div>Loading...</div>}>
+              {React.createElement(React.lazy(() => import('@/pages/OtpVerification')))}
+            </Suspense>
+          } />
+          
           {/* Analysis routes for codebase review */}
           <Route path="/analysis" element={
             <Suspense fallback={<div>Loading Analysis...</div>}>
