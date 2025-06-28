@@ -32,24 +32,25 @@
 }
 
 .dark {
-  --background: 18 18 18;
-  --foreground: 248 250 252;
-  --card: 30 30 30;
-  --card-foreground: 248 250 252;
-  --popover: 30 30 30;
-  --popover-foreground: 248 250 252;
+  /* Much darker theme */
+  --background: 8 8 12;
+  --foreground: 250 250 250;
+  --card: 12 12 16;
+  --card-foreground: 250 250 250;
+  --popover: 12 12 16;
+  --popover-foreground: 250 250 250;
   --primary: 0 83 184;
   --primary-foreground: 255 255 255;
-  --secondary: 51 51 51;
-  --secondary-foreground: 248 250 252;
-  --muted: 51 51 51;
-  --muted-foreground: 148 163 184;
+  --secondary: 20 20 26;
+  --secondary-foreground: 220 220 220;
+  --muted: 18 18 23;
+  --muted-foreground: 120 120 130;
   --accent: 255 178 0;
-  --accent-foreground: 18 18 18;
+  --accent-foreground: 8 8 12;
   --destructive: 248 113 113;
-  --destructive-foreground: 18 18 18;
-  --border: 51 51 51;
-  --input: 51 51 51;
+  --destructive-foreground: 8 8 12;
+  --border: 24 24 30;
+  --input: 24 24 30;
   --ring: 0 83 184;
 }
 
@@ -135,6 +136,12 @@ button, .btn, a.btn, input[type="button"], input[type="submit"] {
   50% { transform: translateY(-8px) scale(1.02); }
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
 /* Animated gradient backgrounds */
 .bg-gradient-animated {
   background: linear-gradient(-45deg, #0053B8, #8F00FF, #FFB200, #FF6C00);
@@ -144,6 +151,13 @@ button, .btn, a.btn, input[type="button"], input[type="submit"] {
 
 .bg-gradient-hero {
   background: linear-gradient(135deg, #0053B8 0%, #8F00FF 50%, #FFB200 100%);
+  background-size: 300% 300%;
+  animation: gradient-flow 10s ease infinite;
+}
+
+/* Dark mode hero gradient */
+.dark .bg-gradient-hero {
+  background: linear-gradient(135deg, #0053B8 0%, #4A0080 50%, #CC9600 100%);
   background-size: 300% 300%;
   animation: gradient-flow 10s ease infinite;
 }
@@ -170,19 +184,47 @@ button, .btn, a.btn, input[type="button"], input[type="submit"] {
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
 }
 
-/* Dark mode glass effects */
+/* Dark mode glass effects - much darker */
 .dark .glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.dark .glass-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.dark .glass-strong {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+/* Glass input styling */
+.glass-input {
+  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 178, 0, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 178, 0, 0.1);
+}
+
+.dark .glass-input {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.dark .glass-card:hover {
+.dark .glass-input:focus {
   background: rgba(255, 255, 255, 0.08);
-}
-
-.dark .glass-strong {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 178, 0, 0.4);
 }
 
 /* Button styles with gradients and glass */
@@ -204,6 +246,15 @@ button, .btn, a.btn, input[type="button"], input[type="submit"] {
 .btn-glass:hover {
   background: rgba(255, 255, 255, 0.15);
   @apply shadow-xl scale-105;
+}
+
+.dark .btn-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .btn-glass:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Responsive spacing utilities */
@@ -230,6 +281,34 @@ button, .btn, a.btn, input[type="button"], input[type="submit"] {
 
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes slide-up {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slide-down {
+  0% { transform: translateY(-20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scale-in {
+  0% { transform: scale(0.95); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 /* Touch and scroll optimizations */
@@ -273,6 +352,28 @@ button, .btn, a.btn, input[type="button"], input[type="submit"] {
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 /* Mobile-first responsive design */
@@ -347,6 +448,11 @@ button, .btn, a.btn, input[type="button"], input[type="submit"] {
   animation: shimmer 2s infinite;
 }
 
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 /* Safe area handling for mobile devices */
 .pt-safe {
   padding-top: env(safe-area-inset-top);
@@ -362,4 +468,18 @@ button, .btn, a.btn, input[type="button"], input[type="submit"] {
 
 .pr-safe {
   padding-right: env(safe-area-inset-right);
+}
+
+/* Touch manipulation class */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.scroll-smooth-touch {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Clock, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -5,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Badge } from '@/components/ui/badge';
+import { EnhancedButton } from '@/components/ui/enhanced-button';
 
 interface Transaction {
   id: string;
@@ -104,19 +106,6 @@ export const HistoryScreen = () => {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'failed':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   const getTransactionMessage = (transaction: Transaction) => {
     if (transaction.isBasketTransaction && transaction.basketName) {
       return transaction.basketName;
@@ -134,107 +123,123 @@ export const HistoryScreen = () => {
   };
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen bg-gradient-hero">
       {/* Header */}
-      <div className="p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <button
-            onClick={handleBackClick}
-            className="p-3 rounded-lg hover:bg-white/20 active:bg-white/30 transition-all duration-200 touch-manipulation cursor-pointer"
-            aria-label="Go back"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <h1 className="text-2xl font-bold gradient-text">Transaction History</h1>
-        </div>
+      <div className="sticky top-0 z-50 backdrop-blur-lg border-b border-white/10">
+        <GlassCard variant="subtle" className="m-2 px-4 py-3 rounded-xl">
+          <div className="flex items-center gap-3">
+            <EnhancedButton
+              onClick={handleBackClick}
+              variant="ghost"
+              size="icon"
+              className="hover:bg-white/10"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </EnhancedButton>
+            <h1 className="text-2xl font-bold gradient-text">Transaction History</h1>
+          </div>
+        </GlassCard>
+      </div>
 
+      <div className="p-4 sm:p-6 space-y-6">
         {/* Search and Filter */}
-        <div className="space-y-3 mb-6">
+        <GlassCard variant="default" className="space-y-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/60" />
             <Input
               placeholder="Search baskets or transactions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-white/10 border-white/20 backdrop-blur-md"
+              className="pl-10 bg-white/10 border-white/20 backdrop-blur-md text-white placeholder-white/60"
             />
           </div>
           
           <div className="flex gap-2">
-            <Button
-              variant={filter === 'all' ? 'default' : 'outline'}
+            <EnhancedButton
+              variant={filter === 'all' ? 'gradient' : 'glass'}
               size="sm"
               onClick={() => setFilter('all')}
-              className={filter === 'all' ? '' : 'bg-white/10 border-white/20 hover:bg-white/20'}
             >
               All
-            </Button>
-            <Button
-              variant={filter === 'sent' ? 'default' : 'outline'}
+            </EnhancedButton>
+            <EnhancedButton
+              variant={filter === 'sent' ? 'gradient' : 'glass'}
               size="sm"
               onClick={() => setFilter('sent')}
-              className={filter === 'sent' ? '' : 'bg-white/10 border-white/20 hover:bg-white/20'}
             >
               Sent
-            </Button>
-            <Button
-              variant={filter === 'received' ? 'default' : 'outline'}
+            </EnhancedButton>
+            <EnhancedButton
+              variant={filter === 'received' ? 'gradient' : 'glass'}
               size="sm"
               onClick={() => setFilter('received')}
-              className={filter === 'received' ? '' : 'bg-white/10 border-white/20 hover:bg-white/20'}
             >
               Received
-            </Button>
+            </EnhancedButton>
           </div>
-        </div>
-      </div>
+        </GlassCard>
 
-      {/* Transactions List */}
-      <div className="px-6 space-y-4">
-        {filteredTransactions.length === 0 ? (
-          <GlassCard className="p-6 text-center">
-            <Clock className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-            <p className="text-gray-500">No transactions found</p>
-          </GlassCard>
-        ) : (
-          filteredTransactions.map((transaction, index) => (
-            <GlassCard
-              key={transaction.id}
-              className="p-4 animate-slide-up"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1 w-3/5 pr-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-mono font-semibold text-gray-900">
-                      {generateUniqueCode(transaction.recipientId || transaction.recipient)}
-                    </span>
+        {/* Transactions List */}
+        <div className="space-y-4">
+          {filteredTransactions.length === 0 ? (
+            <GlassCard variant="default" className="p-8 text-center animate-scale-in">
+              <Clock className="w-16 h-16 mx-auto mb-4 text-white/60" />
+              <p className="text-white/80 text-lg font-medium">No transactions found</p>
+              <p className="text-white/60 text-sm mt-2">Try adjusting your search or filters</p>
+            </GlassCard>
+          ) : (
+            filteredTransactions.map((transaction, index) => (
+              <GlassCard
+                key={transaction.id}
+                variant="default"
+                className="animate-slide-up"
+                style={{ animationDelay: `${(index + 2) * 100}ms` }}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0 pr-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-mono font-semibold text-white text-sm">
+                        {generateUniqueCode(transaction.recipientId || transaction.recipient)}
+                      </span>
+                      <Badge 
+                        className={`text-xs ${
+                          transaction.status === 'completed' 
+                            ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                            : transaction.status === 'pending'
+                            ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                            : 'bg-red-500/20 text-red-400 border-red-500/30'
+                        }`}
+                      >
+                        {transaction.status}
+                      </Badge>
+                    </div>
+                    
+                    <p className="text-sm text-white/80 mb-2 line-clamp-2">
+                      {getTransactionMessage(transaction)}
+                    </p>
+                    
+                    <p className="text-xs text-white/60">
+                      {formatDate(transaction.timestamp)}
+                    </p>
                   </div>
                   
-                  <p className="text-xs font-normal text-gray-600 mb-2 truncate">
-                    {getTransactionMessage(transaction)}
-                  </p>
-                  
-                  <p className="text-xs text-gray-500">
-                    {formatDate(transaction.timestamp)}
-                  </p>
+                  <div className="text-right flex-shrink-0">
+                    <p className={`font-semibold text-lg ${
+                      transaction.type === 'sent' ? 'text-red-400' : 'text-green-400'
+                    }`}>
+                      {transaction.type === 'sent' ? '-' : '+'}
+                      {transaction.amount.toLocaleString()} RWF
+                    </p>
+                    <p className="text-xs text-white/60 capitalize mt-1">
+                      {transaction.type}
+                    </p>
+                  </div>
                 </div>
-                
-                <div className="text-right w-2/5 flex-shrink-0">
-                  <p className={`font-medium text-sm ${
-                    transaction.type === 'sent' ? 'text-red-600' : 'text-green-600'
-                  }`}>
-                    {transaction.type === 'sent' ? '-' : '+'}
-                    {transaction.amount.toLocaleString()} RWF
-                  </p>
-                  <p className="text-xs text-gray-500 capitalize">
-                    {transaction.type}
-                  </p>
-                </div>
-              </div>
-            </GlassCard>
-          ))
-        )}
+              </GlassCard>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
