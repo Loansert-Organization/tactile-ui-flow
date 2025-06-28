@@ -13,6 +13,7 @@ import { PreferencesCard } from '@/components/profile/PreferencesCard';
 import { LegalSupport } from '@/components/profile/LegalSupport';
 import { DangerZone } from '@/components/profile/DangerZone';
 
+// Fix ProfileFormData interface to match component expectations
 interface ProfileFormData {
   displayName: string;
   email: string;
@@ -70,7 +71,7 @@ export const Profile = () => {
     try {
       updateUser({
         displayName: data.displayName,
-        email: data.email,
+        email: data.email || '',
         phone: data.momoNumber
       });
       toast({
@@ -94,7 +95,7 @@ export const Profile = () => {
     avatar: user.avatar,
     displayName: user.displayName,
     id: user.id,
-    email: user.email,
+    email: user.email || '',
     country: user.country,
     language: user.language,
     createdAt: user.createdAt,

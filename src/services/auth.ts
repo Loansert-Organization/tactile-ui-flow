@@ -14,10 +14,10 @@ export interface AuthUser {
   language: 'en' | 'rw';
   createdAt: string;
   lastLogin: string;
-  app_metadata?: any;
-  user_metadata?: any;
-  aud?: string;
-  created_at?: string;
+  app_metadata: any; // Made required to match AuthContext
+  user_metadata: any; // Made required to match AuthContext
+  aud: string; // Made required to match AuthContext
+  created_at: string; // Made required to match AuthContext
 }
 
 export interface SessionData {
