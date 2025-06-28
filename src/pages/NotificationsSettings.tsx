@@ -7,7 +7,7 @@ import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationSetting, defaultNotifications } from '@/components/profile/notifications/NotificationData';
 import { NotificationCategorySection } from '@/components/profile/notifications/NotificationCategorySection';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 
 export const NotificationsSettings = () => {
   const { t } = useTranslation();
