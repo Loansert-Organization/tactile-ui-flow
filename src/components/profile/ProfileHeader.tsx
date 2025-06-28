@@ -124,21 +124,34 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 ) : (
                   <>
                     <h2 className="text-xl font-semibold">{user.displayName}</h2>
-                    <p className="text-sm text-muted-foreground font-mono mb-2">{userUniqueCode}</p>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <MessageCircle className="w-4 h-4 text-green-600" />
-                        <p className="text-sm text-muted-foreground">{user.phone}</p>
-                        <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">WhatsApp Login</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Wallet className="w-4 h-4 text-blue-600" />
-                        <p className="text-sm text-muted-foreground">{user.phone}</p>
-                        <span className="text-xs bg-blue-100 px-2 py-1 rounded text-blue-600">Mobile Money</span>
-                      </div>
-                    </div>
                   </>
                 )}
+              </div>
+            </div>
+
+            {/* Always show user information */}
+            <div className="space-y-3 pt-4 border-t">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-700">User ID</p>
+                <p className="text-sm text-muted-foreground font-mono bg-gray-50 px-3 py-2 rounded">{userUniqueCode}</p>
+              </div>
+              
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-700">WhatsApp Number</p>
+                <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded">
+                  <MessageCircle className="w-4 h-4 text-green-600" />
+                  <p className="text-sm text-gray-700">{user.phone}</p>
+                  <span className="text-xs bg-green-100 px-2 py-1 rounded text-green-700">Login</span>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-700">Mobile Money Number</p>
+                <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded">
+                  <Wallet className="w-4 h-4 text-blue-600" />
+                  <p className="text-sm text-gray-700">{user.phone}</p>
+                  <span className="text-xs bg-blue-100 px-2 py-1 rounded text-blue-700">Payments</span>
+                </div>
               </div>
             </div>
 
