@@ -94,6 +94,13 @@ const AppContent = () => {
           <Route path="/auth/whatsapp" element={<WhatsApp />} />
           <Route path="/auth/otp" element={<Otp />} />
           
+          {/* Analysis route for codebase review */}
+          <Route path="/analysis" element={
+            <Suspense fallback={<div>Loading Analysis...</div>}>
+              <React.lazy(() => import('@/pages/Analysis')) />
+            </Suspense>
+          } />
+          
           {/* Redirect old routes to new ones */}
           <Route path="/whatsapp-login" element={<Navigate to="/auth/whatsapp" replace />} />
           <Route path="/whatsapp-otp" element={<Navigate to="/auth/otp" replace />} />
