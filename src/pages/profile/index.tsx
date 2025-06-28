@@ -1,25 +1,42 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Edit3, Settings, Shield, Globe, Trash2, LogOut, Upload, Camera } from 'lucide-react';
+import { ArrowLeft, Edit3, Settings, Shield, Globe, Trash2, LogOut, Upload, Camera, Check, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { formatCurrencyLocale, formatDateTimeLocale, formatDateLocale } from '@/lib/i18n-formatters';
 
+interface ProfileFormData {
+  displayName: string;
+  email: string;
+}
+
 export const Profile = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { t, i18n } = useTranslation();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const form = useForm<ProfileFormData>({
+    defaultValues: {
+      displayName: user?.displayName || '',
+      email: user?.email || '',
+    },
+  });
 
   if (!user) {
     navigate('/auth/phone');
@@ -50,6 +67,39 @@ export const Profile = () => {
     });
   };
 
+  const handleEditToggle = () => {
+    if (isEditing) {
+      // Reset form when canceling
+      form.reset({
+        displayName: user.displayName,
+        email: user.email || '',
+      });
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const onSubmit = async (data: ProfileFormData) => {
+    try {
+      updateUser({
+        displayName: data.displayName,
+        email: data.email,
+      });
+      
+      toast({
+        title: t('common.success'),
+        description: t('profile.settingsUpdated'),
+      });
+      
+      setIsEditing(false);
+    } catch (error) {
+      toast({
+        title: t('common.error'),
+        description: t('profile.logoutFailed'),
+        variant: "destructive"
+      });
+    }
+  };
+
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
@@ -71,10 +121,10 @@ export const Profile = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/profile/edit')}
+            onClick={handleEditToggle}
             className="p-2"
           >
-            <Edit3 className="w-5 h-5" />
+            {isEditing ? <X className="w-5 h-5" /> : <Edit3 className="w-5 h-5" />}
           </Button>
         </div>
 
@@ -82,31 +132,81 @@ export const Profile = () => {
           {/* Profile Header */}
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Avatar className="w-20 h-20">
-                    <AvatarImage src={user.avatar} />
-                    <AvatarFallback className="text-lg">
-                      {getInitials(user.displayName)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <button
-                    onClick={handleAvatarUpload}
-                    className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg"
-                  >
-                    <Camera className="w-4 h-4 text-primary-foreground" />
-                  </button>
-                </div>
-                
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold">{user.displayName}</h2>
-                  <p className="text-muted-foreground">{user.phone}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-2xl">🇷🇼</span>
-                    <Badge variant="secondary">{t('profile.premiumMember')}</Badge>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <Avatar className="w-20 h-20">
+                        <AvatarImage src={user.avatar} />
+                        <AvatarFallback className="text-lg">
+                          {getInitials(user.displayName)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <button
+                        type="button"
+                        onClick={handleAvatarUpload}
+                        className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg"
+                      >
+                        <Camera className="w-4 h-4 text-primary-foreground" />
+                      </button>
+                    </div>
+                    
+                    <div className="flex-1">
+                      {isEditing ? (
+                        <div className="space-y-3">
+                          <FormField
+                            control={form.control}
+                            name="displayName"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm">{t('profile.personalDetails')}</FormLabel>
+                                <FormControl>
+                                  <Input {...field} className="text-lg font-semibold" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-sm">{t('profile.email')}</FormLabel>
+                                <FormControl>
+                                  <Input {...field} type="email" />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          <h2 className="text-xl font-semibold">{user.displayName}</h2>
+                          <p className="text-muted-foreground">{user.phone}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="text-2xl">🇷🇼</span>
+                            <Badge variant="secondary">{t('profile.premiumMember')}</Badge>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </div>
+
+                  {isEditing && (
+                    <div className="flex gap-2 pt-4">
+                      <Button type="submit" size="sm" className="flex-1">
+                        <Check className="w-4 h-4 mr-2" />
+                        {t('common.save')}
+                      </Button>
+                      <Button type="button" variant="outline" size="sm" onClick={handleEditToggle}>
+                        {t('common.cancel')}
+                      </Button>
+                    </div>
+                  )}
+                </form>
+              </Form>
             </CardContent>
           </Card>
 
