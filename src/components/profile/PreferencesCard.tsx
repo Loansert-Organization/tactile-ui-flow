@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Globe, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -8,33 +7,32 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { NotificationsWizard } from './NotificationsWizard';
-
 interface PreferencesCardProps {
   notifications: boolean;
   onNotificationsChange: (value: boolean) => void;
   isDarkMode: boolean;
   onDarkModeChange: (value: boolean) => void;
 }
-
 export const PreferencesCard: React.FC<PreferencesCardProps> = ({
   notifications,
   onNotificationsChange,
   isDarkMode,
   onDarkModeChange
 }) => {
-  const { t } = useTranslation();
-  const { theme, setTheme } = useTheme();
+  const {
+    t
+  } = useTranslation();
+  const {
+    theme,
+    setTheme
+  } = useTheme();
   const [showNotificationsWizard, setShowNotificationsWizard] = useState(false);
-
   const handleDarkModeToggle = (checked: boolean) => {
     setTheme(checked ? 'dark' : 'light');
     onDarkModeChange(checked);
   };
-
-  const currentThemeIsDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
-  return (
-    <>
+  const currentThemeIsDark = theme === 'dark' || theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return <>
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -43,11 +41,7 @@ export const PreferencesCard: React.FC<PreferencesCardProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button
-            variant="ghost"
-            className="w-full flex items-center justify-between p-4 h-auto"
-            onClick={() => setShowNotificationsWizard(true)}
-          >
+          <Button variant="ghost" className="w-full flex items-center justify-between p-4 h-auto" onClick={() => setShowNotificationsWizard(true)}>
             <div className="text-left">
               <p className="font-medium">{t('profile.notifications')}</p>
               <p className="text-sm text-muted-foreground">
@@ -55,7 +49,7 @@ export const PreferencesCard: React.FC<PreferencesCardProps> = ({
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Switch checked={notifications} onCheckedChange={onNotificationsChange} />
+              
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </div>
           </Button>
@@ -69,18 +63,11 @@ export const PreferencesCard: React.FC<PreferencesCardProps> = ({
                 {t('profile.darkModeDesc')}
               </p>
             </div>
-            <Switch 
-              checked={currentThemeIsDark} 
-              onCheckedChange={handleDarkModeToggle} 
-            />
+            <Switch checked={currentThemeIsDark} onCheckedChange={handleDarkModeToggle} />
           </div>
         </CardContent>
       </Card>
 
-      <NotificationsWizard
-        isOpen={showNotificationsWizard}
-        onClose={() => setShowNotificationsWizard(false)}
-      />
-    </>
-  );
+      <NotificationsWizard isOpen={showNotificationsWizard} onClose={() => setShowNotificationsWizard(false)} />
+    </>;
 };
