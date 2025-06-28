@@ -342,8 +342,11 @@ export type Database = {
       users: {
         Row: {
           auth_method: string | null
+          avatar_url: string | null
           country: string | null
           created_at: string | null
+          display_name: string | null
+          email: string | null
           id: string
           is_anonymous: boolean | null
           mobile_money_number: string | null
@@ -352,8 +355,11 @@ export type Database = {
         }
         Insert: {
           auth_method?: string | null
+          avatar_url?: string | null
           country?: string | null
           created_at?: string | null
+          display_name?: string | null
+          email?: string | null
           id?: string
           is_anonymous?: boolean | null
           mobile_money_number?: string | null
@@ -362,8 +368,11 @@ export type Database = {
         }
         Update: {
           auth_method?: string | null
+          avatar_url?: string | null
           country?: string | null
           created_at?: string | null
+          display_name?: string | null
+          email?: string | null
           id?: string
           is_anonymous?: boolean | null
           mobile_money_number?: string | null

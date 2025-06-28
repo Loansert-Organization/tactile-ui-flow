@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MessageSquare, Shield, X } from 'lucide-react';
+import { MessageCircle, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 interface AuthPromptModalProps {
   isOpen: boolean;
@@ -20,74 +21,64 @@ export const AuthPromptModal: React.FC<AuthPromptModalProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  if (!isOpen) return null;
-
-  const handleWhatsAppLogin = () => {
-    navigate('/auth/whatsapp', { 
-      state: { 
-        returnTo: '/baskets/new',
-        basketData: { name: basketName }
-      }
-    });
+  const handleWhatsAppAuth = () => {
+    navigate('/auth/phone');
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border-white/20">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-blue-600" />
-              Secure Your Basket
-            </CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="h-8 w-8 p-0"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="text-center">
-            <div className="text-lg font-semibold text-gray-900 mb-2">
-              Ready to create "{basketName}"?
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              To create your basket and receive contributions, you'll need to verify your identity.
-            </p>
-          </div>
-
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-center">
+            Ready to create "{basketName}"?
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4 py-4">
+          <p className="text-center text-muted-foreground">
+            Sign in to create your basket and start collecting contributions
+          </p>
+          
           <div className="space-y-3">
+            <GoogleSignInButton 
+              variant="default" 
+              size="lg" 
+              className="w-full"
+            />
+            
             <Button
-              onClick={handleWhatsAppLogin}
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              onClick={handleWhatsAppAuth}
+              variant="outline"
+              size="lg"
+              className="w-full"
             >
-              <MessageSquare className="w-4 h-4 mr-2" />
+              <MessageCircle className="w-5 h-5 mr-2 text-green-600" />
               Continue with WhatsApp
             </Button>
-            
-            <div className="text-center">
-              <div className="text-xs text-gray-500 mb-2">
-                Just testing? You can create a demo basket without login
-              </div>
-              <Button
-                variant="outline"
-                onClick={onProceedAsGuest}
-                className="text-sm text-gray-600 hover:text-gray-800"
-              >
-                Create Demo Basket
-              </Button>
+          </div>
+          
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                or
+              </span>
             </div>
           </div>
-
-          <div className="text-xs text-gray-500 text-center">
-            We use WhatsApp to verify your identity and send you important updates about your basket.
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          
+          <Button
+            onClick={onProceedAsGuest}
+            variant="ghost"
+            size="lg"
+            className="w-full"
+          >
+            <User className="w-5 h-5 mr-2" />
+            Continue as Guest
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };

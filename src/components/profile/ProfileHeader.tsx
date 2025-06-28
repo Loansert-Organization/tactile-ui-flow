@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Camera, MessageCircle, Wallet, Check, X } from 'lucide-react';
+import { Camera, MessageCircle, Wallet, Check, X, Mail } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,7 @@ interface ProfileUser {
   lastLogin: string;
   whatsappNumber?: string;
   mobileMoneyNumber?: string;
+  app_metadata?: any;
 }
 
 interface ProfileHeaderProps {
@@ -37,7 +38,6 @@ interface ProfileHeaderProps {
   onSubmit: (data: ProfileFormData) => Promise<void>;
 }
 
-// Step 3: Enhanced Profile Screen with mobile money management
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   user,
   userUniqueCode,
@@ -68,7 +68,6 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   };
 
   const handleFormSubmit = async (data: ProfileFormData) => {
-    // Step 3: Check if mobile money number has changed
     const currentMomoNumber = user.mobileMoneyNumber || user.whatsappNumber || user.phone || '';
     const newMomoNumber = data.mobileMoneyNumber;
 
@@ -83,6 +82,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
     await onSubmit(data);
   };
+
+  const isGoogleUser = user.app_metadata?.provider === 'google';
+  const isWhatsAppUser = user.app_metadata?.provider === 'phone' || user.whatsappNumber;
 
   return (
     <Card>
@@ -119,6 +121,20 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 ) : (
                   <>
                     <h2 className="text-xl font-semibold">{user.displayName}</h2>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      {isGoogleUser && (
+                        <span className="flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                          <Mail className="w-3 h-3" />
+                          Google
+                        </span>
+                      )}
+                      {isWhatsAppUser && (
+                        <span className="flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded">
+                          <MessageCircle className="w-3 h-3" />
+                          WhatsApp
+                        </span>
+                      )}
+                    </div>
                   </>
                 )}
               </div>
@@ -131,13 +147,27 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 <p className="text-sm text-muted-foreground font-mono bg-muted/50 px-3 py-2 rounded">{userUniqueCode}</p>
               </div>
               
-              <div className="space-y-2">
-                <p className="text-xs font-bold text-foreground">WhatsApp Number</p>
-                <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded">
-                  <MessageCircle className="w-4 h-4 text-green-600" />
-                  <p className="text-sm text-muted-foreground">{user.whatsappNumber || user.phone || 'Not set'}</p>
+              {/* Show email for Google users */}
+              {isGoogleUser && user.email && (
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-foreground">Email Address</p>
+                  <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded">
+                    <Mail className="w-4 h-4 text-blue-600" />
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                  </div>
                 </div>
-              </div>
+              )}
+              
+              {/* Show WhatsApp for WhatsApp users */}
+              {isWhatsAppUser && (user.whatsappNumber || user.phone) && (
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-foreground">WhatsApp Number</p>
+                  <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded">
+                    <MessageCircle className="w-4 h-4 text-green-600" />
+                    <p className="text-sm text-muted-foreground">{user.whatsappNumber || user.phone}</p>
+                  </div>
+                </div>
+              )}
               
               <div className="space-y-2">
                 <p className="text-xs font-bold text-foreground">Mobile Money Number</p>

@@ -43,9 +43,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Convert Supabase User to AuthUser
   const convertToAuthUser = (supabaseUser: User): AuthUser => {
+    const provider = supabaseUser.app_metadata?.provider;
+    
     return {
       ...supabaseUser,
-      displayName: supabaseUser.user_metadata?.display_name || supabaseUser.email?.split('@')[0] || 'User',
+      displayName: supabaseUser.user_metadata?.full_name || 
+                   supabaseUser.user_metadata?.name || 
+                   supabaseUser.user_metadata?.display_name || 
+                   supabaseUser.email?.split('@')[0] || 
+                   'User',
       country: supabaseUser.user_metadata?.country || 'RW',
       language: (supabaseUser.user_metadata?.language as 'en' | 'rw') || 'en',
       createdAt: supabaseUser.created_at,

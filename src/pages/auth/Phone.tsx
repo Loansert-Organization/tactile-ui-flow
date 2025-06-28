@@ -1,53 +1,39 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, MessageCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PhoneInput } from '@/components/auth/PhoneInput';
-import { toast } from '@/hooks/use-toast';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+import { useNavigate } from 'react-router-dom';
 import { requestWhatsAppOtp } from '@/services/auth';
+import { toast } from 'sonner';
 
-// Step 1: Simplified single WhatsApp authentication screen
 export const Phone = () => {
-  const navigate = useNavigate();
-  const { t } = useTranslation();
-  const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleSendOtp = async () => {
-    if (!whatsappNumber || whatsappNumber.length < 9) {
-      setError('Please enter a valid WhatsApp number');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!phoneNumber || phoneNumber.length !== 9) {
+      toast.error('Please enter a valid 9-digit phone number');
       return;
     }
 
     setIsLoading(true);
-    setError('');
     
     try {
-      const sessionData = await requestWhatsAppOtp(`+250${whatsappNumber}`);
+      const formattedNumber = `+250${phoneNumber}`;
+      await requestWhatsAppOtp(formattedNumber);
       
-      toast({
-        title: "OTP Sent!",
-        description: "Check your WhatsApp for the verification code"
-      });
+      // Store the phone number for the OTP verification step
+      sessionStorage.setItem('pendingWhatsAppNumber', formattedNumber);
       
-      // Step 4: Direct navigation to OTP screen (no intermediate steps)
-      navigate('/auth/otp', { 
-        state: { 
-          sessionId: sessionData.sessionId,
-          whatsappNumber: sessionData.whatsappNumber,
-          expiresIn: sessionData.expiresIn
-        } 
-      });
-    } catch (err) {
-      setError('Failed to send OTP. Please try again.');
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive"
-      });
+      navigate('/auth/otp');
+    } catch (error) {
+      console.error('Error requesting OTP:', error);
+      toast.error('Failed to send OTP. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -57,65 +43,62 @@ export const Phone = () => {
     <div className="min-h-screen bg-white p-6">
       <div className="max-w-sm mx-auto">
         {/* Header */}
-        <div className="flex items-center mb-12 pt-4">
+        <div className="flex items-center mb-8">
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={() => navigate(-1)}
-            className="p-2 -ml-2"
+            className="mr-2"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
           </Button>
+          <h1 className="text-xl font-semibold">Sign In</h1>
         </div>
 
-        {/* Content */}
-        <div className="space-y-8">
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto">
-              <MessageCircle className="w-8 h-8 text-green-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Enter WhatsApp Number
-              </h1>
-              <p className="text-gray-600">
-                We'll send you a verification code on WhatsApp
-              </p>
+        <div className="space-y-6">
+          {/* Google Sign In */}
+          <div className="space-y-4">
+            <GoogleSignInButton 
+              variant="default" 
+              size="lg" 
+              className="w-full"
+            />
+            
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  or
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-6">
+          {/* WhatsApp Phone Auth */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-lg font-medium">Continue with WhatsApp</h2>
+              <p className="text-sm text-gray-600">
+                We'll send you a verification code via WhatsApp
+              </p>
+            </div>
+
             <PhoneInput
-              value={whatsappNumber}
-              onChange={setWhatsappNumber}
-              error={error}
+              value={phoneNumber}
+              onChange={setPhoneNumber}
             />
 
             <Button
-              onClick={handleSendOtp}
-              disabled={!whatsappNumber || whatsappNumber.length < 9 || isLoading}
-              className="w-full h-12 bg-green-600 hover:bg-green-700 text-white rounded-lg"
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={isLoading || !phoneNumber}
             >
-              {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Sending OTP...
-                </div>
-              ) : (
-                <>
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Send WhatsApp OTP
-                </>
-              )}
+              {isLoading ? 'Sending...' : 'Send Code'}
             </Button>
-
-            {/* Demo Note */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-              <p className="text-xs text-green-800">
-                <strong>Demo:</strong> Enter any valid number format to continue
-              </p>
-            </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>
