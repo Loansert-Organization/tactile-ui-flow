@@ -190,7 +190,7 @@ export const Profile = () => {
                             </div>
                           </div>
                           
-                        </>
+                        </>}
                     </div>
                   </div>
 
@@ -249,7 +249,7 @@ export const Profile = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="w-5 h-5" />
-                Actions
+                {t('profile.quickActions') || 'Quick Actions'}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
