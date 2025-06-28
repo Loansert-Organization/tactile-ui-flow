@@ -1,23 +1,42 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Crown, Users } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { ShareButton } from '@/components/ui/share-button';
 import { formatCurrency } from '@/lib/formatters';
-
 export const BasketParticipants = () => {
-  const { id } = useParams();
+  const {
+    id
+  } = useParams();
   const navigate = useNavigate();
 
   // Mock participants data
-  const participants = [
-    { code: '4B8N2X', isOwner: true, joinedAt: '2024-01-15', contributions: 5 },
-    { code: 'M9K3L7', isOwner: false, joinedAt: '2024-01-16', contributions: 3 },
-    { code: 'P2Y8Q1', isOwner: false, joinedAt: '2024-01-17', contributions: 7 },
-    { code: 'X7V4R9', isOwner: false, joinedAt: '2024-01-18', contributions: 2 },
-    { code: 'Z1C6N8', isOwner: false, joinedAt: '2024-01-19', contributions: 4 },
-  ];
+  const participants = [{
+    code: '4B8N2X',
+    isOwner: true,
+    joinedAt: '2024-01-15',
+    contributions: 5
+  }, {
+    code: 'M9K3L7',
+    isOwner: false,
+    joinedAt: '2024-01-16',
+    contributions: 3
+  }, {
+    code: 'P2Y8Q1',
+    isOwner: false,
+    joinedAt: '2024-01-17',
+    contributions: 7
+  }, {
+    code: 'X7V4R9',
+    isOwner: false,
+    joinedAt: '2024-01-18',
+    contributions: 2
+  }, {
+    code: 'Z1C6N8',
+    isOwner: false,
+    joinedAt: '2024-01-19',
+    contributions: 4
+  }];
 
   // Sort participants by contributions (highest first)
   const sortedParticipants = [...participants].sort((a, b) => b.contributions - a.contributions);
@@ -27,24 +46,16 @@ export const BasketParticipants = () => {
 
   const basketName = "Lakers Championship Ring Fund"; // Mock basket name
   const basketURL = `${window.location.origin}/basket/${id}`;
-
-  return (
-    <div className="min-h-screen pb-24">
+  return <div className="min-h-screen pb-24">
       {/* Header */}
       <div className="p-6">
         <div className="flex items-center mb-6">
-          <button
-            onClick={() => navigate(`/basket/${id}`)}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors mr-4"
-          >
+          <button onClick={() => navigate(`/basket/${id}`)} className="p-2 rounded-lg hover:bg-white/10 transition-colors mr-4">
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div>
             <h1 className="text-2xl font-bold gradient-text">Participants</h1>
-            <div className="flex items-center gap-1 text-gray-400">
-              <Users className="w-4 h-4" />
-              <span>{participants.length} members</span>
-            </div>
+            
           </div>
         </div>
 
@@ -73,8 +84,7 @@ export const BasketParticipants = () => {
 
       {/* Participants List */}
       <div className="px-6 space-y-3">
-        {sortedParticipants.map((participant, index) => (
-          <GlassCard key={participant.code} className="p-4">
+        {sortedParticipants.map((participant, index) => <GlassCard key={participant.code} className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-gradient-purple-pink flex items-center justify-center">
@@ -85,14 +95,10 @@ export const BasketParticipants = () => {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-mono font-semibold">{participant.code}</span>
-                    {participant.isOwner && (
-                      <Crown className="w-4 h-4 text-yellow-500" />
-                    )}
-                    {index === 0 && (
-                      <span className="text-xs bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full font-bold">
+                    {participant.isOwner && <Crown className="w-4 h-4 text-yellow-500" />}
+                    {index === 0 && <span className="text-xs bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full font-bold">
                         TOP
-                      </span>
-                    )}
+                      </span>}
                   </div>
                 </div>
               </div>
@@ -103,8 +109,7 @@ export const BasketParticipants = () => {
                 </div>
               </div>
             </div>
-          </GlassCard>
-        ))}
+          </GlassCard>)}
       </div>
 
       {/* Invite Section */}
@@ -114,17 +119,10 @@ export const BasketParticipants = () => {
           <p className="text-sm text-gray-400 mb-4">
             Share your basket link to grow your community
           </p>
-          <ShareButton 
-            basketName={basketName}
-            basketURL={basketURL}
-            variant="button"
-            size="md"
-            className="mx-auto"
-          >
+          <ShareButton basketName={basketName} basketURL={basketURL} variant="button" size="md" className="mx-auto">
             Share on WhatsApp
           </ShareButton>
         </GlassCard>
       </div>
-    </div>
-  );
+    </div>;
 };
