@@ -243,13 +243,11 @@ export const Profile = () => {
               </div>
               
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" className="flex-1">
-                  <Upload className="w-4 h-4 mr-2" />
-                  {t('profile.topUpWallet')}
+                <Button variant="outline" className="flex-1" size="icon">
+                  <Upload className="w-4 h-4" />
                 </Button>
-                <Button variant="outline" className="flex-1">
-                  <Send className="w-4 h-4 mr-2" />
-                  Transfer
+                <Button variant="outline" className="flex-1" size="icon">
+                  <Send className="w-4 h-4" />
                 </Button>
               </div>
             </CardContent>
