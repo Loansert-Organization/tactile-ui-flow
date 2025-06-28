@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Edit3, Settings, Shield, Globe, Trash2, LogOut, Upload, Camera } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -10,10 +11,13 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
+import { formatCurrencyLocale, formatDateTimeLocale, formatDateLocale } from '@/lib/i18n-formatters';
 
 export const Profile = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t, i18n } = useTranslation();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
 
@@ -26,24 +30,23 @@ export const Profile = () => {
     try {
       await logout();
       toast({
-        title: "Logged Out",
-        description: "You have been logged out successfully",
+        title: t('profile.logoutSuccess'),
+        description: t('profile.logoutSuccess'),
       });
       navigate('/auth/phone');
     } catch (error) {
       toast({
-        title: "Logout Failed",
-        description: "Please try again",
+        title: t('profile.logoutFailed'),
+        description: t('profile.logoutFailed'),
         variant: "destructive"
       });
     }
   };
 
   const handleAvatarUpload = () => {
-    // Mock avatar upload
     toast({
-      title: "Avatar Upload",
-      description: "Photo upload functionality coming soon",
+      title: t('profile.avatarUpload'),
+      description: t('profile.photoUploadSoon'),
     });
   };
 
@@ -64,7 +67,7 @@ export const Profile = () => {
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-xl font-semibold">Profile</h1>
+          <h1 className="text-xl font-semibold">{t('profile.title')}</h1>
           <Button
             variant="ghost"
             size="sm"
@@ -100,7 +103,7 @@ export const Profile = () => {
                   <p className="text-muted-foreground">{user.phone}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-2xl">🇷🇼</span>
-                    <Badge variant="secondary">Premium Member</Badge>
+                    <Badge variant="secondary">{t('profile.premiumMember')}</Badge>
                   </div>
                 </div>
               </div>
@@ -112,23 +115,23 @@ export const Profile = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <span>💰</span>
-                Wallet & Balance
+                {t('profile.walletBalance')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-muted rounded-lg p-3 text-center">
-                  <p className="text-sm text-muted-foreground">RWF Balance</p>
-                  <p className="text-lg font-semibold">25,000</p>
+                  <p className="text-sm text-muted-foreground">{t('currency.rwf')} {t('currency.balance')}</p>
+                  <p className="text-lg font-semibold">{formatCurrencyLocale(25000, i18n.language)}</p>
                 </div>
                 <div className="bg-muted rounded-lg p-3 text-center">
-                  <p className="text-sm text-muted-foreground">USD Balance</p>
+                  <p className="text-sm text-muted-foreground">{t('currency.usd')} {t('currency.balance')}</p>
                   <p className="text-lg font-semibold">$18.50</p>
                 </div>
               </div>
               <Button variant="outline" className="w-full">
                 <Upload className="w-4 h-4 mr-2" />
-                Top Up Wallet
+                {t('profile.topUpWallet')}
               </Button>
             </CardContent>
           </Card>
@@ -138,27 +141,27 @@ export const Profile = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="w-5 h-5" />
-                Personal Details
+                {t('profile.personalDetails')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="font-medium">{user.email || 'Not provided'}</p>
+                  <p className="text-sm text-muted-foreground">{t('profile.email')}</p>
+                  <p className="font-medium">{user.email || t('profile.notProvided')}</p>
                 </div>
                 <Separator />
                 <div>
-                  <p className="text-sm text-muted-foreground">Language</p>
-                  <p className="font-medium">
-                    {user.language === 'rw' ? 'Kinyarwanda' : 'English'}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t('profile.language')}</p>
+                  <div className="mt-2">
+                    <LanguageSwitcher />
+                  </div>
                 </div>
                 <Separator />
                 <div>
-                  <p className="text-sm text-muted-foreground">Member Since</p>
+                  <p className="text-sm text-muted-foreground">{t('profile.memberSince')}</p>
                   <p className="font-medium">
-                    {new Date(user.createdAt).toLocaleDateString()}
+                    {formatDateLocale(user.createdAt, i18n.language)}
                   </p>
                 </div>
               </div>
@@ -170,19 +173,19 @@ export const Profile = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="w-5 h-5" />
-                Security
+                {t('profile.security')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-sm text-muted-foreground">Last Login</p>
+                <p className="text-sm text-muted-foreground">{t('profile.lastLogin')}</p>
                 <p className="font-medium">
-                  {new Date(user.lastLogin).toLocaleString()}
+                  {formatDateTimeLocale(user.lastLogin, i18n.language)}
                 </p>
               </div>
               <Button variant="outline" className="w-full justify-start">
                 <LogOut className="w-4 h-4 mr-2" />
-                Log out from all devices
+                {t('profile.logOut')}
               </Button>
             </CardContent>
           </Card>
@@ -192,15 +195,15 @@ export const Profile = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Globe className="w-5 h-5" />
-                Preferences
+                {t('profile.preferences')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Push Notifications</p>
+                  <p className="font-medium">{t('profile.notifications')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Get updates about your baskets
+                    {t('profile.notificationsDesc')}
                   </p>
                 </div>
                 <Switch
@@ -211,9 +214,9 @@ export const Profile = () => {
               <Separator />
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Dark Mode</p>
+                  <p className="font-medium">{t('profile.darkMode')}</p>
                   <p className="text-sm text-muted-foreground">
-                    Switch to dark theme
+                    {t('profile.darkModeDesc')}
                   </p>
                 </div>
                 <Switch
@@ -244,7 +247,7 @@ export const Profile = () => {
             <CardHeader>
               <CardTitle className="text-destructive flex items-center gap-2">
                 <Trash2 className="w-5 h-5" />
-                Danger Zone
+                {t('profile.dangerZone')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -254,14 +257,14 @@ export const Profile = () => {
                 onClick={handleLogout}
               >
                 <LogOut className="w-4 h-4 mr-2" />
-                Log Out
+                {t('profile.logOut')}
               </Button>
               <Button 
                 variant="outline" 
                 className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Delete Account
+                {t('profile.deleteAccount')}
               </Button>
             </CardContent>
           </Card>

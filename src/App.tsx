@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -27,6 +26,7 @@ import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import React, { Suspense, useEffect } from "react";
 import { HeaderSkeleton } from "@/components/ui/enhanced-skeleton";
+import './i18n'; // Initialize i18n
 
 const queryClient = new QueryClient({
   defaultOptions: {
