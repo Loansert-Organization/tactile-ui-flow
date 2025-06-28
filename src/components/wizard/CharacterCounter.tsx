@@ -8,7 +8,7 @@ interface CharacterCounterProps {
 }
 
 export const CharacterCounter: React.FC<CharacterCounterProps> = ({ current, max, error }) => (
-  <div className={`text-xs mt-1 ${error ? 'text-red-400' : 'text-muted-foreground'}`}>
+  <div className={`text-xs mt-1 font-medium ${error ? 'text-red-400' : 'text-foreground/60 dark:text-foreground/50'}`}>
     {current}/{max}
   </div>
 );

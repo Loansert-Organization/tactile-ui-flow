@@ -25,12 +25,12 @@ export const BasketGoalForm: React.FC<BasketGoalFormProps> = ({
         <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2 bg-gradient-to-r from-pink-400 to-orange-400 dark:from-pink-300 dark:to-orange-300 light:from-pink-600 light:to-orange-600 bg-clip-text text-transparent">
           Set Your Goal
         </h2>
-        <p className="text-muted-foreground text-sm sm:text-base">How much do you want to raise?</p>
+        <p className="text-foreground/80 dark:text-foreground/70 text-sm sm:text-base font-medium">How much do you want to raise?</p>
       </div>
 
-      <GlassCard variant="strong" className="p-4 sm:p-6 space-y-4 sm:space-y-6 hover:scale-[1.01] transition-all duration-300">
+      <GlassCard variant="strong" className="p-4 sm:p-6 space-y-4 sm:space-y-6 hover:scale-[1.01] transition-all duration-300 bg-white/20 dark:bg-black/20">
         <div className="space-y-2">
-          <label className="block text-foreground font-medium flex items-center gap-2 text-sm sm:text-base">
+          <label className="block text-foreground font-semibold flex items-center gap-2 text-sm sm:text-base">
             <Target className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
             Goal Amount (RWF)
             <span className="text-red-400">*</span>
@@ -40,37 +40,37 @@ export const BasketGoalForm: React.FC<BasketGoalFormProps> = ({
             value={formData.goal} 
             onChange={e => onInputChange('goal', e.target.value)} 
             placeholder="10000" 
-            className={`w-full p-3 sm:p-4 rounded-xl glass-input bg-background/50 border border-border text-foreground placeholder-muted-foreground text-center text-lg sm:text-xl font-semibold transition-all duration-300 focus:scale-[1.01] focus:ring-2 focus:ring-primary focus:border-primary ${errors.goal ? 'border-red-400 animate-shake' : ''}`}
+            className={`w-full p-3 sm:p-4 rounded-xl glass-input bg-white/30 dark:bg-black/30 border border-white/40 dark:border-white/20 text-foreground placeholder-foreground/50 text-center text-lg sm:text-xl font-semibold transition-all duration-300 focus:scale-[1.01] focus:ring-2 focus:ring-primary focus:border-primary focus:bg-white/40 dark:focus:bg-black/40 ${errors.goal ? 'border-red-400 animate-shake' : ''}`}
             min={1} 
             max={10000000} 
           />
-          {errors.goal && <p className="text-red-400 text-xs sm:text-sm animate-fade-in">Please enter a valid amount (1 - 10,000,000 RWF)</p>}
+          {errors.goal && <p className="text-red-400 text-xs sm:text-sm animate-fade-in font-medium">Please enter a valid amount (1 - 10,000,000 RWF)</p>}
         </div>
 
         <div className="space-y-2">
-          <label className="block text-foreground font-medium flex items-center gap-2 text-sm sm:text-base">
+          <label className="block text-foreground font-semibold flex items-center gap-2 text-sm sm:text-base">
             <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
             Duration
           </label>
           <select 
             value={formData.duration} 
             onChange={e => onInputChange('duration', e.target.value)} 
-            className="w-full p-3 sm:p-4 rounded-xl glass-input bg-background/50 border border-border text-foreground text-sm sm:text-base transition-all duration-300 focus:scale-[1.01] focus:ring-2 focus:ring-primary focus:border-primary"
+            className="w-full p-3 sm:p-4 rounded-xl glass-input bg-white/30 dark:bg-black/30 border border-white/40 dark:border-white/20 text-foreground font-medium text-sm sm:text-base transition-all duration-300 focus:scale-[1.01] focus:ring-2 focus:ring-primary focus:border-primary focus:bg-white/40 dark:focus:bg-black/40"
           >
-            <option value="7">7 days</option>
-            <option value="14">14 days</option>
-            <option value="30">30 days</option>
-            <option value="60">60 days</option>
-            <option value="90">90 days</option>
+            <option value="7" className="bg-background text-foreground">7 days</option>
+            <option value="14" className="bg-background text-foreground">14 days</option>
+            <option value="30" className="bg-background text-foreground">30 days</option>
+            <option value="60" className="bg-background text-foreground">60 days</option>
+            <option value="90" className="bg-background text-foreground">90 days</option>
           </select>
         </div>
 
-        <GlassCard variant="subtle" className="p-3 sm:p-4 hover:variant-default transition-all duration-300">
+        <GlassCard variant="subtle" className="p-3 sm:p-4 hover:variant-default transition-all duration-300 bg-white/15 dark:bg-black/15">
           <div className="flex items-center gap-3 mb-2">
             <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 flex-shrink-0" />
-            <span className="text-foreground font-medium text-sm sm:text-base">Private Basket</span>
+            <span className="text-foreground font-semibold text-sm sm:text-base">Private Basket</span>
           </div>
-          <p className="text-muted-foreground text-xs sm:text-sm">
+          <p className="text-foreground/70 dark:text-foreground/60 text-xs sm:text-sm font-medium">
             Only people you invite can see and contribute to this basket
           </p>
         </GlassCard>
