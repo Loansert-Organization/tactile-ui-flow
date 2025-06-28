@@ -206,7 +206,7 @@ export const HistoryScreen = () => {
                     </span>
                   </div>
                   
-                  <p className="text-sm text-gray-600 mb-2">
+                  <p className="text-sm text-gray-600 mb-2 truncate">
                     {getTransactionMessage(transaction)}
                   </p>
                   
