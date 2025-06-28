@@ -68,14 +68,14 @@ export const BasketOverview = () => {
         // Calculate derived values
         const totalContributions = basketData.contributions?.reduce((sum: number, c: any) => sum + c.amount_usd, 0) || 0;
         const participantsCount = basketData.basket_members?.length || 0;
-        const progress = basketData.goal > 0 ? Math.round((totalContributions / basketData.goal) * 100) : 0;
+        const progress = basketData.goal_amount > 0 ? Math.round((totalContributions / basketData.goal_amount) * 100) : 0;
         
         // Calculate days left (assuming 30 days from creation)
         const createdDate = new Date(basketData.created_at);
         const daysLeft = Math.max(0, 30 - Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24)));
 
         // Check if user is owner
-        const isOwner = basketData.user_id === user.id;
+        const isOwner = basketData.creator_id === user.id;
 
         // Fetch user's contribution
         const { data: userContribution } = await supabase
@@ -88,6 +88,8 @@ export const BasketOverview = () => {
 
         setBasket({
           ...basketData,
+          name: basketData.title,
+          goal: basketData.goal_amount,
           total_contributions: totalContributions,
           bank_balance: totalContributions, // Assuming bank balance equals total contributions
           participants_count: participantsCount,

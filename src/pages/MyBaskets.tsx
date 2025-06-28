@@ -41,10 +41,16 @@ export const MyBaskets = () => {
   // Fetch baskets based on active tab
   useEffect(() => {
     const fetchBaskets = async () => {
-      if (!user?.id) return;
+      if (!user?.id) {
+        if (import.meta.env.DEV) console.log('No user ID available, skipping basket fetch');
+        setLoading(false);
+        return;
+      }
 
       setLoading(true);
       setError(null);
+
+      if (import.meta.env.DEV) console.log('Fetching baskets for user:', user.id, 'tab:', activeTab);
 
       try {
         let query;
@@ -55,20 +61,20 @@ export const MyBaskets = () => {
             .from('baskets')
             .select(`
               *,
-              contributions!inner(amount_usd),
-              basket_members!inner(user_id)
+              contributions(amount_usd),
+              basket_members(user_id)
             `)
-            .eq('user_id', user.id);
+            .eq('creator_id', user.id);
         } else {
           // Fetch baskets joined by user (including created ones)
           query = supabase
             .from('baskets')
             .select(`
               *,
-              contributions!inner(amount_usd),
-              basket_members!inner(user_id)
+              contributions(amount_usd),
+              basket_members(user_id)
             `)
-            .or(`user_id.eq.${user.id},basket_members.user_id.eq.${user.id}`);
+            .or(`creator_id.eq.${user.id},basket_members.user_id.eq.${user.id}`);
         }
 
         const { data, error } = await query;
@@ -79,21 +85,25 @@ export const MyBaskets = () => {
           return;
         }
 
+        if (import.meta.env.DEV) console.log('Baskets data received:', data);
+
         // Process basket data
         const processedBaskets = data.map((basket: any) => {
           const totalContributions = basket.contributions?.reduce((sum: number, c: any) => sum + c.amount_usd, 0) || 0;
           const participantsCount = basket.basket_members?.length || 0;
-          const progress = basket.goal > 0 ? Math.round((totalContributions / basket.goal) * 100) : 0;
+          const progress = basket.goal_amount > 0 ? Math.round((totalContributions / basket.goal_amount) * 100) : 0;
           
           // Calculate days left (assuming 30 days from creation)
           const createdDate = new Date(basket.created_at);
           const daysLeft = Math.max(0, 30 - Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24)));
 
           // Check if user is member
-          const isMember = basket.user_id === user.id || basket.basket_members?.some((m: any) => m.user_id === user.id);
+          const isMember = basket.creator_id === user.id || basket.basket_members?.some((m: any) => m.user_id === user.id);
 
           return {
             ...basket,
+            name: basket.title,
+            goal: basket.goal_amount,
             current_amount: totalContributions,
             participants_count: participantsCount,
             progress,
@@ -121,6 +131,7 @@ export const MyBaskets = () => {
           })
         );
 
+        if (import.meta.env.DEV) console.log('Processed baskets:', basketsWithContributions);
         setBaskets(basketsWithContributions);
 
       } catch (err) {
