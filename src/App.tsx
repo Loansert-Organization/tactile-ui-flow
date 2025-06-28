@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +21,8 @@ import { WhatsApp } from "@/pages/auth/WhatsApp";
 import { Otp } from "@/pages/auth/Otp";
 import { Profile } from "@/pages/profile";
 import { NotificationsSettings } from "@/pages/NotificationsSettings";
+import { TermsAndConditions } from "@/pages/TermsAndConditions";
+import { PrivacyPolicy } from "@/pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 import SplashScreen from "@/pages/Splash";
 import WelcomeExperience from "@/pages/Welcome";
@@ -100,6 +101,8 @@ const AppContent = () => {
           {/* Standalone routes */}
           <Route path="/history" element={<HistoryScreen />} />
           <Route path="/notifications" element={<NotificationsSettings />} />
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
           
           {/* Main app routes */}
           <Route path="/*" element={
