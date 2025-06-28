@@ -70,10 +70,6 @@ const AppContent = () => {
         <Route path="/auth/whatsapp" element={<WhatsApp />} />
         <Route path="/auth/otp" element={<Otp />} />
         
-        {/* Legacy WhatsApp routes - redirect to new auth flow */}
-        <Route path="/whatsapp-login" element={<Phone />} />
-        <Route path="/whatsapp-otp" element={<Otp />} />
-        
         {/* Standalone routes (no header/nav) */}
         <Route path="/history" element={<HistoryScreen />} />
         
