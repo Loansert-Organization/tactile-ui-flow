@@ -20,7 +20,7 @@ import { HistoryScreen } from "@/pages/HistoryScreen";
 import { Phone } from "@/pages/auth/Phone";
 import { WhatsApp } from "@/pages/auth/WhatsApp";
 import { Otp } from "@/pages/auth/Otp";
-import { Profile } from "@/pages/profile";
+import Profile from "@/pages/profile";
 import { NotificationsSettings } from "@/pages/NotificationsSettings";
 import { TermsAndConditions } from "@/pages/TermsAndConditions";
 import { PrivacyPolicy } from "@/pages/PrivacyPolicy";

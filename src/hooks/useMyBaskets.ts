@@ -5,7 +5,7 @@ import { useBasketData } from './baskets/useBasketData';
 import { useBasketOperations } from './baskets/useBasketOperations';
 import { CreateBasketData, MyBasket } from './baskets/types';
 
-export { MyBasket, CreateBasketData } from './baskets/types';
+export type { MyBasket, CreateBasketData } from './baskets/types';
 
 export const useMyBaskets = () => {
   const { user } = useAuthContext();
