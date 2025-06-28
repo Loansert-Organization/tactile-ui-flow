@@ -234,21 +234,42 @@ export type Database = {
       countries: {
         Row: {
           code: string
-          local_currency: string | null
-          momo_prefix: string | null
+          currency: string | null
           name: string | null
+          p1_name: string | null
+          p1_pay_bill: string | null
+          p1_send_money: string | null
+          p1_service: string | null
+          p2_name: string | null
+          p2_pay_bill: string | null
+          p2_send_money: string | null
+          p2_service: string | null
         }
         Insert: {
           code: string
-          local_currency?: string | null
-          momo_prefix?: string | null
+          currency?: string | null
           name?: string | null
+          p1_name?: string | null
+          p1_pay_bill?: string | null
+          p1_send_money?: string | null
+          p1_service?: string | null
+          p2_name?: string | null
+          p2_pay_bill?: string | null
+          p2_send_money?: string | null
+          p2_service?: string | null
         }
         Update: {
           code?: string
-          local_currency?: string | null
-          momo_prefix?: string | null
+          currency?: string | null
           name?: string | null
+          p1_name?: string | null
+          p1_pay_bill?: string | null
+          p1_send_money?: string | null
+          p1_service?: string | null
+          p2_name?: string | null
+          p2_pay_bill?: string | null
+          p2_send_money?: string | null
+          p2_service?: string | null
         }
         Relationships: []
       }
