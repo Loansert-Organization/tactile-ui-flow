@@ -23,6 +23,10 @@ import { PrivacyPolicy } from "@/pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 import SplashScreen from "@/pages/Splash";
 import WelcomeExperience from "@/pages/Welcome";
+import LoginOptions from "@/pages/LoginOptions";
+import EmailLogin from "@/pages/EmailLogin";
+import WhatsAppLogin from "@/pages/WhatsAppLogin";
+import OtpVerification from "@/pages/OtpVerification";
 import { BasketProvider } from "@/contexts/BasketContext";
 import { MyBasketsProvider } from "@/contexts/MyBasketsContext";
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor";
@@ -82,33 +86,15 @@ const AppContent = () => {
     <div className="min-h-screen flex flex-col">
       <ErrorBoundary>
         <Routes>
-          {/* Splash and Welcome Routes */}
+          {/* Splash and Welcome Routes - No headers/nav */}
           <Route path="/splash" element={<SplashScreen />} />
           <Route path="/welcome" element={<WelcomeExperience />} />
+          <Route path="/login-options" element={<LoginOptions />} />
+          <Route path="/auth/email" element={<EmailLogin />} />
+          <Route path="/auth/whatsapp" element={<WhatsAppLogin />} />
+          <Route path="/auth/verify-otp" element={<OtpVerification />} />
           
-          {/* Authentication Routes */}
-          <Route path="/login-options" element={
-            <Suspense fallback={<div>Loading...</div>}>
-              {React.createElement(React.lazy(() => import('@/pages/LoginOptions')))}
-            </Suspense>
-          } />
-          <Route path="/auth/email" element={
-            <Suspense fallback={<div>Loading...</div>}>
-              {React.createElement(React.lazy(() => import('@/pages/EmailLogin')))}
-            </Suspense>
-          } />
-          <Route path="/auth/whatsapp" element={
-            <Suspense fallback={<div>Loading...</div>}>
-              {React.createElement(React.lazy(() => import('@/pages/WhatsAppLogin')))}
-            </Suspense>
-          } />
-          <Route path="/auth/verify-otp" element={
-            <Suspense fallback={<div>Loading...</div>}>
-              {React.createElement(React.lazy(() => import('@/pages/OtpVerification')))}
-            </Suspense>
-          } />
-          
-          {/* Analysis routes for codebase review */}
+          {/* Analysis routes for codebase review - No headers/nav */}
           <Route path="/analysis" element={
             <Suspense fallback={<div>Loading Analysis...</div>}>
               {React.createElement(React.lazy(() => import('@/pages/Analysis')))}
@@ -121,13 +107,13 @@ const AppContent = () => {
             </Suspense>
           } />
           
-          {/* Standalone routes */}
+          {/* Standalone routes - No headers/nav */}
           <Route path="/history" element={<HistoryScreen />} />
           <Route path="/notifications" element={<NotificationsSettings />} />
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           
-          {/* Main app routes */}
+          {/* Main app routes - With headers/nav */}
           <Route path="/*" element={
             <>
               <Suspense fallback={<HeaderSkeleton />}>
