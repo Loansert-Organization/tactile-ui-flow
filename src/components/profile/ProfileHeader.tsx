@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Camera, MessageCircle, Wallet, Check, X, Mail, Edit2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -7,12 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from '@/hooks/use-toast';
 
 interface ProfileFormData {
   displayName: string;
-  mobileMoneyNumber: string;
+  countryCode: string;
+  phoneNumber: string;
 }
 
 interface ProfileUser {
@@ -61,6 +62,17 @@ const generateSimpleUserId = (fullId: string): string => {
   return result;
 };
 
+const countryCodes = [
+  { code: '+250', country: 'Rwanda', flag: '🇷🇼' },
+  { code: '+256', country: 'Uganda', flag: '🇺🇬' },
+  { code: '+254', country: 'Kenya', flag: '🇰🇪' },
+  { code: '+255', country: 'Tanzania', flag: '🇹🇿' },
+  { code: '+257', country: 'Burundi', flag: '🇧🇮' },
+  { code: '+243', country: 'DR Congo', flag: '🇨🇩' },
+  { code: '+1', country: 'USA/Canada', flag: '🇺🇸' },
+  { code: '+44', country: 'UK', flag: '🇬🇧' },
+];
+
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   user,
   userUniqueCode,
@@ -81,10 +93,29 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
   const displayName = getDisplayName();
 
+  // Parse existing mobile money number to separate country code and phone number
+  const parsePhoneNumber = (fullNumber: string) => {
+    if (!fullNumber) return { countryCode: '+250', phoneNumber: '' };
+    
+    const countryCode = countryCodes.find(cc => fullNumber.startsWith(cc.code));
+    if (countryCode) {
+      return {
+        countryCode: countryCode.code,
+        phoneNumber: fullNumber.slice(countryCode.code.length)
+      };
+    }
+    
+    return { countryCode: '+250', phoneNumber: fullNumber };
+  };
+
+  const existingNumber = user?.mobileMoneyNumber || user?.whatsappNumber || user?.phone || '';
+  const { countryCode, phoneNumber } = parsePhoneNumber(existingNumber);
+
   const form = useForm<ProfileFormData>({
     defaultValues: {
       displayName: displayName,
-      mobileMoneyNumber: user?.mobileMoneyNumber || user?.whatsappNumber || user?.phone || ''
+      countryCode: countryCode,
+      phoneNumber: phoneNumber
     }
   });
 
@@ -94,25 +125,27 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
   const handleEditToggle = () => {
     if (isEditing) {
+      const { countryCode, phoneNumber } = parsePhoneNumber(existingNumber);
       form.reset({
         displayName: displayName,
-        mobileMoneyNumber: user.mobileMoneyNumber || user.whatsappNumber || user.phone || ''
+        countryCode: countryCode,
+        phoneNumber: phoneNumber
       });
     }
     onEditToggle();
   };
 
   const handleFormSubmit = async (data: ProfileFormData) => {
+    const fullMobileNumber = data.countryCode + data.phoneNumber;
     const currentMomoNumber = user.mobileMoneyNumber || user.whatsappNumber || user.phone || '';
-    const newMomoNumber = data.mobileMoneyNumber;
 
-    if (currentMomoNumber !== newMomoNumber) {
+    if (currentMomoNumber !== fullMobileNumber) {
       toast({
         title: "Mobile Money Updated",
         description: "Your mobile money number has been successfully updated"
       });
 
-      console.log('Mobile money number updated:', newMomoNumber);
+      console.log('Mobile money number updated:', fullMobileNumber);
     }
 
     if (data.displayName !== displayName) {
@@ -124,7 +157,10 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       console.log('Username updated:', data.displayName);
     }
 
-    await onSubmit(data);
+    await onSubmit({
+      displayName: data.displayName,
+      mobileMoneyNumber: fullMobileNumber
+    });
   };
 
   const isAnonymousUser = user.app_metadata?.provider === 'anonymous' || !user.app_metadata?.provider;
@@ -201,31 +237,62 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               <div className="space-y-2">
                 <p className="text-xs font-bold text-foreground">Mobile Money Number</p>
                 {isEditing ? (
-                  <FormField
-                    control={form.control}
-                    name="mobileMoneyNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="flex items-center gap-2 bg-background border border-input rounded px-3 py-2">
-                            <Wallet className="w-4 h-4 text-blue-600" />
-                            <Input 
-                              {...field} 
-                              type="tel" 
-                              placeholder="+250780123456" 
-                              className="border-0 p-0 h-auto text-sm bg-transparent" 
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <FormField
+                        control={form.control}
+                        name="countryCode"
+                        render={({ field }) => (
+                          <FormItem className="w-32">
+                            <FormControl>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <SelectTrigger className="bg-background border border-input">
+                                  <SelectValue placeholder="Code" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {countryCodes.map((country) => (
+                                    <SelectItem key={country.code} value={country.code}>
+                                      <span className="flex items-center gap-2">
+                                        <span>{country.flag}</span>
+                                        <span>{country.code}</span>
+                                      </span>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="phoneNumber"
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormControl>
+                              <div className="flex items-center gap-2 bg-background border border-input rounded px-3 py-2">
+                                <Wallet className="w-4 h-4 text-blue-600" />
+                                <Input 
+                                  {...field} 
+                                  type="tel" 
+                                  placeholder="780123456" 
+                                  className="border-0 p-0 h-auto text-sm bg-transparent" 
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded">
                     <Wallet className="w-4 h-4 text-blue-600" />
                     <p className="text-sm text-muted-foreground">
-                      {user.mobileMoneyNumber || user.whatsappNumber || user.phone || 'Not set'}
+                      {existingNumber || 'Not set'}
                     </p>
                   </div>
                 )}
