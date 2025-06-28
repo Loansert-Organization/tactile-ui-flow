@@ -69,9 +69,21 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   onSubmit
 }) => {
   const { t } = useTranslation();
+  const simpleUserId = generateSimpleUserId(user.id);
+  
+  // Use simple user ID as default display name if user hasn't set a custom one
+  const getDisplayName = () => {
+    if (user.displayName === 'Anonymous User' || !user.displayName) {
+      return simpleUserId;
+    }
+    return user.displayName;
+  };
+
+  const displayName = getDisplayName();
+
   const form = useForm<ProfileFormData>({
     defaultValues: {
-      displayName: user?.displayName || '',
+      displayName: displayName,
       mobileMoneyNumber: user?.mobileMoneyNumber || user?.whatsappNumber || user?.phone || ''
     }
   });
@@ -83,7 +95,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const handleEditToggle = () => {
     if (isEditing) {
       form.reset({
-        displayName: user.displayName,
+        displayName: displayName,
         mobileMoneyNumber: user.mobileMoneyNumber || user.whatsappNumber || user.phone || ''
       });
     }
@@ -108,7 +120,6 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
   const isGoogleUser = user.app_metadata?.provider === 'google';
   const isWhatsAppUser = user.app_metadata?.provider === 'phone' || user.whatsappNumber;
-  const simpleUserId = generateSimpleUserId(user.id);
 
   return (
     <Card>
@@ -120,7 +131,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 <Avatar className="w-20 h-20">
                   <AvatarImage src={user.avatar} />
                   <AvatarFallback className="text-lg">
-                    {getInitials(user.displayName)}
+                    {getInitials(displayName)}
                   </AvatarFallback>
                 </Avatar>
               </div>
@@ -135,7 +146,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                         <FormItem>
                           <FormLabel className="text-sm font-semibold text-foreground">Display Name</FormLabel>
                           <FormControl>
-                            <Input {...field} className="text-lg font-semibold" />
+                            <Input {...field} className="text-lg font-semibold" placeholder={simpleUserId} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -144,7 +155,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   </div>
                 ) : (
                   <>
-                    <h2 className="text-xl font-semibold">{user.displayName}</h2>
+                    <h2 className="text-xl font-semibold">{displayName}</h2>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       {isGoogleUser && (
                         <span className="flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-1 rounded">
