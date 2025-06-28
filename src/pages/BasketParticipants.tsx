@@ -1,9 +1,10 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown, Users } from 'lucide-react';
+import { ArrowLeft, Crown, Users, MessageCircle } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { ShareButton } from '@/components/ui/share-button';
 import { formatCurrency } from '@/lib/formatters';
+
 export const BasketParticipants = () => {
   const {
     id
@@ -49,14 +50,27 @@ export const BasketParticipants = () => {
   return <div className="min-h-screen pb-24">
       {/* Header */}
       <div className="p-6">
-        <div className="flex items-center mb-6">
-          <button onClick={() => navigate(`/basket/${id}`)} className="p-2 rounded-lg hover:bg-white/10 transition-colors mr-4">
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold gradient-text">Participants</h1>
-            
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <button 
+              onClick={() => navigate(`/basket/${id}`)} 
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors mr-4"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold gradient-text">Participants</h1>
+            </div>
           </div>
+          
+          {/* WhatsApp Share Button */}
+          <ShareButton 
+            basketName={basketName} 
+            basketURL={basketURL} 
+            variant="icon"
+            size="lg"
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+          />
         </div>
 
         {/* Stats Card */}
