@@ -108,18 +108,26 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
     if (currentMomoNumber !== newMomoNumber) {
       toast({
-        title: "Mobile Money Change",
-        description: "You will receive a WhatsApp OTP to verify your new mobile money number"
+        title: "Mobile Money Updated",
+        description: "Your mobile money number has been successfully updated"
       });
 
-      console.log('Mobile money number change requires OTP verification:', newMomoNumber);
+      console.log('Mobile money number updated:', newMomoNumber);
+    }
+
+    if (data.displayName !== displayName) {
+      toast({
+        title: "Username Updated",
+        description: "Your username has been successfully updated"
+      });
+
+      console.log('Username updated:', data.displayName);
     }
 
     await onSubmit(data);
   };
 
-  const isGoogleUser = user.app_metadata?.provider === 'google';
-  const isWhatsAppUser = user.app_metadata?.provider === 'phone' || user.whatsappNumber;
+  const isAnonymousUser = user.app_metadata?.provider === 'anonymous' || !user.app_metadata?.provider;
 
   return (
     <Card>
@@ -144,9 +152,13 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       name="displayName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-semibold text-foreground">Display Name</FormLabel>
+                          <FormLabel className="text-sm font-semibold text-foreground">Username</FormLabel>
                           <FormControl>
-                            <Input {...field} className="text-lg font-semibold" placeholder={simpleUserId} />
+                            <Input 
+                              {...field} 
+                              className="text-lg font-semibold" 
+                              placeholder={simpleUserId}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -157,16 +169,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   <>
                     <h2 className="text-xl font-semibold">{displayName}</h2>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      {isGoogleUser && (
-                        <span className="flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                          <Mail className="w-3 h-3" />
-                          Google
-                        </span>
-                      )}
-                      {isWhatsAppUser && (
-                        <span className="flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded">
-                          <MessageCircle className="w-3 h-3" />
-                          WhatsApp
+                      {isAnonymousUser && (
+                        <span className="flex items-center gap-1 bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                          Anonymous User
                         </span>
                       )}
                     </div>
@@ -175,34 +180,12 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               </div>
             </div>
 
-            {/* User information with improved contrast */}
+            {/* User information */}
             <div className="space-y-3 pt-4 border-t border-border">
               <div className="space-y-2">
                 <p className="text-xs font-bold text-foreground">User ID</p>
                 <p className="text-sm text-muted-foreground font-mono bg-muted/50 px-3 py-2 rounded">{simpleUserId}</p>
               </div>
-              
-              {/* Show email for Google users */}
-              {isGoogleUser && user.email && (
-                <div className="space-y-2">
-                  <p className="text-xs font-bold text-foreground">Email Address</p>
-                  <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded">
-                    <Mail className="w-4 h-4 text-blue-600" />
-                    <p className="text-sm text-muted-foreground">{user.email}</p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Show WhatsApp for WhatsApp users */}
-              {isWhatsAppUser && (user.whatsappNumber || user.phone) && (
-                <div className="space-y-2">
-                  <p className="text-xs font-bold text-foreground">WhatsApp Number</p>
-                  <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded">
-                    <MessageCircle className="w-4 h-4 text-green-600" />
-                    <p className="text-sm text-muted-foreground">{user.whatsappNumber || user.phone}</p>
-                  </div>
-                </div>
-              )}
               
               <div className="space-y-2">
                 <p className="text-xs font-bold text-foreground">Mobile Money Number</p>
@@ -215,13 +198,15 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                         <FormControl>
                           <div className="flex items-center gap-2 bg-background border border-input rounded px-3 py-2">
                             <Wallet className="w-4 h-4 text-blue-600" />
-                            <Input {...field} type="tel" placeholder="+250780123456" className="border-0 p-0 h-auto text-sm bg-transparent" />
+                            <Input 
+                              {...field} 
+                              type="tel" 
+                              placeholder="+250780123456" 
+                              className="border-0 p-0 h-auto text-sm bg-transparent" 
+                            />
                           </div>
                         </FormControl>
                         <FormMessage />
-                        <p className="text-xs text-amber-600 dark:text-amber-400">
-                          Changing this number will require WhatsApp verification
-                        </p>
                       </FormItem>
                     )}
                   />
@@ -231,9 +216,6 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     <p className="text-sm text-muted-foreground">
                       {user.mobileMoneyNumber || user.whatsappNumber || user.phone || 'Not set'}
                     </p>
-                    {user.mobileMoneyNumber === user.whatsappNumber && (
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Default</span>
-                    )}
                   </div>
                 )}
               </div>

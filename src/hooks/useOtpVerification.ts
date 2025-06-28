@@ -1,101 +1,29 @@
 
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { verifyOtp, requestWhatsAppOtp } from '@/services/auth';
-import { toast } from '@/hooks/use-toast';
+import { useState } from 'react';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 export const useOtpVerification = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { login } = useAuth();
-  const { sessionId, whatsappNumber, expiresIn } = location.state || {};
-  
-  const [otp, setOtp] = useState('');
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [isResending, setIsResending] = useState(false);
-  const [error, setError] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuthContext();
 
-  useEffect(() => {
-    if (!sessionId) {
-      navigate('/auth/phone');
-    }
-  }, [sessionId, navigate]);
-
-  const handleVerifyOTP = async (code: string) => {
-    if (code.length !== 6) return;
-
-    setIsVerifying(true);
-    setError('');
-    
-    try {
-      const authResponse = await verifyOtp(sessionId, code);
-      
-      setIsSuccess(true);
-      
-      login(authResponse.user, {
-        accessToken: authResponse.accessToken,
-        refreshToken: authResponse.refreshToken
-      });
-      
-      toast({
-        title: "Welcome!",
-        description: "You're now logged in to IKANISA",
-      });
-      
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-      
-    } catch (err) {
-      setError('Invalid verification code');
-      toast({
-        title: "Verification Failed",
-        description: "Please check your code and try again",
-        variant: "destructive"
-      });
-      setOtp('');
-    } finally {
-      setIsVerifying(false);
-    }
+  // Since we're using anonymous auth only, OTP verification is not needed
+  // This hook is kept for compatibility but simplified
+  const requestOtp = async (phoneNumber: string) => {
+    console.log('OTP verification not needed for anonymous auth');
+    return { success: true };
   };
 
-  const handleResendOTP = async () => {
-    setIsResending(true);
-    try {
-      await requestWhatsAppOtp(whatsappNumber);
-      toast({
-        title: "Code Resent",
-        description: "Check your WhatsApp for the new verification code",
-      });
-    } catch (err) {
-      toast({
-        title: "Resend Failed",
-        description: "Please try again later",
-        variant: "destructive"
-      });
-    } finally {
-      setIsResending(false);
-    }
+  const verifyOtp = async (otp: string) => {
+    console.log('OTP verification not needed for anonymous auth');
+    return { success: true };
   };
-
-  useEffect(() => {
-    if (otp.length === 6 && !isVerifying) {
-      handleVerifyOTP(otp);
-    }
-  }, [otp, isVerifying]);
 
   return {
-    otp,
-    setOtp,
-    isVerifying,
-    isResending,
+    requestOtp,
+    verifyOtp,
+    isLoading,
     error,
-    setError,
-    isSuccess,
-    handleVerifyOTP,
-    handleResendOTP,
-    whatsappNumber
+    user
   };
 };
