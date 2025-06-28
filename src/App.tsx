@@ -92,6 +92,11 @@ const AppContent = () => {
                 <Routes>
                   <Route path="/" element={<Feed />} />
                   <Route path="/baskets/mine" element={<MyBaskets />} />
+                  <Route path="/baskets/new" element={
+                    <Suspense fallback={<div>Loading...</div>}>
+                      {React.lazy(() => import('@/pages/BasketWizard'))}
+                    </Suspense>
+                  } />
                   <Route path="/basket/:id" element={<BasketOverview />} />
                   <Route path="/basket/:id/join" element={<BasketDetailNonMember />} />
                   <Route path="/basket/:id/participants" element={<BasketParticipants />} />

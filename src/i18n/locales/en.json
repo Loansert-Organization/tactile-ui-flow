@@ -40,9 +40,11 @@
     "codeExpires": "Code expires in {{time}}",
     "invalidCode": "Invalid verification code",
     "codeExpired": "Verification code has expired",
-    "guestBrowsing": "You're browsing as Guest",
+    "guestBrowsing": "You're browsing as a guest",
     "secureAccount": "Secure your account",
-    "upgradeToTrackContributions": "Log in to track your contributions"
+    "upgradeToTrackContributions": "Sign in to track your contributions",
+    "upgradeRequired": "Account Required",
+    "upgradeMessage": "{{feature}} requires a verified account. Continue with WhatsApp?"
   },
   "profile": {
     "title": "Profile",
@@ -52,7 +54,7 @@
     "preferences": "Preferences",
     "language": "Language",
     "notifications": "Push Notifications",
-    "notificationsDesc": "Get updates about your baskets",
+    "notificationsDesc": "Receive updates about your baskets",
     "darkMode": "Dark Mode",
     "darkModeDesc": "Switch to dark theme",
     "topUpWallet": "Top Up Wallet",
@@ -67,7 +69,7 @@
     "logoutSuccess": "Logged out successfully",
     "logoutFailed": "Logout failed. Please try again",
     "avatarUpload": "Avatar Upload",
-    "photoUploadSoon": "Photo upload functionality coming soon"
+    "photoUploadSoon": "Photo upload feature coming soon"
   },
   "basket": {
     "totalContributions": "Total Contributions",
@@ -94,12 +96,30 @@
     "amount": "Amount",
     "contribute": "Contribute",
     "contributeToBasket": "Contribute to Basket",
-    "contributorName": "Your Name",
-    "nameOrAnonymous": "Your name or leave blank for anonymous",
+    "contributorName": "Your name",
+    "nameOrAnonymous": "Your name or leave empty to stay anonymous",
     "invalidAmount": "Please enter a valid amount",
     "guestSuccess": "Contribution successful! Thank you for your support.",
     "failed": "Contribution failed. Please try again.",
-    "guestDisclaimer": "Your contribution is saved anonymously. Log in to track your contribution history."
+    "guestDisclaimer": "Your contribution is saved anonymously. Sign in to track your contribution history."
+  },
+  "wizard": {
+    "createBasket": "Create Basket",
+    "basicInfo": "Basic Information",
+    "basicInfoDesc": "Let's start with the basics of your basket",
+    "namePlaceholder": "e.g., Emergency Fund, Vacation Savings",
+    "descriptionPlaceholder": "Tell people what this basket is for...",
+    "setGoal": "Set Your Goal",
+    "setGoalDesc": "How much do you want to raise and by when?",
+    "duration": "Duration",
+    "days": "days",
+    "privacy": "Privacy Settings",
+    "privacyDesc": "Who can see and contribute to your basket?",
+    "publicBasket": "Public Basket",
+    "publicDesc": "Anyone can see and contribute to this basket",
+    "privateBasket": "Private Basket",
+    "privateDesc": "Only people you invite can contribute",
+    "summary": "Summary"
   },
   "currency": {
     "rwf": "RWF",
