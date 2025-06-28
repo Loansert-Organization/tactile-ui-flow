@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { ArrowLeft, Edit3, Settings, Shield, Globe, Trash2, LogOut, Upload, Camera, Check, X } from 'lucide-react';
+import { ArrowLeft, Edit3, Settings, Shield, Globe, Trash2, LogOut, Upload, Camera, Check, X, MessageCircle, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
@@ -203,11 +202,11 @@ export const Profile = () => {
                           <h2 className="text-xl font-semibold">{user.displayName}</h2>
                           <div className="space-y-1 mt-2">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">WhatsApp</span>
+                              <MessageCircle className="w-4 h-4 text-green-600" />
                               <p className="text-sm text-muted-foreground">{user.phone}</p>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Mobile Money</span>
+                              <Wallet className="w-4 h-4 text-blue-600" />
                               <p className="text-sm text-muted-foreground">{user.phone}</p>
                             </div>
                           </div>
