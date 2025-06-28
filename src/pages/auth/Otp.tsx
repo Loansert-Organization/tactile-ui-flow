@@ -7,16 +7,17 @@ import { Button } from '@/components/ui/button';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { CountdownTimer } from '@/components/auth/CountdownTimer';
 import { toast } from '@/hooks/use-toast';
-import { verifyOtp, requestOtp } from '@/services/auth';
+import { verifyOtp, requestWhatsAppOtp } from '@/services/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 
+// Step 1: Simplified OTP verification screen
 export const Otp = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
   const { login } = useAuth();
-  const { sessionId, phone, expiresIn, fallback } = location.state || {};
+  const { sessionId, whatsappNumber, expiresIn } = location.state || {};
   
   const [otp, setOtp] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
@@ -47,16 +48,17 @@ export const Otp = () => {
       });
       
       toast({
-        title: "Login Successful!",
-        description: "Welcome to IKANISA",
+        title: "Welcome!",
+        description: "You're now logged in to IKANISA",
       });
       
+      // Step 4: Direct redirect to main app
       setTimeout(() => {
         navigate('/');
       }, 2000);
       
     } catch (err) {
-      setError(t('auth.invalidCode'));
+      setError('Invalid verification code');
       toast({
         title: "Verification Failed",
         description: "Please check your code and try again",
@@ -71,10 +73,10 @@ export const Otp = () => {
   const handleResendOTP = async () => {
     setIsResending(true);
     try {
-      await requestOtp(phone);
+      await requestWhatsAppOtp(whatsappNumber);
       toast({
         title: "Code Resent",
-        description: fallback ? "New SMS sent to your phone" : "Check your WhatsApp for the new code",
+        description: "Check your WhatsApp for the new verification code",
       });
     } catch (err) {
       toast({
@@ -105,7 +107,7 @@ export const Otp = () => {
             <CheckCircle className="w-12 h-12 text-green-600" />
           </div>
           <h2 className="text-2xl font-bold text-green-800 mb-2">Welcome!</h2>
-          <p className="text-green-600">Redirecting to your dashboard...</p>
+          <p className="text-green-600">Taking you to your dashboard...</p>
         </motion.div>
       </div>
     );
@@ -119,7 +121,7 @@ export const Otp = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/auth/whatsapp', { state: location.state })}
+            onClick={() => navigate('/auth/phone')}
             className="p-2 -ml-2"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -129,21 +131,18 @@ export const Otp = () => {
         {/* Content */}
         <div className="space-y-8">
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
-              <MessageCircle className="w-8 h-8 text-blue-600" />
+            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto">
+              <MessageCircle className="w-8 h-8 text-green-600" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                {t('auth.otpTitle')}
+                Enter Verification Code
               </h1>
               <p className="text-gray-600 mb-2">
-                {fallback 
-                  ? "We sent a 6-digit code to your phone via SMS"
-                  : "We sent a 6-digit code to your WhatsApp"
-                }
+                We sent a 6-digit code to your WhatsApp
               </p>
-              <p className="text-sm font-medium text-blue-600">
-                {phone}
+              <p className="text-sm font-medium text-green-600">
+                {whatsappNumber}
               </p>
             </div>
           </div>
@@ -180,7 +179,7 @@ export const Otp = () => {
             <Button
               onClick={() => handleVerifyOTP(otp)}
               disabled={otp.length !== 6 || isVerifying}
-              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+              className="w-full h-12 bg-green-600 hover:bg-green-700 text-white rounded-lg"
             >
               {isVerifying ? (
                 <div className="flex items-center gap-2">
@@ -188,7 +187,7 @@ export const Otp = () => {
                   Verifying...
                 </div>
               ) : (
-                t('auth.verifyCode')
+                'Verify Code'
               )}
             </Button>
 
@@ -200,9 +199,9 @@ export const Otp = () => {
             />
 
             {/* Demo Note */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-              <p className="text-xs text-yellow-800">
-                <strong>Demo:</strong> Use code <code className="bg-yellow-100 px-1 rounded">123456</code> to continue
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-xs text-green-800">
+                <strong>Demo:</strong> Use code <code className="bg-green-100 px-1 rounded">123456</code> to continue
               </p>
             </div>
           </div>

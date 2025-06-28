@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -76,7 +75,7 @@ export const useMyBaskets = () => {
         currency: basket.currency || 'RWF',
         duration: basket.duration_days || 30,
         durationDays: basket.duration_days || 30,
-        tags: basket.tags ? (Array.isArray(basket.tags) ? basket.tags : []) : []
+        tags: Array.isArray(basket.tags) ? basket.tags.map(tag => String(tag)) : []
       }));
 
       setBaskets(transformedBaskets);
@@ -152,7 +151,7 @@ export const useMyBaskets = () => {
         currency: data.currency || (basketData.country === 'RW' ? 'RWF' : 'USD'),
         duration: data.duration_days || basketData.duration,
         durationDays: data.duration_days || basketData.duration,
-        tags: data.tags ? (Array.isArray(data.tags) ? data.tags : []) : []
+        tags: Array.isArray(data.tags) ? data.tags.map(tag => String(tag)) : []
       };
 
       // Add to local state

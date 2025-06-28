@@ -12,7 +12,7 @@ import { toast } from '@/hooks/use-toast';
 
 interface ProfileFormData {
   displayName: string;
-  momoNumber: string;
+  mobileMoneyNumber: string;
 }
 
 interface ProfileUser {
@@ -25,6 +25,8 @@ interface ProfileUser {
   language: 'en' | 'rw';
   createdAt: string;
   lastLogin: string;
+  whatsappNumber?: string;
+  mobileMoneyNumber?: string;
 }
 
 interface ProfileHeaderProps {
@@ -35,6 +37,7 @@ interface ProfileHeaderProps {
   onSubmit: (data: ProfileFormData) => Promise<void>;
 }
 
+// Step 3: Enhanced Profile Screen with mobile money management
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   user,
   userUniqueCode,
@@ -46,7 +49,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const form = useForm<ProfileFormData>({
     defaultValues: {
       displayName: user?.displayName || '',
-      momoNumber: user?.phone || ''
+      mobileMoneyNumber: user?.mobileMoneyNumber || user?.whatsappNumber || user?.phone || ''
     }
   });
 
@@ -58,16 +61,16 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     if (isEditing) {
       form.reset({
         displayName: user.displayName,
-        momoNumber: user.phone || ''
+        mobileMoneyNumber: user.mobileMoneyNumber || user.whatsappNumber || user.phone || ''
       });
     }
     onEditToggle();
   };
 
   const handleFormSubmit = async (data: ProfileFormData) => {
-    // Check if mobile money number has changed
-    const currentMomoNumber = user.phone || '';
-    const newMomoNumber = data.momoNumber;
+    // Step 3: Check if mobile money number has changed
+    const currentMomoNumber = user.mobileMoneyNumber || user.whatsappNumber || user.phone || '';
+    const newMomoNumber = data.mobileMoneyNumber;
 
     if (currentMomoNumber !== newMomoNumber) {
       toast({
@@ -75,7 +78,6 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         description: "You will receive a WhatsApp OTP to verify your new mobile money number"
       });
 
-      // TODO: Trigger WhatsApp OTP verification flow
       console.log('Mobile money number change requires OTP verification:', newMomoNumber);
     }
 
@@ -133,7 +135,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 <p className="text-xs font-bold text-foreground">WhatsApp Number</p>
                 <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded">
                   <MessageCircle className="w-4 h-4 text-green-600" />
-                  <p className="text-sm text-muted-foreground">{user.phone || 'Not set'}</p>
+                  <p className="text-sm text-muted-foreground">{user.whatsappNumber || user.phone || 'Not set'}</p>
                 </div>
               </div>
               
@@ -142,7 +144,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 {isEditing ? (
                   <FormField
                     control={form.control}
-                    name="momoNumber"
+                    name="mobileMoneyNumber"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -161,7 +163,12 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 ) : (
                   <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded">
                     <Wallet className="w-4 h-4 text-blue-600" />
-                    <p className="text-sm text-muted-foreground">{user.phone || 'Not set'}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {user.mobileMoneyNumber || user.whatsappNumber || user.phone || 'Not set'}
+                    </p>
+                    {user.mobileMoneyNumber === user.whatsappNumber && (
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Default</span>
+                    )}
                   </div>
                 )}
               </div>

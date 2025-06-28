@@ -6,18 +6,19 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { PhoneInput } from '@/components/auth/PhoneInput';
 import { toast } from '@/hooks/use-toast';
-import { requestOtp } from '@/services/auth';
+import { requestWhatsAppOtp } from '@/services/auth';
 
+// Step 1: Simplified single WhatsApp authentication screen
 export const Phone = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [whatsappNumber, setWhatsappNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleContinue = async () => {
-    if (!phoneNumber || phoneNumber.length < 9) {
-      setError('Please enter a valid phone number');
+  const handleSendOtp = async () => {
+    if (!whatsappNumber || whatsappNumber.length < 9) {
+      setError('Please enter a valid WhatsApp number');
       return;
     }
 
@@ -25,12 +26,18 @@ export const Phone = () => {
     setError('');
     
     try {
-      const sessionData = await requestOtp(`+250${phoneNumber}`);
+      const sessionData = await requestWhatsAppOtp(`+250${whatsappNumber}`);
       
-      navigate('/auth/whatsapp', { 
+      toast({
+        title: "OTP Sent!",
+        description: "Check your WhatsApp for the verification code"
+      });
+      
+      // Step 4: Direct navigation to OTP screen (no intermediate steps)
+      navigate('/auth/otp', { 
         state: { 
           sessionId: sessionData.sessionId,
-          phone: `+250${phoneNumber}`,
+          whatsappNumber: sessionData.whatsappNumber,
           expiresIn: sessionData.expiresIn
         } 
       });
@@ -64,40 +71,50 @@ export const Phone = () => {
         {/* Content */}
         <div className="space-y-8">
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
-              <MessageCircle className="w-8 h-8 text-blue-600" />
+            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto">
+              <MessageCircle className="w-8 h-8 text-green-600" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                {t('auth.phoneTitle')}
+                Enter WhatsApp Number
               </h1>
               <p className="text-gray-600">
-                {t('auth.phoneSubtitle')}
+                We'll send you a verification code on WhatsApp
               </p>
             </div>
           </div>
 
           <div className="space-y-6">
             <PhoneInput
-              value={phoneNumber}
-              onChange={setPhoneNumber}
+              value={whatsappNumber}
+              onChange={setWhatsappNumber}
               error={error}
             />
 
             <Button
-              onClick={handleContinue}
-              disabled={!phoneNumber || phoneNumber.length < 9 || isLoading}
-              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+              onClick={handleSendOtp}
+              disabled={!whatsappNumber || whatsappNumber.length < 9 || isLoading}
+              className="w-full h-12 bg-green-600 hover:bg-green-700 text-white rounded-lg"
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  {t('common.loading')}
+                  Sending OTP...
                 </div>
               ) : (
-                t('auth.continueWithWhatsApp')
+                <>
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Send WhatsApp OTP
+                </>
               )}
             </Button>
+
+            {/* Demo Note */}
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-xs text-green-800">
+                <strong>Demo:</strong> Enter any valid number format to continue
+              </p>
+            </div>
           </div>
         </div>
       </div>

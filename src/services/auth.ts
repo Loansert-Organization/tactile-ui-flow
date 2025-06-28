@@ -1,12 +1,12 @@
-
-// Mock service layer for authentication
+// Step 2: Updated auth service for direct WhatsApp OTP
 const mockPromise = <T>(data: T, delay = 1000): Promise<T> => 
   new Promise(resolve => setTimeout(() => resolve(data), delay));
 
-// Use the same AuthUser interface as the context to avoid type conflicts
 export interface AuthUser {
   id: string;
   phone?: string;
+  whatsappNumber?: string;
+  mobileMoneyNumber?: string;
   displayName: string;
   email?: string;
   avatar?: string;
@@ -14,7 +14,6 @@ export interface AuthUser {
   language: 'en' | 'rw';
   createdAt: string;
   lastLogin: string;
-  // Add Supabase User properties for compatibility
   app_metadata?: any;
   user_metadata?: any;
   aud?: string;
@@ -24,7 +23,7 @@ export interface AuthUser {
 export interface SessionData {
   sessionId: string;
   expiresIn: number;
-  phone: string;
+  whatsappNumber: string;
 }
 
 export interface AuthResponse {
@@ -46,25 +45,37 @@ export const fetchAnonymousToken = async (): Promise<AnonymousTokenResponse> => 
   });
 };
 
-export const requestOtp = async (phone: string): Promise<SessionData> => {
-  console.log('[Auth] Requesting OTP for:', phone);
+// Step 1 & 2: Direct WhatsApp OTP request (simplified)
+export const requestWhatsAppOtp = async (whatsappNumber: string): Promise<SessionData> => {
+  console.log('[Auth] Requesting WhatsApp OTP for:', whatsappNumber);
+  
+  // Format the number properly
+  const formattedNumber = whatsappNumber.startsWith('+') ? whatsappNumber : `+250${whatsappNumber}`;
+  
   return mockPromise({
     sessionId: `session_${Date.now()}`,
-    expiresIn: 300,
-    phone
+    expiresIn: 300, // 5 minutes
+    whatsappNumber: formattedNumber
   });
 };
+
+// Keep backward compatibility
+export const requestOtp = requestWhatsAppOtp;
 
 export const verifyOtp = async (sessionId: string, code: string): Promise<AuthResponse> => {
   console.log('[Auth] Verifying OTP:', { sessionId, code });
   
   if (code === '123456') {
+    const whatsappNumber = '+250780123456'; // This would come from session data in real implementation
+    
     return mockPromise({
       accessToken: `token_${Date.now()}`,
       refreshToken: `refresh_${Date.now()}`,
       user: {
         id: 'user_123',
-        phone: '+250780123456',
+        phone: whatsappNumber,
+        whatsappNumber: whatsappNumber,
+        mobileMoneyNumber: whatsappNumber, // Step 2: Default mobile money to WhatsApp number
         displayName: 'John Doe',
         email: 'john@example.com',
         country: 'RW',
@@ -72,7 +83,10 @@ export const verifyOtp = async (sessionId: string, code: string): Promise<AuthRe
         createdAt: new Date().toISOString(),
         lastLogin: new Date().toISOString(),
         app_metadata: {},
-        user_metadata: {},
+        user_metadata: {
+          whatsapp_number: whatsappNumber,
+          mobile_money_number: whatsappNumber
+        },
         aud: 'authenticated',
         created_at: new Date().toISOString()
       }

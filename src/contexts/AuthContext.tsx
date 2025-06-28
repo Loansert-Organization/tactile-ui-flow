@@ -11,11 +11,13 @@ export interface AuthUser extends User {
   createdAt: string;
   lastLogin: string;
   avatar?: string;
-  // Make Supabase properties optional for compatibility
-  app_metadata?: any;
-  user_metadata?: any;
-  aud?: string;
-  created_at?: string;
+  whatsappNumber?: string;
+  mobileMoneyNumber?: string;
+  // Make Supabase properties required for compatibility
+  app_metadata: any;
+  user_metadata: any;
+  aud: string;
+  created_at: string;
 }
 
 interface AuthContextType {
@@ -49,9 +51,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       createdAt: supabaseUser.created_at,
       lastLogin: supabaseUser.last_sign_in_at || supabaseUser.created_at,
       avatar: supabaseUser.user_metadata?.avatar_url,
-      app_metadata: supabaseUser.app_metadata,
-      user_metadata: supabaseUser.user_metadata,
-      aud: supabaseUser.aud,
+      whatsappNumber: supabaseUser.user_metadata?.whatsapp_number || supabaseUser.phone,
+      mobileMoneyNumber: supabaseUser.user_metadata?.mobile_money_number || supabaseUser.phone,
+      app_metadata: supabaseUser.app_metadata || {},
+      user_metadata: supabaseUser.user_metadata || {},
+      aud: supabaseUser.aud || 'authenticated',
       created_at: supabaseUser.created_at
     };
   };
@@ -97,7 +101,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = (authUser: AuthUser, tokens: { accessToken: string; refreshToken: string }) => {
     setUser(authUser);
-    // Note: In a real implementation, you might want to store tokens securely
     console.log('User logged in:', authUser.id);
   };
 
@@ -109,7 +112,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const upgradeToWhatsapp = () => {
     // Navigate to WhatsApp auth flow
-    window.location.href = '/auth/whatsapp';
+    window.location.href = '/auth/phone';
   };
 
   const isLoggedIn = !!user && !!session;

@@ -346,7 +346,9 @@ export type Database = {
           created_at: string | null
           id: string
           is_anonymous: boolean | null
+          mobile_money_number: string | null
           phone_number: string | null
+          whatsapp_number: string | null
         }
         Insert: {
           auth_method?: string | null
@@ -354,7 +356,9 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_anonymous?: boolean | null
+          mobile_money_number?: string | null
           phone_number?: string | null
+          whatsapp_number?: string | null
         }
         Update: {
           auth_method?: string | null
@@ -362,7 +366,9 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_anonymous?: boolean | null
+          mobile_money_number?: string | null
           phone_number?: string | null
+          whatsapp_number?: string | null
         }
         Relationships: []
       }
