@@ -10,34 +10,12 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { updateProfile } from '@/services/auth';
 import { toast } from 'sonner';
 
-interface ProfileFormData {
-  displayName: string;
-  email: string;
-  whatsappNumber: string;
-  mobileMoneyNumber: string;
-  country: string;
-  language: string;
-}
-
 const Profile = () => {
   const { user } = useAuthContext();
 
-  const handleUpdateProfile = async (data: ProfileFormData) => {
-    try {
-      await updateProfile({
-        displayName: data.displayName,
-        email: data.email,
-        whatsappNumber: data.whatsappNumber,
-        mobileMoneyNumber: data.mobileMoneyNumber,
-        country: data.country,
-        language: data.language as 'en' | 'rw'
-      });
-      toast.success('Profile updated successfully');
-    } catch (error: any) {
-      toast.error('Failed to update profile', {
-        description: error.message
-      });
-    }
+  const handleLogout = () => {
+    // Logout functionality would be implemented here
+    console.log('Logout clicked');
   };
 
   if (!user) {
@@ -47,20 +25,26 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <ProfileHeader 
-          user={user}
-          onUpdateProfile={handleUpdateProfile}
-        />
+        <ProfileHeader user={user} />
         
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-6">
           <WalletSummary />
           <QuickActions />
-          <PreferencesCard />
+          <PreferencesCard 
+            notifications={{
+              push: true,
+              email: false,
+              sms: true
+            }}
+            onNotificationsChange={(notifications) => console.log('Notifications updated:', notifications)}
+            isDarkMode={false}
+            onDarkModeChange={(isDark) => console.log('Dark mode:', isDark)}
+          />
         </div>
         
         <div className="mt-8 space-y-6">
           <LegalSupport />
-          <DangerZone />
+          <DangerZone onLogout={handleLogout} />
         </div>
       </div>
     </div>
