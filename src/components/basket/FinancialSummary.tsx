@@ -23,7 +23,7 @@ export const FinancialSummary = ({
           <div className="flex items-center justify-center mb-2">
             <Coins className="w-6 h-6 text-blue-400" />
           </div>
-          <div className="text-2xl font-bold gradient-text mb-1">
+          <div className="text-xl font-bold gradient-text mb-1">
             {formatCurrency(totalContributions)}
           </div>
           <div className="text-sm text-gray-400">Total Contributions</div>
@@ -32,7 +32,7 @@ export const FinancialSummary = ({
           <div className="flex items-center justify-center mb-2">
             <Banknote className="w-6 h-6 text-green-400" />
           </div>
-          <div className="text-2xl font-bold gradient-text mb-1">
+          <div className="text-xl font-bold gradient-text mb-1">
             {formatCurrency(bankBalance)}
           </div>
           <div className="text-sm text-gray-400">Bank Balance</div>
@@ -41,7 +41,7 @@ export const FinancialSummary = ({
 
       {/* My Contribution */}
       <GlassCard className="p-4 text-center">
-        <div className="text-2xl font-bold gradient-text mb-1">
+        <div className="text-xl font-bold gradient-text mb-1">
           {formatCurrency(myContribution)}
         </div>
         <div className="text-sm text-gray-400">My Contribution</div>
