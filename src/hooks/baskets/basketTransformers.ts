@@ -1,5 +1,4 @@
-
-import { MyBasket } from './types';
+import { MyBasket, CreateBasketData } from './types';
 
 export const transformBasketFromDb = (basket: any): MyBasket => ({
   id: basket.id,
@@ -17,7 +16,8 @@ export const transformBasketFromDb = (basket: any): MyBasket => ({
   createdAt: basket.created_at || new Date().toISOString(),
   category: basket.category || 'personal',
   country: basket.country || 'RW',
-  isPrivate: basket.is_private || false,
+  isPrivate: !basket.public,
+  isPublic: basket.public || false,
   momoCode: basket.momo_code,
   currency: basket.currency || 'RWF',
   duration: basket.duration_days || 30,
@@ -25,14 +25,15 @@ export const transformBasketFromDb = (basket: any): MyBasket => ({
   tags: Array.isArray(basket.tags) ? basket.tags.map(tag => String(tag)) : []
 });
 
-export const transformBasketToDb = (basketData: any, userId: string) => ({
+export const transformBasketToDb = (basketData: CreateBasketData, userId: string) => ({
   title: basketData.name,
   description: basketData.description,
   goal_amount: basketData.goal,
   duration_days: basketData.duration,
   category: basketData.category,
   country: basketData.country,
-  is_private: basketData.isPrivate,
+  public: basketData.isPublic,
+  is_private: !basketData.isPublic,
   creator_id: userId,
   currency: basketData.country === 'RW' ? 'RWF' : 'USD',
   status: 'active',

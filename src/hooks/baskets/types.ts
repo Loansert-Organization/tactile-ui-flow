@@ -1,4 +1,3 @@
-
 export interface MyBasket {
   id: string;
   name: string;
@@ -16,6 +15,7 @@ export interface MyBasket {
   category: string;
   country: string;
   isPrivate: boolean;
+  isPublic: boolean;
   momoCode?: string;
   currency: string;
   duration: number;
@@ -31,5 +31,6 @@ export interface CreateBasketData {
   category: string;
   country: string;
   isPrivate: boolean;
+  isPublic: boolean;
   tags?: string[];
 }
