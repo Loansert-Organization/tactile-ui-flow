@@ -11,11 +11,11 @@ export interface Wallet {
 
 export interface Transaction {
   id: string;
-  wallet_id: string;
-  amount_usd: number;
+  wallet_id: string | null;
+  amount_usd: number | null;
   type: 'contribution' | 'topup' | 'withdrawal';
-  related_basket?: string;
-  created_at: string;
+  related_basket?: string | null;
+  created_at: string | null;
 }
 
 export const useWallet = () => {
@@ -71,7 +71,15 @@ export const useWallet = () => {
         return;
       }
 
-      setTransactions(data || []);
+      // Transform the data to match our TypeScript interface
+      const typedTransactions: Transaction[] = (data || [])
+        .filter(transaction => transaction.type) // Filter out transactions with null type
+        .map(transaction => ({
+          ...transaction,
+          type: transaction.type as 'contribution' | 'topup' | 'withdrawal'
+        }));
+
+      setTransactions(typedTransactions);
     } catch (err) {
       if (import.meta.env.DEV) console.error('Transaction fetch error:', err);
     }

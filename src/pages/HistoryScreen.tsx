@@ -11,10 +11,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 interface Transaction {
   id: string;
-  amount_usd: number;
+  amount_usd: number | null;
   type: 'contribution' | 'topup' | 'withdrawal';
-  related_basket?: string;
-  created_at: string;
+  related_basket?: string | null;
+  created_at: string | null;
   basket_name?: string;
   status: 'completed' | 'pending' | 'failed';
 }
@@ -130,8 +130,6 @@ export const HistoryScreen = () => {
   };
 
   const getTransactionMessage = (transaction: Transaction) => {
-    const amountRwf = Math.round(transaction.amount_usd * 1300); // Convert USD to RWF
-    
     switch (transaction.type) {
       case 'contribution':
         return transaction.basket_name 
@@ -147,7 +145,8 @@ export const HistoryScreen = () => {
   };
 
   const getAmountDisplay = (transaction: Transaction) => {
-    const amountRwf = Math.round(transaction.amount_usd * 1300);
+    const amountUsd = transaction.amount_usd || 0;
+    const amountRwf = Math.round(amountUsd * 1300);
     const isNegative = transaction.type === 'contribution' || transaction.type === 'withdrawal';
     return `${isNegative ? '-' : '+'}${amountRwf.toLocaleString()} RWF`;
   };
