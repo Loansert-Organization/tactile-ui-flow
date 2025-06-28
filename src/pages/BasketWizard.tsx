@@ -110,6 +110,8 @@ const BasketWizard = () => {
   const handleCreateBasket = async () => {
     setIsCreating(true);
     try {
+      console.log('Creating basket with form data:', formData);
+      
       await createBasket({
         name: formData.name,
         description: formData.description || `Private basket for ${formData.name}`,
@@ -117,7 +119,8 @@ const BasketWizard = () => {
         duration: parseInt(formData.duration),
         category: formData.category,
         country: formData.country,
-        isPrivate: true
+        isPrivate: true,
+        tags: [] // Add empty tags array
       });
       
       toast.success('Basket created successfully!', {

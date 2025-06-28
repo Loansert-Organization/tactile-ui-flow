@@ -22,8 +22,9 @@ export interface MyBasket {
   isPrivate: boolean;
   momoCode?: string;
   currency: string;
-  duration: number; // Add duration property
+  duration: number;
   durationDays: number; // alias for duration
+  tags?: string[];
 }
 
 interface CreateBasketData {
@@ -34,6 +35,7 @@ interface CreateBasketData {
   category: string;
   country: string;
   isPrivate: boolean;
+  tags?: string[];
 }
 
 export const useMyBaskets = () => {
@@ -73,7 +75,8 @@ export const useMyBaskets = () => {
         momoCode: basket.momo_code,
         currency: basket.currency || 'RWF',
         duration: basket.duration_days || 30,
-        durationDays: basket.duration_days || 30
+        durationDays: basket.duration_days || 30,
+        tags: basket.tags ? (Array.isArray(basket.tags) ? basket.tags : []) : []
       }));
 
       setBaskets(transformedBaskets);
@@ -90,28 +93,42 @@ export const useMyBaskets = () => {
       throw new Error('Authentication required to create basket');
     }
 
+    console.log('Creating basket with data:', basketData);
+    console.log('User ID:', user.id);
+
     setLoading(true);
     try {
+      // Prepare the basket data for insertion
+      const insertData = {
+        title: basketData.name,
+        description: basketData.description,
+        goal_amount: basketData.goal,
+        duration_days: basketData.duration,
+        category: basketData.category,
+        country: basketData.country,
+        is_private: basketData.isPrivate,
+        creator_id: user.id,
+        currency: basketData.country === 'RW' ? 'RWF' : 'USD',
+        status: 'active',
+        current_amount: 0,
+        participants_count: 1,
+        tags: basketData.tags || []
+      };
+
+      console.log('Insert data:', insertData);
+
       const { data, error } = await supabase
         .from('baskets')
-        .insert({
-          title: basketData.name,
-          description: basketData.description,
-          goal_amount: basketData.goal,
-          duration_days: basketData.duration,
-          category: basketData.category,
-          country: basketData.country,
-          is_private: basketData.isPrivate,
-          creator_id: user.id,
-          currency: basketData.country === 'RW' ? 'RWF' : 'USD',
-          status: 'active',
-          current_amount: 0,
-          participants_count: 1
-        })
+        .insert(insertData)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Basket created successfully:', data);
 
       // Transform the created basket to MyBasket format
       const newBasket: MyBasket = {
@@ -134,7 +151,8 @@ export const useMyBaskets = () => {
         momoCode: data.momo_code,
         currency: data.currency || (basketData.country === 'RW' ? 'RWF' : 'USD'),
         duration: data.duration_days || basketData.duration,
-        durationDays: data.duration_days || basketData.duration
+        durationDays: data.duration_days || basketData.duration,
+        tags: data.tags ? (Array.isArray(data.tags) ? data.tags : []) : []
       };
 
       // Add to local state
@@ -163,7 +181,8 @@ export const useMyBaskets = () => {
           duration_days: updates.duration || updates.durationDays,
           category: updates.category,
           country: updates.country,
-          is_private: updates.isPrivate
+          is_private: updates.isPrivate,
+          tags: updates.tags || []
         })
         .eq('id', id)
         .eq('creator_id', user.id);

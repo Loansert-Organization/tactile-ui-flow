@@ -10,6 +10,12 @@ export interface AuthUser extends User {
   language: 'en' | 'rw';
   createdAt: string;
   lastLogin: string;
+  avatar?: string;
+  // Make Supabase properties optional for compatibility
+  app_metadata?: any;
+  user_metadata?: any;
+  aud?: string;
+  created_at?: string;
 }
 
 interface AuthContextType {
@@ -41,7 +47,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       country: supabaseUser.user_metadata?.country || 'RW',
       language: (supabaseUser.user_metadata?.language as 'en' | 'rw') || 'en',
       createdAt: supabaseUser.created_at,
-      lastLogin: supabaseUser.last_sign_in_at || supabaseUser.created_at
+      lastLogin: supabaseUser.last_sign_in_at || supabaseUser.created_at,
+      avatar: supabaseUser.user_metadata?.avatar_url,
+      app_metadata: supabaseUser.app_metadata,
+      user_metadata: supabaseUser.user_metadata,
+      aud: supabaseUser.aud,
+      created_at: supabaseUser.created_at
     };
   };
 
