@@ -16,11 +16,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { formatCurrencyLocale, formatDateTimeLocale, formatDateLocale } from '@/lib/i18n-formatters';
+
 interface ProfileFormData {
   displayName: string;
   email: string;
   momoNumber: string;
 }
+
 export const Profile = () => {
   const navigate = useNavigate();
   const {
@@ -39,13 +41,28 @@ export const Profile = () => {
     defaultValues: {
       displayName: user?.displayName || '',
       email: user?.email || '',
-      momoNumber: user?.phone || '' // Initialize with phone number
+      momoNumber: user?.phone || ''
     }
   });
+
+  // Generate unique code based on user ID
+  const generateUniqueCode = (userId: string) => {
+    const prefix = 'USR';
+    const hash = userId.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    const code = Math.abs(hash).toString().padStart(6, '0').slice(-6);
+    return `${prefix}${code}`;
+  };
+
   if (!user) {
     navigate('/auth/phone');
     return null;
   }
+
+  const userUniqueCode = generateUniqueCode(user.id);
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -62,12 +79,14 @@ export const Profile = () => {
       });
     }
   };
+
   const handleAvatarUpload = () => {
     toast({
       title: t('profile.avatarUpload'),
       description: t('profile.photoUploadSoon')
     });
   };
+
   const handleEditToggle = () => {
     if (isEditing) {
       // Reset form when canceling
@@ -79,6 +98,7 @@ export const Profile = () => {
     }
     setIsEditing(!isEditing);
   };
+
   const onSubmit = async (data: ProfileFormData) => {
     try {
       updateUser({
@@ -99,9 +119,11 @@ export const Profile = () => {
       });
     }
   };
+
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
+
   return <div className="min-h-screen bg-background p-4">
       <div className="max-w-md mx-auto">
         {/* Header */}
@@ -165,6 +187,7 @@ export const Profile = () => {
                               </FormItem>} />
                         </div> : <>
                           <h2 className="text-xl font-semibold">{user.displayName}</h2>
+                          <p className="text-sm text-muted-foreground font-mono">{userUniqueCode}</p>
                           <div className="space-y-1 mt-2">
                             <div className="flex items-center gap-2">
                               <MessageCircle className="w-4 h-4 text-green-600" />
