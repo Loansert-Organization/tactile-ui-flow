@@ -36,7 +36,7 @@ interface ProfileHeaderProps {
   userUniqueCode: string;
   isEditing: boolean;
   onEditToggle: () => void;
-  onSubmit: (data: ProfileFormData) => Promise<void>;
+  onSubmit: (data: { displayName: string; mobileMoneyNumber: string }) => Promise<void>;
 }
 
 // Generate a simple 6-character user ID from the full UUID
