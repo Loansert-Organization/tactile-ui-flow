@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -97,7 +98,7 @@ const AppContent = () => {
           {/* Analysis route for codebase review */}
           <Route path="/analysis" element={
             <Suspense fallback={<div>Loading Analysis...</div>}>
-              <React.lazy(() => import('@/pages/Analysis')) />
+              {React.createElement(React.lazy(() => import('@/pages/Analysis')))}
             </Suspense>
           } />
           
