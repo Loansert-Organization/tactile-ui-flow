@@ -16,9 +16,6 @@ import { BasketSettings } from "@/pages/BasketSettings";
 import { ContributionPage } from "@/pages/ContributionPage";
 import { MyBaskets } from "@/pages/MyBaskets";
 import { HistoryScreen } from "@/pages/HistoryScreen";
-import { Phone } from "@/pages/auth/Phone";
-import { WhatsApp } from "@/pages/auth/WhatsApp";
-import { Otp } from "@/pages/auth/Otp";
 import Profile from "@/pages/profile";
 import { NotificationsSettings } from "@/pages/NotificationsSettings";
 import { TermsAndConditions } from "@/pages/TermsAndConditions";
@@ -89,11 +86,6 @@ const AppContent = () => {
           <Route path="/splash" element={<SplashScreen />} />
           <Route path="/welcome" element={<WelcomeExperience />} />
           
-          {/* Authentication routes */}
-          <Route path="/auth/phone" element={<Phone />} />
-          <Route path="/auth/whatsapp" element={<WhatsApp />} />
-          <Route path="/auth/otp" element={<Otp />} />
-          
           {/* Analysis routes for codebase review */}
           <Route path="/analysis" element={
             <Suspense fallback={<div>Loading Analysis...</div>}>
@@ -106,10 +98,6 @@ const AppContent = () => {
               {React.createElement(React.lazy(() => import('@/pages/BasketAudit')))}
             </Suspense>
           } />
-          
-          {/* Redirect old routes to new ones */}
-          <Route path="/whatsapp-login" element={<Navigate to="/auth/whatsapp" replace />} />
-          <Route path="/whatsapp-otp" element={<Navigate to="/auth/otp" replace />} />
           
           {/* Standalone routes */}
           <Route path="/history" element={<HistoryScreen />} />

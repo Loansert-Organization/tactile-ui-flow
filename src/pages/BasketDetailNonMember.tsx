@@ -1,10 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, Target, Calendar, Lock, Globe } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
-import { GuestContributionModal } from '@/components/auth/GuestContributionModal';
 import { useBaskets } from '@/contexts/BasketContext';
 import { formatCurrency } from '@/lib/formatters';
 
@@ -12,7 +11,6 @@ export const BasketDetailNonMember = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getBasket } = useBaskets();
-  const [showContributionModal, setShowContributionModal] = useState(false);
 
   const basket = getBasket(id || '');
 
@@ -144,18 +142,6 @@ export const BasketDetailNonMember = () => {
           </GradientButton>
         </div>
       </div>
-
-      {/* Contribution Modal */}
-      <GuestContributionModal
-        isOpen={showContributionModal}
-        onClose={() => setShowContributionModal(false)}
-        basketId={basket.id}
-        basketName={basket.name}
-        onSuccess={() => {
-          // Refresh basket data or show success message
-          console.log('Contribution successful');
-        }}
-      />
     </div>
   );
 };

@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
-// Extended AuthUser type for backward compatibility
+// Simplified AuthUser type for anonymous auth only
 export interface AuthUser extends User {
   displayName: string;
   country: string;
@@ -11,8 +11,6 @@ export interface AuthUser extends User {
   createdAt: string;
   lastLogin: string;
   avatar?: string;
-  whatsappNumber?: string;
-  mobileMoneyNumber?: string;
   // Make Supabase properties required for compatibility
   app_metadata: any;
   user_metadata: any;
@@ -26,12 +24,9 @@ interface AuthContextType {
   loading: boolean;
   isLoading: boolean;
   isLoggedIn: boolean;
-  isGuest: boolean;
   signOut: () => Promise<void>;
   logout: () => Promise<void>;
-  login: (user: AuthUser, tokens: { accessToken: string; refreshToken: string }) => void;
   updateUser: (userData: Partial<AuthUser>) => void;
-  upgradeToWhatsapp: () => void;
   ensureAnonymousAuth: () => Promise<void>;
 }
 
@@ -75,23 +70,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Convert Supabase User to AuthUser
   const convertToAuthUser = (supabaseUser: User): AuthUser => {
-    const provider = supabaseUser.app_metadata?.provider;
-    
     return {
       ...supabaseUser,
-      displayName: supabaseUser.user_metadata?.full_name || 
-                   supabaseUser.user_metadata?.name || 
-                   supabaseUser.user_metadata?.display_name || 
-                   supabaseUser.email?.split('@')[0] || 
-                   'Anonymous User',
-      country: supabaseUser.user_metadata?.country || 'RW',
-      language: (supabaseUser.user_metadata?.language as 'en' | 'rw') || 'en',
+      displayName: 'Anonymous User',
+      country: 'RW',
+      language: 'en' as 'en' | 'rw',
       createdAt: supabaseUser.created_at,
       lastLogin: supabaseUser.last_sign_in_at || supabaseUser.created_at,
-      avatar: supabaseUser.user_metadata?.avatar_url,
-      whatsappNumber: supabaseUser.user_metadata?.whatsapp_number || supabaseUser.phone,
-      mobileMoneyNumber: supabaseUser.user_metadata?.mobile_money_number || supabaseUser.phone,
-      app_metadata: supabaseUser.app_metadata || {},
+      app_metadata: supabaseUser.app_metadata || { provider: 'anonymous' },
       user_metadata: supabaseUser.user_metadata || {},
       aud: supabaseUser.aud || 'authenticated',
       created_at: supabaseUser.created_at
@@ -182,26 +168,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await signOut();
   };
 
-  const login = (authUser: AuthUser, tokens: { accessToken: string; refreshToken: string }) => {
-    setUser(authUser);
-    console.log('User logged in:', authUser.id);
-  };
-
   const updateUser = (userData: Partial<AuthUser>) => {
     if (user) {
       setUser({ ...user, ...userData });
     }
   };
 
-  const upgradeToWhatsapp = () => {
-    // Navigate to WhatsApp auth flow
-    window.location.href = '/auth/phone';
-  };
-
-  // All users are considered logged in (either authenticated, anonymous, or fallback)
+  // All users are considered logged in (either authenticated anonymous or fallback)
   const isLoggedIn = !!session || !!user;
-  // No one is considered a guest anymore - all have some form of auth
-  const isGuest = false;
 
   return (
     <AuthContext.Provider 
@@ -211,12 +185,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         isLoading: loading,
         isLoggedIn,
-        isGuest,
         signOut,
         logout,
-        login,
         updateUser,
-        upgradeToWhatsapp,
         ensureAnonymousAuth
       }}
     >

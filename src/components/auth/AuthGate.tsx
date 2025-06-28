@@ -22,11 +22,6 @@ export const AuthGate: React.FC<AuthGateProps> = ({
     </div>;
   }
   
-  // Allow access if we have any user (authenticated, anonymous, or fallback)
-  if (user) {
-    return <>{children}</>;
-  }
-  
-  // Show fallback if provided, otherwise show children (no restrictions)
-  return <>{fallback || children}</>;
+  // Allow access for all users (anonymous auth is always available)
+  return <>{children}</>;
 };
