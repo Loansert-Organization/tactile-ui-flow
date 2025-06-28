@@ -38,6 +38,29 @@ interface ProfileHeaderProps {
   onSubmit: (data: ProfileFormData) => Promise<void>;
 }
 
+// Generate a simple 6-character user ID from the full UUID
+const generateSimpleUserId = (fullId: string): string => {
+  // Create a consistent hash from the full ID
+  let hash = 0;
+  for (let i = 0; i < fullId.length; i++) {
+    const char = fullId.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  
+  // Convert to a 6-character alphanumeric code
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  let num = Math.abs(hash);
+  
+  for (let i = 0; i < 6; i++) {
+    result += chars[num % chars.length];
+    num = Math.floor(num / chars.length);
+  }
+  
+  return result;
+};
+
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   user,
   userUniqueCode,
@@ -85,6 +108,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
   const isGoogleUser = user.app_metadata?.provider === 'google';
   const isWhatsAppUser = user.app_metadata?.provider === 'phone' || user.whatsappNumber;
+  const simpleUserId = generateSimpleUserId(user.id);
 
   return (
     <Card>
@@ -144,7 +168,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             <div className="space-y-3 pt-4 border-t border-border">
               <div className="space-y-2">
                 <p className="text-xs font-bold text-foreground">User ID</p>
-                <p className="text-sm text-muted-foreground font-mono bg-muted/50 px-3 py-2 rounded">{userUniqueCode}</p>
+                <p className="text-sm text-muted-foreground font-mono bg-muted/50 px-3 py-2 rounded">{simpleUserId}</p>
               </div>
               
               {/* Show email for Google users */}
