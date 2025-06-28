@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, Bell, MessageSquare, DollarSign, Users, Target, Calendar, Zap, Heart, Gift } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -208,7 +207,6 @@ export const NotificationsWizard: React.FC<NotificationsWizardProps> = ({
                     <Switch
                       checked={getCategoryEnabledCount(category) === notifs.length}
                       onCheckedChange={(checked) => toggleCategory(category, checked)}
-                      size="sm"
                     />
                   </div>
                 </div>
@@ -233,7 +231,6 @@ export const NotificationsWizard: React.FC<NotificationsWizardProps> = ({
                       <Switch
                         checked={notif.enabled}
                         onCheckedChange={() => toggleNotification(notif.id)}
-                        size="sm"
                       />
                     </div>
                   ))}
