@@ -175,10 +175,7 @@ export const Profile = () => {
                               <p className="text-sm text-muted-foreground">{user.phone}</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="text-2xl">🇷🇼</span>
-                            <Badge variant="secondary">{t('profile.premiumMember')}</Badge>
-                          </div>
+                          
                         </>}
                     </div>
                   </div>
