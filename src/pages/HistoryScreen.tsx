@@ -216,7 +216,7 @@ export const HistoryScreen = () => {
                 </div>
                 
                 <div className="text-right w-2/5 flex-shrink-0">
-                  <p className={`font-semibold ${
+                  <p className={`font-medium text-sm ${
                     transaction.type === 'sent' ? 'text-red-600' : 'text-green-600'
                   }`}>
                     {transaction.type === 'sent' ? '-' : '+'}
