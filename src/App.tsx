@@ -95,10 +95,16 @@ const AppContent = () => {
           <Route path="/auth/whatsapp" element={<WhatsApp />} />
           <Route path="/auth/otp" element={<Otp />} />
           
-          {/* Analysis route for codebase review */}
+          {/* Analysis routes for codebase review */}
           <Route path="/analysis" element={
             <Suspense fallback={<div>Loading Analysis...</div>}>
               {React.createElement(React.lazy(() => import('@/pages/Analysis')))}
+            </Suspense>
+          } />
+          
+          <Route path="/basket-audit" element={
+            <Suspense fallback={<div>Loading Basket Audit...</div>}>
+              {React.createElement(React.lazy(() => import('@/pages/BasketAudit')))}
             </Suspense>
           } />
           
