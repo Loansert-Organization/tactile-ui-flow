@@ -27,6 +27,19 @@ export interface AuthResponse {
   user: AuthUser;
 }
 
+export interface AnonymousTokenResponse {
+  accessToken: string;
+  expiresIn: number;
+}
+
+export const fetchAnonymousToken = async (): Promise<AnonymousTokenResponse> => {
+  console.log('[Auth] Fetching anonymous token');
+  return mockPromise({
+    accessToken: `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    expiresIn: 86400 // 24 hours
+  });
+};
+
 export const requestOtp = async (phone: string): Promise<SessionData> => {
   console.log('[Auth] Requesting OTP for:', phone);
   return mockPromise({
@@ -39,7 +52,6 @@ export const requestOtp = async (phone: string): Promise<SessionData> => {
 export const verifyOtp = async (sessionId: string, code: string): Promise<AuthResponse> => {
   console.log('[Auth] Verifying OTP:', { sessionId, code });
   
-  // Mock successful verification for demo code
   if (code === '123456') {
     return mockPromise({
       accessToken: `token_${Date.now()}`,

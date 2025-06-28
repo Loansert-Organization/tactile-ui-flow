@@ -16,7 +16,8 @@
     "search": "Search",
     "filter": "Filter",
     "sort": "Sort",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "optional": "optional"
   },
   "navigation": {
     "home": "Home",
@@ -38,7 +39,10 @@
     "didntReceiveCode": "Didn't receive the code?",
     "codeExpires": "Code expires in {{time}}",
     "invalidCode": "Invalid verification code",
-    "codeExpired": "Verification code has expired"
+    "codeExpired": "Verification code has expired",
+    "guestBrowsing": "You're browsing as Guest",
+    "secureAccount": "Secure your account",
+    "upgradeToTrackContributions": "Log in to track your contributions"
   },
   "profile": {
     "title": "Profile",
@@ -85,6 +89,17 @@
     "archiveBasket": "Archive Basket",
     "deleteBasket": "Delete Basket",
     "settingsUpdated": "Settings updated successfully"
+  },
+  "contribution": {
+    "amount": "Amount",
+    "contribute": "Contribute",
+    "contributeToBasket": "Contribute to Basket",
+    "contributorName": "Your Name",
+    "nameOrAnonymous": "Your name or leave blank for anonymous",
+    "invalidAmount": "Please enter a valid amount",
+    "guestSuccess": "Contribution successful! Thank you for your support.",
+    "failed": "Contribution failed. Please try again.",
+    "guestDisclaimer": "Your contribution is saved anonymously. Log in to track your contribution history."
   },
   "currency": {
     "rwf": "RWF",

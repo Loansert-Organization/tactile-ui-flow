@@ -1,10 +1,12 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { GuestBanner } from "@/components/auth/GuestBanner";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Feed } from "@/pages/Feed";
@@ -26,15 +28,14 @@ import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import React, { Suspense, useEffect } from "react";
 import { HeaderSkeleton } from "@/components/ui/enhanced-skeleton";
-import './i18n'; // Initialize i18n
+import './i18n';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (renamed from cacheTime)
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
       retry: (failureCount, error: any) => {
-        // Don't retry on 4xx errors
         if (error?.status >= 400 && error?.status < 500) {
           return false;
         }
@@ -49,13 +50,11 @@ const AppContent = () => {
   const { measureTiming, getNetworkInfo } = usePerformanceMonitor();
 
   useEffect(() => {
-    // Log network conditions for debugging
     const networkInfo = getNetworkInfo();
     if (networkInfo) {
       console.log('[Network]', networkInfo);
     }
 
-    // Preload critical pages
     measureTiming('preload-critical-pages', () => {
       import('@/pages/Feed');
       import('@/pages/MyBaskets');
@@ -65,17 +64,22 @@ const AppContent = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Routes>
-        {/* Authentication routes (no header/nav) */}
+        {/* Authentication routes */}
         <Route path="/auth/phone" element={<Phone />} />
         <Route path="/auth/whatsapp" element={<WhatsApp />} />
         <Route path="/auth/otp" element={<Otp />} />
         
-        {/* Standalone routes (no header/nav) */}
+        {/* Redirect old routes to new ones */}
+        <Route path="/whatsapp-login" element={<Navigate to="/auth/whatsapp" replace />} />
+        <Route path="/whatsapp-otp" element={<Navigate to="/auth/otp" replace />} />
+        
+        {/* Standalone routes */}
         <Route path="/history" element={<HistoryScreen />} />
         
-        {/* Main app routes (with header and bottom nav) */}
+        {/* Main app routes */}
         <Route path="/*" element={
           <>
+            <GuestBanner />
             <Suspense fallback={<HeaderSkeleton />}>
               <AppHeader />
             </Suspense>

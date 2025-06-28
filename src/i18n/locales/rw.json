@@ -16,7 +16,8 @@
     "search": "Gushakisha",
     "filter": "Gushyungura",
     "sort": "Gutondeka",
-    "refresh": "Kongera"
+    "refresh": "Kongera",
+    "optional": "bitari ngombwa"
   },
   "navigation": {
     "home": "Ahabanza",
@@ -38,7 +39,10 @@
     "didntReceiveCode": "Ntiwabonye kode?",
     "codeExpires": "Kode izarangira mu {{time}}",
     "invalidCode": "Kode yo kwemeza ntabwo ari yo",
-    "codeExpired": "Kode yo kwemeza yarangiye"
+    "codeExpired": "Kode yo kwemeza yarangiye",
+    "guestBrowsing": "Urimo ureba nk'Umushyitsi",
+    "secureAccount": "Kurinda konti yawe",
+    "upgradeToTrackContributions": "Injira kugira ngo ukurikirane ibyatanze"
   },
   "profile": {
     "title": "Umwirondoro",
@@ -85,6 +89,17 @@
     "archiveBasket": "Kubika Igisabune",
     "deleteBasket": "Gusiba Igisabune",
     "settingsUpdated": "Amahitamo yahinduwe neza"
+  },
+  "contribution": {
+    "amount": "Amafaranga",
+    "contribute": "Gutanga",
+    "contributeToBasket": "Gutanga mu Gisabune",
+    "contributorName": "Izina Ryawe",
+    "nameOrAnonymous": "Izina ryawe cyangwa usige ubusa kugira ngo utamenyekane",
+    "invalidAmount": "Nyamuneka shyiramo amafaranga akwiye",
+    "guestSuccess": "Gutanga byagenze neza! Urakoze ubufasha bwawe.",
+    "failed": "Gutanga byanze. Ongera ugerageze.",
+    "guestDisclaimer": "Icyo watanze kibikwa mu buryo butamenyekanye. Injira kugira ngo ukurikirane amateka y'ibyatanze."
   },
   "currency": {
     "rwf": "RWF",
