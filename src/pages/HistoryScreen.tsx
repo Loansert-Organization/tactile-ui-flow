@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Clock, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +16,7 @@ interface Transaction {
   timestamp: string;
   status: 'completed' | 'pending' | 'failed';
   type: 'sent' | 'received';
+  basketName?: string;
 }
 
 export const HistoryScreen = () => {
@@ -35,14 +37,15 @@ export const HistoryScreen = () => {
   };
 
   useEffect(() => {
-    // Dummy data for demonstration with recipient IDs
+    // Updated dummy data with basket-focused descriptions
     const dummyTransactions: Transaction[] = [
       {
         id: '1',
         amount: 15000,
         recipient: 'John Doe',
         recipientId: 'user_john_123',
-        message: 'Lunch payment',
+        message: 'Contributed to Lakers Championship Ring Fund',
+        basketName: 'Lakers Championship Ring Fund',
         timestamp: '2024-01-15T10:30:00Z',
         status: 'completed',
         type: 'sent'
@@ -52,6 +55,8 @@ export const HistoryScreen = () => {
         amount: 25000,
         recipient: 'Jane Smith',
         recipientId: 'user_jane_456',
+        message: 'Received contribution for Emergency Medical Fund',
+        basketName: 'Emergency Medical Fund',
         timestamp: '2024-01-14T14:20:00Z',
         status: 'completed',
         type: 'received'
@@ -61,7 +66,8 @@ export const HistoryScreen = () => {
         amount: 8000,
         recipient: 'Bob Wilson',
         recipientId: 'user_bob_789',
-        message: 'Transport fee',
+        message: 'Contributed to Community Garden Project',
+        basketName: 'Community Garden Project',
         timestamp: '2024-01-13T09:15:00Z',
         status: 'pending',
         type: 'sent'
@@ -71,7 +77,8 @@ export const HistoryScreen = () => {
         amount: 50000,
         recipient: 'Alice Johnson',
         recipientId: 'user_alice_101',
-        message: 'Monthly rent',
+        message: 'Contributed to Wedding Celebration Fund',
+        basketName: 'Wedding Celebration Fund',
         timestamp: '2024-01-12T16:45:00Z',
         status: 'completed',
         type: 'sent'
@@ -83,6 +90,7 @@ export const HistoryScreen = () => {
   const filteredTransactions = transactions.filter(transaction => {
     const userCode = generateUniqueCode(transaction.recipientId || transaction.recipient);
     const matchesSearch = userCode.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         transaction.basketName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          transaction.message?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filter === 'all' || transaction.type === filter;
     return matchesSearch && matchesFilter;
@@ -129,7 +137,7 @@ export const HistoryScreen = () => {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
-              placeholder="Search transactions..."
+              placeholder="Search baskets or transactions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 bg-white/10 border-white/20 backdrop-blur-md"
