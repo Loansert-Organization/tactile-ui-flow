@@ -13,7 +13,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   onToggle
 }) => {
   return (
-    <div className="flex items-center justify-between p-3 rounded-lg glass-strong">
+    <div className="flex items-center justify-between p-3 rounded-lg bg-card border">
       <div className="flex items-start gap-3 flex-1">
         <div className="mt-0.5">
           {notification.icon}
