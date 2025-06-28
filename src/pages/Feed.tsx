@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { RefreshCw, Inbox, AlertCircle, QrCode } from 'lucide-react';
 import { BasketCard } from '@/components/BasketCard';
@@ -12,6 +13,7 @@ import { useRenderPerformance } from '@/hooks/usePerformanceMonitor';
 import { QRScannerOverlay } from '@/components/QRScannerOverlay';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+
 export const Feed = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
@@ -35,37 +37,48 @@ export const Feed = () => {
 
   // Get all public baskets (admin-created only)
   const publicBaskets = getPublicBaskets();
+  
   const loadBaskets = async () => {
-    // Simulate API call with realistic timing
-    await new Promise(resolve => setTimeout(resolve, 1200));
+    try {
+      // Simulate API call with realistic timing
+      await new Promise(resolve => setTimeout(resolve, 1200));
 
-    // Simulate occasional failures for testing
-    if (Math.random() < 0.1) {
-      throw new Error('Network error occurred');
+      // Remove the simulated error that was causing issues
+      // The error simulation is not needed and was causing unhandled promise rejections
+      console.log('Baskets loaded successfully');
+    } catch (err) {
+      console.error('Failed to load baskets:', err);
+      throw err;
     }
   };
+
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
       await executeWithLoading(loadBaskets);
     } catch (err) {
       console.error('Refresh failed:', err);
+      // Error is already handled by useLoadingState
     } finally {
       setRefreshing(false);
     }
   };
+
   const handleRetry = async () => {
     try {
       await retry(loadBaskets);
     } catch (err) {
       console.error('Retry failed:', err);
+      // Error is already handled by useLoadingState
     }
   };
+
   const handleJoinSuccess = () => {
     // Trigger a refresh animation
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 500);
   };
+
   const handleQRCodeScanned = (url: string) => {
     setShowScanner(false);
 
@@ -88,9 +101,20 @@ export const Feed = () => {
       });
     }
   };
+
   useEffect(() => {
-    executeWithLoading(loadBaskets);
+    const initializeBaskets = async () => {
+      try {
+        await executeWithLoading(loadBaskets);
+      } catch (err) {
+        console.error('Initial basket load failed:', err);
+        // Error is handled by useLoadingState
+      }
+    };
+    
+    initializeBaskets();
   }, []);
+
   if (isLoading) {
     return <div className="space-y-6 p-4">
         {/* Skeleton for header */}
@@ -105,6 +129,7 @@ export const Feed = () => {
         </div>
       </div>;
   }
+
   if (error) {
     return <div className="p-4">
         <GlassCard className="p-6 text-center">
@@ -120,6 +145,7 @@ export const Feed = () => {
         </GlassCard>
       </div>;
   }
+
   if (publicBaskets.length === 0) {
     return <>
         <div className="p-4">
@@ -128,6 +154,7 @@ export const Feed = () => {
         <QRScannerOverlay isOpen={showScanner} onClose={() => setShowScanner(false)} onQRCodeScanned={handleQRCodeScanned} />
       </>;
   }
+
   return <>
       <div className="space-y-6 p-4" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         {/* Pull to refresh indicator */}
@@ -142,9 +169,6 @@ export const Feed = () => {
         <div className="text-center py-4">
           <h2 className="text-2xl font-bold gradient-text mb-2">Discover Public Baskets</h2>
           <p className="text-gray-400 mb-4">Join community funding initiatives</p>
-          
-          {/* QR Scanner Button */}
-          
         </div>
 
         {/* ARIA live region for announcements */}
