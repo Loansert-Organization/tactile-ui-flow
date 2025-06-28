@@ -1,5 +1,3 @@
-
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -99,6 +97,7 @@ const AppContent = () => {
           
           {/* Standalone routes */}
           <Route path="/history" element={<HistoryScreen />} />
+          <Route path="/notifications" element={<NotificationsSettings />} />
           
           {/* Main app routes */}
           <Route path="/*" element={
@@ -164,4 +163,3 @@ const App = () => (
 );
 
 export default App;
-
