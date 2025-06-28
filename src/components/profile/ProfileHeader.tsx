@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { AuthUser } from '@/services/auth';
 import { toast } from '@/hooks/use-toast';
+
 interface ProfileFormData {
   displayName: string;
   momoNumber: string;
@@ -82,7 +83,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     <FormField control={form.control} name="displayName" render={({
                   field
                 }) => <FormItem>
-                          <FormLabel className="text-sm text-foreground">Display Name</FormLabel>
+                          <FormLabel className="text-sm font-semibold text-foreground">Display Name</FormLabel>
                           <FormControl>
                             <Input {...field} className="text-lg font-semibold" />
                           </FormControl>
@@ -94,24 +95,23 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
               </div>
             </div>
 
-            {/* Always show user information */}
+            {/* User information with improved contrast */}
             <div className="space-y-3 pt-4 border-t border-border">
               <div className="space-y-2">
-                <p className="text-sm font-medium text-foreground">User ID</p>
-                <p className="text-sm text-muted-foreground font-mono bg-muted px-3 py-2 rounded">{userUniqueCode}</p>
+                <p className="text-sm font-bold text-foreground">User ID</p>
+                <p className="text-sm text-muted-foreground font-mono bg-muted/50 px-3 py-2 rounded">{userUniqueCode}</p>
               </div>
               
               <div className="space-y-2">
-                <p className="text-sm font-medium text-foreground">WhatsApp Number</p>
-                <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded">
+                <p className="text-sm font-bold text-foreground">WhatsApp Number</p>
+                <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded">
                   <MessageCircle className="w-4 h-4 text-green-600" />
-                  <p className="text-sm text-foreground">{user.phone}</p>
-                  
+                  <p className="text-sm text-muted-foreground">{user.phone}</p>
                 </div>
               </div>
               
               <div className="space-y-2">
-                <p className="text-sm font-medium text-foreground">Mobile Money Number</p>
+                <p className="text-sm font-bold text-foreground">Mobile Money Number</p>
                 {isEditing ? <FormField control={form.control} name="momoNumber" render={({
                 field
               }) => <FormItem>
@@ -125,10 +125,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                         <p className="text-xs text-amber-600 dark:text-amber-400">
                           Changing this number will require WhatsApp verification
                         </p>
-                      </FormItem>} /> : <div className="flex items-center gap-2 bg-muted px-3 py-2 rounded">
+                      </FormItem>} /> : <div className="flex items-center gap-2 bg-muted/50 px-3 py-2 rounded">
                     <Wallet className="w-4 h-4 text-blue-600" />
-                    <p className="text-sm text-foreground">{user.phone}</p>
-                    
+                    <p className="text-sm text-muted-foreground">{user.phone}</p>
                   </div>}
               </div>
             </div>
