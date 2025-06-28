@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Edit3, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { EnhancedButton } from '@/components/ui/enhanced-button';
-import { GlassCard } from '@/components/ui/glass-card';
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
@@ -89,39 +88,20 @@ export const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden safe-area-full">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
-      <div className="absolute top-1/4 right-1/4 w-64 h-64 sm:w-80 sm:h-80 bg-purple-500/10 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-1/3 left-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-blue-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-
-      <div className="relative z-10 container-fluid">
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 pt-4">
-          <EnhancedButton 
-            variant="glass" 
-            size="icon" 
-            onClick={() => navigate(-1)} 
-            className="rounded-full touch-target"
-            aria-label="Go back"
-          >
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="p-2">
             <ArrowLeft className="w-5 h-5" />
-          </EnhancedButton>
-
-          <h1 className="text-xl font-bold gradient-text">{t('profile.title')}</h1>
-
-          <EnhancedButton 
-            variant="glass" 
-            size="icon" 
-            onClick={handleEditToggle} 
-            className="rounded-full touch-target"
-            aria-label={isEditing ? "Cancel editing" : "Edit profile"}
-          >
+          </Button>
+          <h1 className="text-xl font-semibold">{t('profile.title')}</h1>
+          <Button variant="ghost" size="sm" onClick={handleEditToggle} className="p-2">
             {isEditing ? <X className="w-5 h-5" /> : <Edit3 className="w-5 h-5" />}
-          </EnhancedButton>
+          </Button>
         </div>
 
-        <div className="space-y-6 pb-24">
+        <div className="space-y-6">
           <ProfileHeader 
             user={user}
             userUniqueCode={userUniqueCode}

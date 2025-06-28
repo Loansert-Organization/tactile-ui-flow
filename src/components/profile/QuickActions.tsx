@@ -2,28 +2,29 @@
 import React from 'react';
 import { History, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { GlassCard } from '@/components/ui/glass-card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 export const QuickActions: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <GlassCard variant="default" hover interactive className="responsive-padding">
-      <button 
-        className="w-full flex items-center justify-between touch-target p-2 -m-2 rounded-xl hover:bg-white/10 transition-all duration-200 active:scale-95"
-        onClick={() => navigate('/history')}
-      >
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-            <History className="w-6 h-6 text-white" />
+    <Card>
+      <CardHeader></CardHeader>
+      <CardContent className="space-y-4">
+        <Button variant="ghost" className="w-full justify-between h-12" onClick={() => navigate('/history')}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <History className="w-5 h-5 text-blue-600" />
+            </div>
+            <div className="text-left">
+              <p className="font-medium">Transaction History</p>
+              <p className="text-sm text-muted-foreground">View all your transactions</p>
+            </div>
           </div>
-          <div className="text-left">
-            <p className="font-semibold text-white text-base">Transaction History</p>
-            <p className="text-sm text-gray-300">View all your transactions</p>
-          </div>
-        </div>
-        <ChevronRight className="w-5 h-5 text-gray-400" />
-      </button>
-    </GlassCard>
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+        </Button>
+      </CardContent>
+    </Card>
   );
 };

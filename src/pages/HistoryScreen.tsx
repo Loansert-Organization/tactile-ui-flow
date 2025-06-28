@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Clock, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { EnhancedButton } from '@/components/ui/enhanced-button';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { GlassCard } from '@/components/ui/glass-card';
+import { Badge } from '@/components/ui/badge';
 
 interface Transaction {
   id: string;
@@ -104,6 +104,19 @@ export const HistoryScreen = () => {
     });
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'failed':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   const getTransactionMessage = (transaction: Transaction) => {
     if (transaction.isBasketTransaction && transaction.basketName) {
       return transaction.basketName;
@@ -121,24 +134,17 @@ export const HistoryScreen = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden safe-area-full">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-transparent to-transparent" />
-      <div className="absolute top-1/3 left-1/4 w-64 h-64 sm:w-80 sm:h-80 bg-purple-500/10 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-1/4 right-1/3 w-48 h-48 sm:w-64 sm:h-64 bg-blue-500/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '1.5s' }} />
-
+    <div className="min-h-screen pb-24">
       {/* Header */}
-      <div className="relative z-10 responsive-padding">
+      <div className="p-6">
         <div className="flex items-center gap-3 mb-6">
-          <EnhancedButton
-            variant="glass"
-            size="icon"
+          <button
             onClick={handleBackClick}
-            className="rounded-full touch-target"
+            className="p-3 rounded-lg hover:bg-white/20 active:bg-white/30 transition-all duration-200 touch-manipulation cursor-pointer"
             aria-label="Go back"
           >
             <ArrowLeft className="w-6 h-6" />
-          </EnhancedButton>
+          </button>
           <h1 className="text-2xl font-bold gradient-text">Transaction History</h1>
         </div>
 
@@ -150,87 +156,78 @@ export const HistoryScreen = () => {
               placeholder="Search baskets or transactions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 glass-input text-white placeholder-gray-400 border-white/20 focus-gradient"
+              className="pl-10 bg-white/10 border-white/20 backdrop-blur-md"
             />
           </div>
           
           <div className="flex gap-2">
-            <EnhancedButton
-              variant={filter === 'all' ? 'gradient-primary' : 'glass'}
+            <Button
+              variant={filter === 'all' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter('all')}
-              className="touch-target"
+              className={filter === 'all' ? '' : 'bg-white/10 border-white/20 hover:bg-white/20'}
             >
               All
-            </EnhancedButton>
-            <EnhancedButton
-              variant={filter === 'sent' ? 'gradient-primary' : 'glass'}
+            </Button>
+            <Button
+              variant={filter === 'sent' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter('sent')}
-              className="touch-target"
+              className={filter === 'sent' ? '' : 'bg-white/10 border-white/20 hover:bg-white/20'}
             >
               Sent
-            </EnhancedButton>
-            <EnhancedButton
-              variant={filter === 'received' ? 'gradient-primary' : 'glass'}
+            </Button>
+            <Button
+              variant={filter === 'received' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter('received')}
-              className="touch-target"
+              className={filter === 'received' ? '' : 'bg-white/10 border-white/20 hover:bg-white/20'}
             >
               Received
-            </EnhancedButton>
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Transactions List */}
-      <div className="relative z-10 container-fluid pb-24 space-y-4">
+      <div className="px-6 space-y-4">
         {filteredTransactions.length === 0 ? (
-          <GlassCard variant="strong" className="responsive-padding text-center">
-            <Clock className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-gray-300 text-base">No transactions found</p>
+          <GlassCard className="p-6 text-center">
+            <Clock className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+            <p className="text-gray-500">No transactions found</p>
           </GlassCard>
         ) : (
           filteredTransactions.map((transaction, index) => (
             <GlassCard
               key={transaction.id}
-              variant="default"
-              hover
-              className="responsive-padding animate-slide-up"
+              className="p-4 animate-slide-up"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1 w-3/5 pr-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-mono font-bold text-white text-sm">
+                    <span className="font-mono font-semibold text-gray-900">
                       {generateUniqueCode(transaction.recipientId || transaction.recipient)}
-                    </span>
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      transaction.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      transaction.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {transaction.status}
                     </span>
                   </div>
                   
-                  <p className="text-sm text-gray-300 mb-2 truncate leading-relaxed">
+                  <p className="text-xs font-normal text-gray-600 mb-2 truncate">
                     {getTransactionMessage(transaction)}
                   </p>
                   
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-500">
                     {formatDate(transaction.timestamp)}
                   </p>
                 </div>
                 
                 <div className="text-right w-2/5 flex-shrink-0">
-                  <p className={`font-bold text-base ${
-                    transaction.type === 'sent' ? 'text-red-400' : 'text-green-400'
+                  <p className={`font-medium text-sm ${
+                    transaction.type === 'sent' ? 'text-red-600' : 'text-green-600'
                   }`}>
                     {transaction.type === 'sent' ? '-' : '+'}
                     {transaction.amount.toLocaleString()} RWF
                   </p>
-                  <p className="text-xs text-gray-400 capitalize font-medium">
+                  <p className="text-xs text-gray-500 capitalize">
                     {transaction.type}
                   </p>
                 </div>
