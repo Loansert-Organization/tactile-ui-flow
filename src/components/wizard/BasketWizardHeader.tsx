@@ -31,7 +31,7 @@ export const BasketWizardHeader: React.FC<BasketWizardHeaderProps> = ({
             onPress(e);
             onBack();
           }}
-          className="backdrop-blur-xl hover:scale-105 active:scale-95 transition-all"
+          className="backdrop-blur-xl hover:scale-105 active:scale-95 transition-all text-foreground"
           aria-label="Go back"
         >
           <ArrowLeft className="w-5 h-5" />

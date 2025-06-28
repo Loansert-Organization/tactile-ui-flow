@@ -24,7 +24,7 @@ export const BasketNameForm: React.FC<BasketNameFormProps> = ({
     <div className="wizard-step space-y-4 sm:space-y-6 animate-fade-in">
       <GlassCard variant="strong" className="p-4 sm:p-6 space-y-4 sm:space-y-6 hover:scale-[1.01] transition-all duration-300">
         <div className="space-y-2">
-          <label className="block text-white font-medium text-sm sm:text-base flex items-center gap-2">
+          <label className="block text-foreground font-medium text-sm sm:text-base flex items-center gap-2">
             Basket Name
             <span className="text-red-400">*</span>
           </label>
@@ -33,22 +33,22 @@ export const BasketNameForm: React.FC<BasketNameFormProps> = ({
             value={formData.name} 
             onChange={e => onInputChange('name', e.target.value)} 
             placeholder="Enter basket name" 
-            className={`w-full p-3 sm:p-4 rounded-xl glass-input text-white placeholder-gray-400 text-sm sm:text-base transition-all duration-300 focus:scale-[1.01] ${errors.name ? 'border-red-400 animate-shake' : 'focus:border-purple-400'}`}
+            className={`w-full p-3 sm:p-4 rounded-xl glass-input bg-background/50 border border-border text-foreground placeholder-muted-foreground text-sm sm:text-base transition-all duration-300 focus:scale-[1.01] focus:ring-2 focus:ring-primary focus:border-primary ${errors.name ? 'border-red-400 animate-shake' : ''}`}
             maxLength={50} 
           />
           <CharacterCounter current={formData.name.length} max={50} error={errors.name} />
         </div>
 
         <div className="space-y-2">
-          <label className="block text-white font-medium text-sm sm:text-base flex items-center gap-2">
+          <label className="block text-foreground font-medium text-sm sm:text-base flex items-center gap-2">
             Description
-            <span className="text-gray-400 text-xs">(optional)</span>
+            <span className="text-muted-foreground text-xs">(optional)</span>
           </label>
           <textarea 
             value={formData.description} 
             onChange={e => onInputChange('description', e.target.value)} 
             placeholder="What's this basket for? (optional)" 
-            className={`w-full p-3 sm:p-4 rounded-xl glass-input text-white placeholder-gray-400 min-h-20 sm:min-h-24 resize-none text-sm sm:text-base transition-all duration-300 focus:scale-[1.01] ${errors.description ? 'border-red-400 animate-shake' : 'focus:border-purple-400'}`}
+            className={`w-full p-3 sm:p-4 rounded-xl glass-input bg-background/50 border border-border text-foreground placeholder-muted-foreground min-h-20 sm:min-h-24 resize-none text-sm sm:text-base transition-all duration-300 focus:scale-[1.01] focus:ring-2 focus:ring-primary focus:border-primary ${errors.description ? 'border-red-400 animate-shake' : ''}`}
             maxLength={200} 
             rows={3} 
           />
