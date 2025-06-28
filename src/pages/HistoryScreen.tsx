@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Clock, Filter, Search } from 'lucide-react';
+import { ArrowLeft, Clock, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { Badge } from '@/components/ui/badge';
 
 interface Transaction {
@@ -92,19 +92,17 @@ export const HistoryScreen = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 p-4">
-      <div className="max-w-md mx-auto">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6 pt-2">
-          <Button
-            variant="ghost"
-            size="sm"
+    <div className="min-h-screen pb-24">
+      {/* Header */}
+      <div className="p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <button
             onClick={() => navigate(-1)}
-            className="p-2 hover:bg-white/50"
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-xl font-semibold text-gray-800">Transaction History</h1>
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <h1 className="text-2xl font-bold gradient-text">Transaction History</h1>
         </div>
 
         {/* Search and Filter */}
@@ -115,7 +113,7 @@ export const HistoryScreen = () => {
               placeholder="Search transactions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-white/10 border-white/20 backdrop-blur-md"
             />
           </div>
           
@@ -124,6 +122,7 @@ export const HistoryScreen = () => {
               variant={filter === 'all' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter('all')}
+              className={filter === 'all' ? '' : 'bg-white/10 border-white/20 hover:bg-white/20'}
             >
               All
             </Button>
@@ -131,6 +130,7 @@ export const HistoryScreen = () => {
               variant={filter === 'sent' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter('sent')}
+              className={filter === 'sent' ? '' : 'bg-white/10 border-white/20 hover:bg-white/20'}
             >
               Sent
             </Button>
@@ -138,66 +138,65 @@ export const HistoryScreen = () => {
               variant={filter === 'received' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter('received')}
+              className={filter === 'received' ? '' : 'bg-white/10 border-white/20 hover:bg-white/20'}
             >
               Received
             </Button>
           </div>
         </div>
+      </div>
 
-        {/* Transactions List */}
-        <div className="space-y-3">
-          {filteredTransactions.length === 0 ? (
-            <Card>
-              <CardContent className="p-6 text-center text-gray-500">
-                <Clock className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                <p>No transactions found</p>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredTransactions.map((transaction) => (
-              <Card key={transaction.id} className="shadow-sm">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-gray-900">
-                          {transaction.recipient}
-                        </span>
-                        <Badge className={getStatusColor(transaction.status)}>
-                          {transaction.status}
-                        </Badge>
-                      </div>
-                      
-                      {transaction.message && (
-                        <p className="text-sm text-gray-600 mb-2">
-                          {transaction.message}
-                        </p>
-                      )}
-                      
-                      <p className="text-xs text-gray-500">
-                        {formatDate(transaction.timestamp)}
-                      </p>
-                    </div>
-                    
-                    <div className="text-right">
-                      <p className={`font-semibold ${
-                        transaction.type === 'sent' 
-                          ? 'text-red-600' 
-                          : 'text-green-600'
-                      }`}>
-                        {transaction.type === 'sent' ? '-' : '+'}
-                        {transaction.amount.toLocaleString()} RWF
-                      </p>
-                      <p className="text-xs text-gray-500 capitalize">
-                        {transaction.type}
-                      </p>
-                    </div>
+      {/* Transactions List */}
+      <div className="px-6 space-y-4">
+        {filteredTransactions.length === 0 ? (
+          <GlassCard className="p-6 text-center">
+            <Clock className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+            <p className="text-gray-500">No transactions found</p>
+          </GlassCard>
+        ) : (
+          filteredTransactions.map((transaction, index) => (
+            <GlassCard key={transaction.id} className="p-4 animate-slide-up" style={{
+              animationDelay: `${index * 100}ms`
+            }}>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-medium text-gray-900">
+                      {transaction.recipient}
+                    </span>
+                    <Badge className={getStatusColor(transaction.status)}>
+                      {transaction.status}
+                    </Badge>
                   </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+                  
+                  {transaction.message && (
+                    <p className="text-sm text-gray-600 mb-2">
+                      {transaction.message}
+                    </p>
+                  )}
+                  
+                  <p className="text-xs text-gray-500">
+                    {formatDate(transaction.timestamp)}
+                  </p>
+                </div>
+                
+                <div className="text-right">
+                  <p className={`font-semibold ${
+                    transaction.type === 'sent' 
+                      ? 'text-red-600' 
+                      : 'text-green-600'
+                  }`}>
+                    {transaction.type === 'sent' ? '-' : '+'}
+                    {transaction.amount.toLocaleString()} RWF
+                  </p>
+                  <p className="text-xs text-gray-500 capitalize">
+                    {transaction.type}
+                  </p>
+                </div>
+              </div>
+            </GlassCard>
+          ))
+        )}
       </div>
     </div>
   );
