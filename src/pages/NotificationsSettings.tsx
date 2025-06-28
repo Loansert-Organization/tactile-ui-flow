@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +13,10 @@ export const NotificationsSettings = () => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<NotificationSetting[]>(defaultNotifications);
   const [isSaving, setIsSaving] = useState(false);
+
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   const toggleNotification = (id: string) => {
     setNotifications(prev =>
@@ -59,7 +62,12 @@ export const NotificationsSettings = () => {
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleBack}
+              className="hover:bg-accent touch-manipulation"
+            >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex items-center gap-2">
