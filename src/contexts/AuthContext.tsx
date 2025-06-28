@@ -11,6 +11,8 @@ export interface AuthUser extends User {
   createdAt: string;
   lastLogin: string;
   avatar?: string;
+  mobileMoneyNumber?: string;
+  whatsappNumber?: string;
   // Make Supabase properties required for compatibility
   app_metadata: any;
   user_metadata: any;
@@ -28,6 +30,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateUser: (userData: Partial<AuthUser>) => void;
   ensureAnonymousAuth: () => Promise<void>;
+  refreshUserData: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -68,6 +71,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Fetch additional user data from users table
+  const fetchUserData = async (supabaseUser: User): Promise<AuthUser> => {
+    try {
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('display_name, mobile_money_number, whatsapp_number, country')
+        .eq('id', supabaseUser.id)
+        .single();
+
+      if (error) {
+        console.log('No user data found in users table, using defaults');
+      }
+
+      return {
+        ...supabaseUser,
+        displayName: userData?.display_name || 'Anonymous User',
+        country: userData?.country || 'RW',
+        language: 'en' as 'en' | 'rw',
+        createdAt: supabaseUser.created_at,
+        lastLogin: supabaseUser.last_sign_in_at || supabaseUser.created_at,
+        mobileMoneyNumber: userData?.mobile_money_number,
+        whatsappNumber: userData?.whatsapp_number,
+        app_metadata: supabaseUser.app_metadata || { provider: 'anonymous' },
+        user_metadata: supabaseUser.user_metadata || {},
+        aud: supabaseUser.aud || 'authenticated',
+        created_at: supabaseUser.created_at
+      };
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      return convertToAuthUser(supabaseUser);
+    }
+  };
+
   // Convert Supabase User to AuthUser
   const convertToAuthUser = (supabaseUser: User): AuthUser => {
     return {
@@ -82,6 +118,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       aud: supabaseUser.aud || 'authenticated',
       created_at: supabaseUser.created_at
     };
+  };
+
+  // Refresh user data from database
+  const refreshUserData = async () => {
+    try {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (currentSession?.user) {
+        const updatedUser = await fetchUserData(currentSession.user);
+        setUser(updatedUser);
+      }
+    } catch (error) {
+      console.error('Error refreshing user data:', error);
+    }
   };
 
   // Ensure anonymous authentication - with fallback if Supabase fails
@@ -117,7 +166,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         if (session?.user) {
-          setUser(convertToAuthUser(session.user));
+          const authUser = await fetchUserData(session.user);
+          setUser(authUser);
         } else {
           setUser(null);
           // If no session, try to create anonymous one or use fallback
@@ -133,7 +183,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           setSession(session);
-          setUser(convertToAuthUser(session.user));
+          const authUser = await fetchUserData(session.user);
+          setUser(authUser);
         } else {
           await ensureAnonymousAuth();
         }
@@ -188,7 +239,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signOut,
         logout,
         updateUser,
-        ensureAnonymousAuth
+        ensureAnonymousAuth,
+        refreshUserData
       }}
     >
       {children}

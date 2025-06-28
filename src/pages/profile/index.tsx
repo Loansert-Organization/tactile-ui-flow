@@ -16,7 +16,7 @@ interface ProfileFormData {
 }
 
 const Profile = () => {
-  const { user } = useAuthContext();
+  const { user, refreshUserData } = useAuthContext();
   const [isEditing, setIsEditing] = useState(false);
 
   const handleLogout = () => {
@@ -30,10 +30,17 @@ const Profile = () => {
 
   const handleSubmit = async (data: ProfileFormData) => {
     try {
-      await updateProfile(data);
-      setIsEditing(false);
-      toast.success('Profile updated successfully');
+      const result = await updateProfile(data);
+      if (result.ok) {
+        // Refresh user data from database to get updated values
+        await refreshUserData();
+        setIsEditing(false);
+        toast.success('Profile updated successfully');
+      } else {
+        toast.error('Failed to update profile');
+      }
     } catch (error) {
+      console.error('Profile update error:', error);
       toast.error('Failed to update profile');
     }
   };
