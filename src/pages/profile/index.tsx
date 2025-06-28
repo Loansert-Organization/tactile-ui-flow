@@ -16,40 +16,42 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { formatCurrencyLocale, formatDateTimeLocale, formatDateLocale } from '@/lib/i18n-formatters';
-
 interface ProfileFormData {
   displayName: string;
   email: string;
   momoNumber: string;
 }
-
 export const Profile = () => {
   const navigate = useNavigate();
-  const { user, logout, updateUser } = useAuth();
-  const { t, i18n } = useTranslation();
+  const {
+    user,
+    logout,
+    updateUser
+  } = useAuth();
+  const {
+    t,
+    i18n
+  } = useTranslation();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-
   const form = useForm<ProfileFormData>({
     defaultValues: {
       displayName: user?.displayName || '',
       email: user?.email || '',
-      momoNumber: user?.phone || '', // Initialize with phone number
-    },
+      momoNumber: user?.phone || '' // Initialize with phone number
+    }
   });
-
   if (!user) {
     navigate('/auth/phone');
     return null;
   }
-
   const handleLogout = async () => {
     try {
       await logout();
       toast({
         title: t('profile.logoutSuccess'),
-        description: t('profile.logoutSuccess'),
+        description: t('profile.logoutSuccess')
       });
       navigate('/auth/phone');
     } catch (error) {
@@ -60,39 +62,34 @@ export const Profile = () => {
       });
     }
   };
-
   const handleAvatarUpload = () => {
     toast({
       title: t('profile.avatarUpload'),
-      description: t('profile.photoUploadSoon'),
+      description: t('profile.photoUploadSoon')
     });
   };
-
   const handleEditToggle = () => {
     if (isEditing) {
       // Reset form when canceling
       form.reset({
         displayName: user.displayName,
         email: user.email || '',
-        momoNumber: user.phone || '',
+        momoNumber: user.phone || ''
       });
     }
     setIsEditing(!isEditing);
   };
-
   const onSubmit = async (data: ProfileFormData) => {
     try {
       updateUser({
         displayName: data.displayName,
         email: data.email,
-        phone: data.momoNumber, // Update phone with momo number
+        phone: data.momoNumber // Update phone with momo number
       });
-      
       toast({
         title: t('common.success'),
-        description: t('profile.settingsUpdated'),
+        description: t('profile.settingsUpdated')
       });
-      
       setIsEditing(false);
     } catch (error) {
       toast({
@@ -102,31 +99,18 @@ export const Profile = () => {
       });
     }
   };
-
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
-
-  return (
-    <div className="min-h-screen bg-background p-4">
+  return <div className="min-h-screen bg-background p-4">
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 pt-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="p-2"
-          >
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="p-2">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-xl font-semibold">{t('profile.title')}</h1>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleEditToggle}
-            className="p-2"
-          >
+          <Button variant="ghost" size="sm" onClick={handleEditToggle} className="p-2">
             {isEditing ? <X className="w-5 h-5" /> : <Edit3 className="w-5 h-5" />}
           </Button>
         </div>
@@ -145,60 +129,41 @@ export const Profile = () => {
                           {getInitials(user.displayName)}
                         </AvatarFallback>
                       </Avatar>
-                      <button
-                        type="button"
-                        onClick={handleAvatarUpload}
-                        className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg"
-                      >
+                      <button type="button" onClick={handleAvatarUpload} className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg">
                         <Camera className="w-4 h-4 text-primary-foreground" />
                       </button>
                     </div>
                     
                     <div className="flex-1">
-                      {isEditing ? (
-                        <div className="space-y-3">
-                          <FormField
-                            control={form.control}
-                            name="displayName"
-                            render={({ field }) => (
-                              <FormItem>
+                      {isEditing ? <div className="space-y-3">
+                          <FormField control={form.control} name="displayName" render={({
+                        field
+                      }) => <FormItem>
                                 <FormLabel className="text-sm">{t('profile.personalDetails')}</FormLabel>
                                 <FormControl>
                                   <Input {...field} className="text-lg font-semibold" />
                                 </FormControl>
                                 <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                              <FormItem>
+                              </FormItem>} />
+                          <FormField control={form.control} name="email" render={({
+                        field
+                      }) => <FormItem>
                                 <FormLabel className="text-sm">{t('profile.email')}</FormLabel>
                                 <FormControl>
                                   <Input {...field} type="email" />
                                 </FormControl>
                                 <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="momoNumber"
-                            render={({ field }) => (
-                              <FormItem>
+                              </FormItem>} />
+                          <FormField control={form.control} name="momoNumber" render={({
+                        field
+                      }) => <FormItem>
                                 <FormLabel className="text-sm">Mobile Money Number</FormLabel>
                                 <FormControl>
                                   <Input {...field} type="tel" placeholder="+250780123456" />
                                 </FormControl>
                                 <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      ) : (
-                        <>
+                              </FormItem>} />
+                        </div> : <>
                           <h2 className="text-xl font-semibold">{user.displayName}</h2>
                           <div className="space-y-1 mt-2">
                             <div className="flex items-center gap-2">
@@ -214,13 +179,11 @@ export const Profile = () => {
                             <span className="text-2xl">🇷🇼</span>
                             <Badge variant="secondary">{t('profile.premiumMember')}</Badge>
                           </div>
-                        </>
-                      )}
+                        </>}
                     </div>
                   </div>
 
-                  {isEditing && (
-                    <div className="flex gap-2 pt-4">
+                  {isEditing && <div className="flex gap-2 pt-4">
                       <Button type="submit" size="sm" className="flex-1">
                         <Check className="w-4 h-4 mr-2" />
                         {t('common.save')}
@@ -228,8 +191,7 @@ export const Profile = () => {
                       <Button type="button" variant="outline" size="sm" onClick={handleEditToggle}>
                         {t('common.cancel')}
                       </Button>
-                    </div>
-                  )}
+                    </div>}
                 </form>
               </Form>
             </CardContent>
@@ -249,10 +211,7 @@ export const Profile = () => {
                   <p className="text-sm text-muted-foreground">{t('currency.rwf')} {t('currency.balance')}</p>
                   <p className="text-lg font-semibold">{formatCurrencyLocale(25000, i18n.language)}</p>
                 </div>
-                <div className="bg-muted rounded-lg p-3 text-center">
-                  <p className="text-sm text-muted-foreground">{t('currency.usd')} {t('currency.balance')}</p>
-                  <p className="text-lg font-semibold">$18.50</p>
-                </div>
+                
               </div>
               <Button variant="outline" className="w-full">
                 <Upload className="w-4 h-4 mr-2" />
@@ -331,10 +290,7 @@ export const Profile = () => {
                     {t('profile.notificationsDesc')}
                   </p>
                 </div>
-                <Switch
-                  checked={notifications}
-                  onCheckedChange={setNotifications}
-                />
+                <Switch checked={notifications} onCheckedChange={setNotifications} />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
@@ -344,10 +300,7 @@ export const Profile = () => {
                     {t('profile.darkModeDesc')}
                   </p>
                 </div>
-                <Switch
-                  checked={isDarkMode}
-                  onCheckedChange={setIsDarkMode}
-                />
+                <Switch checked={isDarkMode} onCheckedChange={setIsDarkMode} />
               </div>
             </CardContent>
           </Card>
@@ -376,18 +329,11 @@ export const Profile = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button 
-                variant="outline" 
-                className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                onClick={handleLogout}
-              >
+              <Button variant="outline" className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground" onClick={handleLogout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 {t('profile.logOut')}
               </Button>
-              <Button 
-                variant="outline" 
-                className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-              >
+              <Button variant="outline" className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground">
                 <Trash2 className="w-4 h-4 mr-2" />
                 {t('profile.deleteAccount')}
               </Button>
@@ -395,6 +341,5 @@ export const Profile = () => {
           </Card>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
