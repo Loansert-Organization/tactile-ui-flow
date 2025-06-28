@@ -16,7 +16,8 @@
     "search": "Tafuta",
     "filter": "Chuja",
     "sort": "Panga",
-    "refresh": "Onyesha upya"
+    "refresh": "Onyesha upya",
+    "optional": "si lazima"
   },
   "navigation": {
     "home": "Nyumbani",
@@ -38,7 +39,12 @@
     "didntReceiveCode": "Haukupokea msimbo?",
     "codeExpires": "Msimbo utaisha baada ya {{time}}",
     "invalidCode": "Msimbo wa kuthibitisha si sahihi",
-    "codeExpired": "Msimbo wa kuthibitisha umeisha"
+    "codeExpired": "Msimbo wa kuthibitisha umeisha",
+    "guestBrowsing": "Unatembelea kama mgeni",
+    "secureAccount": "Linda akaunti yako",
+    "upgradeToTrackContributions": "Ingia ili kufuatilia michango yako",
+    "upgradeRequired": "Akaunti Inahitajika",
+    "upgradeMessage": "{{feature}} inahitaji akaunti iliyothibitishwa. Endelea na WhatsApp?"
   },
   "profile": {
     "title": "Wasifu",
@@ -85,6 +91,17 @@
     "archiveBasket": "Hifadhi Kikapu",
     "deleteBasket": "Futa Kikapu",
     "settingsUpdated": "Mipangilio imesasishwa kwa mafanikio"
+  },
+  "contribution": {
+    "amount": "Kiasi",
+    "contribute": "Changia",
+    "contributeToBasket": "Changia Kikapa",
+    "contributorName": "Jina lako",
+    "nameOrAnonymous": "Jina lako au acha tupu kwa kuwa msiri",
+    "invalidAmount": "Tafadhali ingiza kiasi sahihi",
+    "guestSuccess": "Mchango umefanikiwa! Asante kwa msaada wako.",
+    "failed": "Mchango umeshindikana. Tafadhali jaribu tena.",
+    "guestDisclaimer": "Mchango wako umehifadhiwa bila kujulikana. Ingia ili kufuatilia historia ya michango yako."
   },
   "currency": {
     "rwf": "RWF",

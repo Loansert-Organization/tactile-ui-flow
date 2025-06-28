@@ -1,16 +1,19 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, Target, Calendar, Lock, Globe } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
+import { GuestContributionModal } from '@/components/auth/GuestContributionModal';
 import { useBaskets } from '@/contexts/BasketContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { formatCurrency } from '@/lib/formatters';
 
 export const BasketDetailNonMember = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { getBasket } = useBaskets();
+  const { isGuest } = useAuth();
+  const [showContributionModal, setShowContributionModal] = useState(false);
 
   const basket = getBasket(id || '');
 
@@ -28,8 +31,12 @@ export const BasketDetailNonMember = () => {
     );
   }
 
-  const handleJoinBasket = () => {
-    navigate(`/basket/${basket.id}/contribute`);
+  const handleContribute = () => {
+    if (isGuest) {
+      setShowContributionModal(true);
+    } else {
+      navigate(`/basket/${basket.id}/contribute`);
+    }
   };
 
   const handleBack = () => navigate(-1);
@@ -125,22 +132,34 @@ export const BasketDetailNonMember = () => {
               {formatCurrency(0)}
             </div>
             <p className="text-gray-400 text-sm">
-              Join this basket to start contributing
+              {isGuest ? 'Contribute as guest or join this basket' : 'Join this basket to start contributing'}
             </p>
           </div>
         </GlassCard>
 
-        {/* Join Basket Button */}
+        {/* Contribute Button */}
         <div className="fixed bottom-6 left-4 right-4">
           <GradientButton
             variant="primary"
             className="w-full py-4 text-lg font-semibold"
-            onClick={handleJoinBasket}
+            onClick={handleContribute}
           >
-            Join Basket
+            {isGuest ? 'Contribute as Guest' : 'Join Basket'}
           </GradientButton>
         </div>
       </div>
+
+      {/* Guest Contribution Modal */}
+      <GuestContributionModal
+        isOpen={showContributionModal}
+        onClose={() => setShowContributionModal(false)}
+        basketId={basket.id}
+        basketName={basket.name}
+        onSuccess={() => {
+          // Refresh basket data or show success message
+          console.log('Contribution successful');
+        }}
+      />
     </div>
   );
 };

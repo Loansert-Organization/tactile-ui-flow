@@ -16,7 +16,8 @@
     "search": "Rechercher",
     "filter": "Filtrer",
     "sort": "Trier",
-    "refresh": "Actualiser"
+    "refresh": "Actualiser",
+    "optional": "optionnel"
   },
   "navigation": {
     "home": "Accueil",
@@ -38,7 +39,12 @@
     "didntReceiveCode": "Vous n'avez pas reçu le code ?",
     "codeExpires": "Le code expire dans {{time}}",
     "invalidCode": "Code de vérification invalide",
-    "codeExpired": "Le code de vérification a expiré"
+    "codeExpired": "Le code de vérification a expiré",
+    "guestBrowsing": "Vous naviguez en tant qu'invité",
+    "secureAccount": "Sécurisez votre compte",
+    "upgradeToTrackContributions": "Connectez-vous pour suivre vos contributions",
+    "upgradeRequired": "Compte Requis",
+    "upgradeMessage": "{{feature}} nécessite un compte vérifié. Continuer avec WhatsApp ?"
   },
   "profile": {
     "title": "Profil",
@@ -85,6 +91,17 @@
     "archiveBasket": "Archiver le panier",
     "deleteBasket": "Supprimer le panier",
     "settingsUpdated": "Paramètres mis à jour avec succès"
+  },
+  "contribution": {
+    "amount": "Montant",
+    "contribute": "Contribuer",
+    "contributeToBasket": "Contribuer au panier",
+    "contributorName": "Votre nom",
+    "nameOrAnonymous": "Votre nom ou laissez vide pour rester anonyme",
+    "invalidAmount": "Veuillez entrer un montant valide",
+    "guestSuccess": "Contribution réussie ! Merci pour votre soutien.",
+    "failed": "Échec de la contribution. Veuillez réessayer.",
+    "guestDisclaimer": "Votre contribution est enregistrée de manière anonyme. Connectez-vous pour suivre l'historique de vos contributions."
   },
   "currency": {
     "rwf": "RWF",
