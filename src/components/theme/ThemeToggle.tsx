@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Moon, Sun, QrCode, Heart } from 'lucide-react';
+import { Moon, Sun, QrCode, Heart, User } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,6 +20,10 @@ export function ThemeToggle({
     navigate('/baskets/mine');
   };
 
+  const handleProfileClick = () => {
+    navigate('/profile');
+  };
+
   return <div className={`flex items-center gap-2 ${className}`}>
       {/* QR Code Scanner Button */}
       <button onClick={onQRScanClick} className="p-3 rounded-full bg-card hover:bg-muted/50 transition-colors duration-200 shadow-sm" aria-label="Open QR Scanner">
@@ -31,6 +35,12 @@ export function ThemeToggle({
       <button onClick={handleMyBasketsClick} className="p-3 rounded-full bg-card hover:bg-muted/50 transition-colors duration-200 shadow-sm" aria-label="My Baskets">
         <Heart className="h-5 w-5 text-red-400" />
         <span className="sr-only">My Baskets</span>
+      </button>
+
+      {/* Profile Button */}
+      <button onClick={handleProfileClick} className="p-3 rounded-full bg-card hover:bg-muted/50 transition-colors duration-200 shadow-sm" aria-label="Profile">
+        <User className="h-5 w-5 text-blue-400" />
+        <span className="sr-only">Profile</span>
       </button>
 
       {/* Theme Toggle Button */}
