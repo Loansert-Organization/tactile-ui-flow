@@ -30,6 +30,9 @@ import React, { Suspense, useEffect } from "react";
 import { HeaderSkeleton } from "@/components/ui/enhanced-skeleton";
 import './i18n';
 
+// Lazy load BasketWizard
+const BasketWizard = React.lazy(() => import('@/pages/BasketWizard'));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -94,7 +97,7 @@ const AppContent = () => {
                   <Route path="/baskets/mine" element={<MyBaskets />} />
                   <Route path="/baskets/new" element={
                     <Suspense fallback={<div>Loading...</div>}>
-                      {React.lazy(() => import('@/pages/BasketWizard'))}
+                      <BasketWizard />
                     </Suspense>
                   } />
                   <Route path="/basket/:id" element={<BasketOverview />} />
