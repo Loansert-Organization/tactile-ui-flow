@@ -25,13 +25,13 @@ export const generateAuditData = (): AuditItem[] => {
     {
       component: 'createBasket Function Call',
       status: 'connected',
-      description: 'Calls MyBasketsContext.createBasket on form submit',
+      description: 'Calls useMyBaskets.createBasket on form submit',
       location: 'src/pages/BasketWizard.tsx:72-88',
     },
     
     // Context Analysis
     {
-      component: 'MyBasketsContext.createBasket',
+      component: 'useMyBaskets.createBasket',
       status: 'connected',
       description: 'Function now uses Supabase instead of mock data',
       location: 'src/hooks/useMyBaskets.ts:74-101',

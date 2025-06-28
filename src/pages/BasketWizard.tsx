@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WizardStyles } from '@/components/wizard/WizardStyles';
 import { usePressFeedback } from '@/hooks/useInteractions';
-import { useMyBasketsContext } from '@/contexts/MyBasketsContext';
+import { useMyBaskets } from '@/hooks/useMyBaskets';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { BasketWizardHeader } from '@/components/wizard/BasketWizardHeader';
@@ -22,7 +22,7 @@ const BasketWizard = () => {
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const navigate = useNavigate();
   const { handlePress } = usePressFeedback();
-  const { createBasket } = useMyBasketsContext();
+  const { createBasket } = useMyBaskets();
   const { user } = useAuthContext();
 
   // Form state

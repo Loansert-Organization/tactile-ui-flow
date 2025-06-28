@@ -1,6 +1,5 @@
 
 import { useState, useCallback } from 'react';
-import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
 
@@ -8,225 +7,210 @@ export interface MyBasket {
   id: string;
   name: string;
   description: string;
-  status: 'pending' | 'approved' | 'private';
-  isPrivate: boolean;
-  progress: number;
   goal: number;
+  goalAmount: number; // alias for goal
   currentAmount: number;
+  progress: number;
   participants: number;
   daysLeft: number;
+  status: 'active' | 'completed' | 'expired';
   isMember: boolean;
   myContribution: number;
-  createdAt: Date;
-  category?: string;
-  country?: string;
+  createdAt: string;
+  category: string;
+  country: string;
+  isPrivate: boolean;
   momoCode?: string;
+  currency: string;
+  duration: number; // Add duration property
+  durationDays: number; // alias for duration
 }
 
-// Updated dummy data with more variety including public baskets user has joined
-const initialBaskets: MyBasket[] = [
-  // User's private baskets
-  {
-    id: '3',
-    name: 'Lakers Championship Ring',
-    description: 'Supporting our team to get that championship ring!',
-    status: 'private',
-    isPrivate: true,
-    progress: 65,
-    goal: 50000,
-    currentAmount: 32500,
-    participants: 47,
-    daysLeft: 10,
-    isMember: true,
-    myContribution: 15000,
-    createdAt: new Date('2024-05-15')
-  },
-  {
-    id: '4',
-    name: 'Manchester United Jersey',
-    description: 'Getting the new season jersey for the whole squad',
-    status: 'private',
-    isPrivate: true,
-    progress: 80,
-    goal: 25000,
-    currentAmount: 20000,
-    participants: 23,
-    daysLeft: 5,
-    isMember: true,
-    myContribution: 5000,
-    createdAt: new Date('2024-05-20')
-  },
-  // Public baskets user has joined (from main basket context)
-  {
-    id: '6',
-    name: 'Local Park Playground',
-    description: 'Building a new playground for children in our neighborhood park',
-    status: 'approved',
-    isPrivate: false, // This is a public basket
-    progress: 60,
-    goal: 150000,
-    currentAmount: 90000,
-    participants: 32,
-    daysLeft: 18,
-    isMember: true,
-    myContribution: 5000,
-    createdAt: new Date('2024-05-10')
-  },
-  {
-    id: '7',
-    name: 'Youth Soccer Team Uniforms',
-    description: 'Getting new uniforms for our local youth soccer team for the upcoming season',
-    status: 'approved',
-    isPrivate: false, // This is a public basket
-    progress: 85,
-    goal: 75000,
-    currentAmount: 63750,
-    participants: 28,
-    daysLeft: 8,
-    isMember: true,
-    myContribution: 2500,
-    createdAt: new Date('2024-05-18')
-  }
-];
+interface CreateBasketData {
+  name: string;
+  description: string;
+  goal: number;
+  duration: number;
+  category: string;
+  country: string;
+  isPrivate: boolean;
+}
 
 export const useMyBaskets = () => {
-  const [myBaskets, setMyBaskets] = useState<MyBasket[]>(initialBaskets);
-  const [isJoining, setIsJoining] = useState<string | null>(null);
+  const [baskets, setBaskets] = useState<MyBasket[]>([]);
+  const [loading, setLoading] = useState(false);
   const { user } = useAuthContext();
 
-  const joinBasket = useCallback(async (basketData: Partial<MyBasket> & { id: string; name: string }) => {
-    setIsJoining(basketData.id);
+  const loadBaskets = useCallback(async () => {
+    if (!user) return;
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const newBasket: MyBasket = {
-      id: basketData.id,
-      name: basketData.name,
-      description: basketData.description || 'A community funding basket',
-      status: 'approved',
-      isPrivate: false, // Joined public baskets are not private
-      progress: basketData.progress || 45,
-      goal: basketData.goal || 10000,
-      currentAmount: basketData.currentAmount || 4500,
-      participants: basketData.participants || 12,
-      daysLeft: basketData.daysLeft || 15,
-      isMember: true,
-      myContribution: 0,
-      createdAt: new Date()
-    };
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('baskets')
+        .select('*')
+        .eq('creator_id', user.id);
 
-    setMyBaskets(prev => [newBasket, ...prev]);
-    setIsJoining(null);
-    
-    toast.success(`You've joined '${basketData.name}'!`, {
-      description: 'Start contributing to reach the goal together',
-      duration: 3000,
-    });
+      if (error) throw error;
 
-    return newBasket;
-  }, []);
+      const transformedBaskets: MyBasket[] = (data || []).map(basket => ({
+        id: basket.id,
+        name: basket.title || 'Untitled Basket',
+        description: basket.description || '',
+        goal: basket.goal_amount || 0,
+        goalAmount: basket.goal_amount || 0,
+        currentAmount: basket.current_amount || 0,
+        progress: basket.goal_amount ? Math.round((basket.current_amount || 0) / basket.goal_amount * 100) : 0,
+        participants: basket.participants_count || 1,
+        daysLeft: basket.duration_days || 30,
+        status: basket.status as 'active' | 'completed' | 'expired' || 'active',
+        isMember: true,
+        myContribution: 0, // Would need to calculate from contributions table
+        createdAt: basket.created_at || new Date().toISOString(),
+        category: basket.category || 'personal',
+        country: basket.country || 'RW',
+        isPrivate: basket.is_private || false,
+        momoCode: basket.momo_code,
+        currency: basket.currency || 'RWF',
+        duration: basket.duration_days || 30,
+        durationDays: basket.duration_days || 30
+      }));
 
-  const createBasket = useCallback(async (basketData: {
-    name: string;
-    description: string;
-    goal: number;
-    duration?: number;
-    category?: string;
-    country?: string;
-    isPrivate?: boolean;
-  }) => {
-    console.log('🔄 Creating basket with Supabase integration...');
-    
-    // Check if user is authenticated
+      setBaskets(transformedBaskets);
+    } catch (error) {
+      console.error('Error loading baskets:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  const createBasket = useCallback(async (basketData: CreateBasketData) => {
     if (!user) {
-      throw new Error('Authentication required. Please log in to create a basket.');
+      throw new Error('Authentication required to create basket');
     }
 
+    setLoading(true);
     try {
-      // Calculate days left based on duration
-      const durationDays = basketData.duration || 30;
-      const endDate = new Date();
-      endDate.setDate(endDate.getDate() + durationDays);
-      
-      // Insert basket into Supabase
       const { data, error } = await supabase
         .from('baskets')
         .insert({
-          creator_id: user.id,
           title: basketData.name,
           description: basketData.description,
           goal_amount: basketData.goal,
-          duration_days: durationDays,
-          category: basketData.category || 'General',
-          country: basketData.country || 'RW',
-          currency: 'RWF', // Default to Rwanda Francs
-          is_private: basketData.isPrivate || false,
-          current_amount: 0,
-          participants_count: 1,
+          duration_days: basketData.duration,
+          category: basketData.category,
+          country: basketData.country,
+          is_private: basketData.isPrivate,
+          creator_id: user.id,
+          currency: basketData.country === 'RW' ? 'RWF' : 'USD',
           status: 'active',
-          tags: []
+          current_amount: 0,
+          participants_count: 1
         })
         .select()
         .single();
 
-      if (error) {
-        console.error('❌ Supabase basket creation error:', error);
-        throw new Error(`Failed to create basket: ${error.message}`);
-      }
+      if (error) throw error;
 
-      console.log('✅ Basket created successfully:', data);
-
-      // Transform Supabase response to MyBasket format
+      // Transform the created basket to MyBasket format
       const newBasket: MyBasket = {
         id: data.id,
         name: data.title || basketData.name,
         description: data.description || basketData.description,
-        status: basketData.isPrivate ? 'private' : 'approved',
-        isPrivate: data.is_private || false,
         goal: data.goal_amount || basketData.goal,
+        goalAmount: data.goal_amount || basketData.goal,
         currentAmount: data.current_amount || 0,
-        participants: data.participants_count || 1,
-        daysLeft: durationDays,
         progress: 0,
+        participants: data.participants_count || 1,
+        daysLeft: data.duration_days || basketData.duration,
+        status: data.status as 'active' | 'completed' | 'expired' || 'active',
         isMember: true,
         myContribution: 0,
-        createdAt: new Date(data.created_at || new Date()),
-        category: data.category,
-        country: data.country,
-        momoCode: data.momo_code
+        createdAt: data.created_at || new Date().toISOString(),
+        category: data.category || basketData.category,
+        country: data.country || basketData.country,
+        isPrivate: data.is_private || basketData.isPrivate,
+        momoCode: data.momo_code,
+        currency: data.currency || (basketData.country === 'RW' ? 'RWF' : 'USD'),
+        duration: data.duration_days || basketData.duration,
+        durationDays: data.duration_days || basketData.duration
       };
 
       // Add to local state
-      setMyBaskets(prev => [newBasket, ...prev]);
+      setBaskets(prev => [newBasket, ...prev]);
       
-      toast.success(`Basket '${basketData.name}' created successfully!`, {
-        description: data.momo_code ? `Payment code: ${data.momo_code}` : 'Your basket is ready to receive contributions',
-        duration: 5000,
-      });
-
       return newBasket;
     } catch (error) {
-      console.error('❌ Basket creation failed:', error);
+      console.error('Error creating basket:', error);
       throw error;
+    } finally {
+      setLoading(false);
     }
   }, [user]);
 
-  const updateBasketStatus = useCallback((basketId: string, status: 'pending' | 'approved' | 'private') => {
-    setMyBaskets(prev => 
-      prev.map(basket => 
-        basket.id === basketId 
-          ? { ...basket, status }
-          : basket
-      )
-    );
-  }, []);
+  const updateBasket = useCallback(async (id: string, updates: Partial<MyBasket>) => {
+    if (!user) throw new Error('Authentication required');
+
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('baskets')
+        .update({
+          title: updates.name,
+          description: updates.description,
+          goal_amount: updates.goal || updates.goalAmount,
+          duration_days: updates.duration || updates.durationDays,
+          category: updates.category,
+          country: updates.country,
+          is_private: updates.isPrivate
+        })
+        .eq('id', id)
+        .eq('creator_id', user.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setBaskets(prev => prev.map(basket => 
+        basket.id === id ? { ...basket, ...updates } : basket
+      ));
+    } catch (error) {
+      console.error('Error updating basket:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  const deleteBasket = useCallback(async (id: string) => {
+    if (!user) throw new Error('Authentication required');
+
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('baskets')
+        .delete()
+        .eq('id', id)
+        .eq('creator_id', user.id);
+
+      if (error) throw error;
+
+      // Remove from local state
+      setBaskets(prev => prev.filter(basket => basket.id !== id));
+    } catch (error) {
+      console.error('Error deleting basket:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
 
   return {
-    myBaskets,
-    joinBasket,
+    baskets,
+    loading,
+    loadBaskets,
     createBasket,
-    updateBasketStatus,
-    isJoining
+    updateBasket,
+    deleteBasket
   };
 };

@@ -3,19 +3,47 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+// Extended AuthUser type for backward compatibility
+export interface AuthUser extends User {
+  displayName: string;
+  country: string;
+  language: 'en' | 'rw';
+  createdAt: string;
+  lastLogin: string;
+}
+
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   session: Session | null;
   loading: boolean;
+  isLoading: boolean;
+  isLoggedIn: boolean;
+  isGuest: boolean;
   signOut: () => Promise<void>;
+  logout: () => Promise<void>;
+  login: (user: AuthUser, tokens: { accessToken: string; refreshToken: string }) => void;
+  updateUser: (userData: Partial<AuthUser>) => void;
+  upgradeToWhatsapp: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Convert Supabase User to AuthUser
+  const convertToAuthUser = (supabaseUser: User): AuthUser => {
+    return {
+      ...supabaseUser,
+      displayName: supabaseUser.user_metadata?.display_name || supabaseUser.email?.split('@')[0] || 'User',
+      country: supabaseUser.user_metadata?.country || 'RW',
+      language: (supabaseUser.user_metadata?.language as 'en' | 'rw') || 'en',
+      createdAt: supabaseUser.created_at,
+      lastLogin: supabaseUser.last_sign_in_at || supabaseUser.created_at
+    };
+  };
 
   useEffect(() => {
     // Set up auth state listener
@@ -23,7 +51,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       (event, session) => {
         console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
-        setUser(session?.user ?? null);
+        if (session?.user) {
+          setUser(convertToAuthUser(session.user));
+        } else {
+          setUser(null);
+        }
         setLoading(false);
       }
     );
@@ -31,7 +63,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setUser(session?.user ?? null);
+      if (session?.user) {
+        setUser(convertToAuthUser(session.user));
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
@@ -40,15 +76,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
   };
+
+  const logout = async () => {
+    await signOut();
+  };
+
+  const login = (authUser: AuthUser, tokens: { accessToken: string; refreshToken: string }) => {
+    setUser(authUser);
+    // Note: In a real implementation, you might want to store tokens securely
+    console.log('User logged in:', authUser.id);
+  };
+
+  const updateUser = (userData: Partial<AuthUser>) => {
+    if (user) {
+      setUser({ ...user, ...userData });
+    }
+  };
+
+  const upgradeToWhatsapp = () => {
+    // Navigate to WhatsApp auth flow
+    window.location.href = '/auth/whatsapp';
+  };
+
+  const isLoggedIn = !!user && !!session;
+  const isGuest = !user || !session;
 
   return (
     <AuthContext.Provider 
       value={{ 
         user, 
         session, 
-        loading, 
-        signOut 
+        loading,
+        isLoading: loading,
+        isLoggedIn,
+        isGuest,
+        signOut,
+        logout,
+        login,
+        updateUser,
+        upgradeToWhatsapp
       }}
     >
       {children}
