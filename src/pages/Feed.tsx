@@ -141,7 +141,7 @@ export const Feed = () => {
         {/* Feed header */}
         <div className="text-center py-4">
           <h2 className="text-2xl font-bold gradient-text mb-2">Discover Public Baskets</h2>
-          <p className="text-gray-400 mb-4">Join official community funding initiatives</p>
+          <p className="text-gray-400 mb-4">Join community funding initiatives</p>
           
           {/* QR Scanner Button */}
           
