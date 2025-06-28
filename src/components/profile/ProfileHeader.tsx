@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Camera, MessageCircle, Wallet, Check, X, Mail, Edit2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -188,12 +189,12 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       name="displayName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-semibold text-foreground">Username</FormLabel>
+                          <FormLabel className="text-sm font-semibold text-foreground">Display Name</FormLabel>
                           <FormControl>
                             <Input 
                               {...field} 
                               className="text-lg font-semibold" 
-                              placeholder={simpleUserId}
+                              placeholder="Enter your friendly name"
                             />
                           </FormControl>
                           <FormMessage />
@@ -217,8 +218,8 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       {isAnonymousUser && (
-                        <span className="flex items-center gap-1 bg-gray-100 text-gray-700 px-2 py-1 rounded">
-                          Anonymous User
+                        <span className="flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">
+                          Guest User
                         </span>
                       )}
                     </div>
