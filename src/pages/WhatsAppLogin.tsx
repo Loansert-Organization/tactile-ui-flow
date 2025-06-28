@@ -53,7 +53,7 @@ const WhatsAppLogin = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          
+
           <div className="w-20 h-20 mx-auto bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mb-6">
             <MessageCircle className="w-10 h-10 text-white" />
           </div>
@@ -102,7 +102,7 @@ const WhatsAppLogin = () => {
             ) : (
               <>
                 <MessageCircle className="w-5 h-5 mr-2" />
-                Send WhatsApp Code
+            Send WhatsApp Code
               </>
             )}
           </GradientButton>
@@ -110,7 +110,7 @@ const WhatsAppLogin = () => {
 
         {/* Info */}
         <div className="text-center space-y-4">
-          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
             <div className="flex items-start space-x-3">
               <MessageCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
               <div className="text-sm text-green-800 dark:text-green-200">

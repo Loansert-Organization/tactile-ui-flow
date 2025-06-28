@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowLeft, Lock, Globe } from 'lucide-react';
+import { Plus, ArrowLeft, Lock, Globe, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -41,10 +41,22 @@ export const MyBaskets = () => {
   // Fetch baskets based on active tab
   useEffect(() => {
     const fetchBaskets = async () => {
+      // Ensure anonymous authentication first
       if (!user?.id) {
-        if (import.meta.env.DEV) console.log('No user ID available, skipping basket fetch');
-        setLoading(false);
-        return;
+        if (import.meta.env.DEV) console.log('No user ID available, attempting anonymous auth...');
+        try {
+          await ensureAnonymousAuth();
+          // Wait a bit for auth state to update
+          setTimeout(() => {
+            if (import.meta.env.DEV) console.log('Anonymous auth attempted, will retry basket fetch');
+          }, 1000);
+          return;
+        } catch (error) {
+          if (import.meta.env.DEV) console.error('Failed to ensure anonymous auth:', error);
+          setError('Authentication required to load baskets');
+          setLoading(false);
+          return;
+        }
       }
 
       setLoading(true);
@@ -67,25 +79,112 @@ export const MyBaskets = () => {
             .eq('creator_id', user.id);
         } else {
           // Fetch baskets joined by user (including created ones)
-          query = supabase
-            .from('baskets')
-            .select(`
-              *,
-              contributions(amount_usd),
-              basket_members(user_id)
-            `)
-            .or(`creator_id.eq.${user.id},basket_members.user_id.eq.${user.id}`);
+          // Use a simpler query approach to avoid complex OR operations that might fail
+          const [createdBaskets, joinedBaskets] = await Promise.all([
+            supabase
+              .from('baskets')
+              .select(`
+                *,
+                contributions(amount_usd),
+                basket_members(user_id)
+              `)
+              .eq('creator_id', user.id),
+            supabase
+              .from('basket_members')
+              .select(`
+                basket_id,
+                baskets!inner(
+                  *,
+                  contributions(amount_usd),
+                  basket_members(user_id)
+                )
+              `)
+              .eq('user_id', user.id)
+              .neq('is_creator', true) // Exclude creator records to avoid duplicates
+          ]);
+
+          if (createdBaskets.error) throw createdBaskets.error;
+          if (joinedBaskets.error) throw joinedBaskets.error;
+
+          // Combine results and extract basket data
+          const allBaskets = [
+            ...(createdBaskets.data || []),
+            ...(joinedBaskets.data?.map(jb => jb.baskets) || [])
+          ];
+
+          // Remove duplicates by id
+          const uniqueBaskets = allBaskets.filter((basket, index, self) => 
+            index === self.findIndex(b => b.id === basket.id)
+          );
+
+          if (import.meta.env.DEV) console.log('Combined baskets data received:', uniqueBaskets);
+
+          // Process the combined data
+          const processedBaskets = uniqueBaskets.map((basket: any) => {
+            const totalContributions = basket.contributions?.reduce((sum: number, c: any) => sum + c.amount_usd, 0) || 0;
+            const participantsCount = basket.basket_members?.length || 0;
+            const progress = basket.goal_amount > 0 ? Math.round((totalContributions / basket.goal_amount) * 100) : 0;
+            
+            // Calculate days left (assuming 30 days from creation)
+            const createdDate = new Date(basket.created_at);
+            const daysLeft = Math.max(0, 30 - Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24)));
+
+            // Check if user is member
+            const isMember = basket.creator_id === user.id || basket.basket_members?.some((m: any) => m.user_id === user.id);
+
+            return {
+              ...basket,
+              name: basket.title,
+              goal: basket.goal_amount,
+              current_amount: totalContributions,
+              participants_count: participantsCount,
+              progress,
+              days_left: daysLeft,
+              is_member: isMember,
+              my_contribution: 0 // Will be fetched separately
+            };
+          });
+
+          // Fetch user contributions for each basket
+          const basketsWithContributions = await Promise.all(
+            processedBaskets.map(async (basket) => {
+              const { data: contributions } = await supabase
+                .from('contributions')
+                .select('amount_usd')
+                .eq('basket_id', basket.id)
+                .eq('user_id', user.id);
+
+              const myContribution = contributions?.reduce((sum: number, c: any) => sum + c.amount_usd, 0) || 0;
+
+              return {
+                ...basket,
+                my_contribution: myContribution
+              };
+            })
+          );
+
+          if (import.meta.env.DEV) console.log('Processed baskets:', basketsWithContributions);
+          setBaskets(basketsWithContributions);
+          setLoading(false);
+          return;
         }
 
         const { data, error } = await query;
 
         if (error) {
           if (import.meta.env.DEV) console.error('Error fetching baskets:', error);
-          setError('Failed to load baskets');
+          setError('Failed to load baskets. Please try again.');
           return;
         }
 
         if (import.meta.env.DEV) console.log('Baskets data received:', data);
+
+        // Handle empty results gracefully
+        if (!data || data.length === 0) {
+          if (import.meta.env.DEV) console.log('No baskets found for user');
+          setBaskets([]);
+          return;
+        }
 
         // Process basket data
         const processedBaskets = data.map((basket: any) => {
@@ -136,14 +235,14 @@ export const MyBaskets = () => {
 
       } catch (err) {
         if (import.meta.env.DEV) console.error('Baskets fetch error:', err);
-        setError('Failed to load baskets');
+        setError('Failed to load baskets. Please check your connection and try again.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchBaskets();
-  }, [activeTab, user?.id]);
+  }, [activeTab, user?.id, ensureAnonymousAuth]);
 
   // Update tab when URL changes
   useEffect(() => {
@@ -259,13 +358,29 @@ export const MyBaskets = () => {
       <div className="px-6 space-y-4">
         {error ? (
           <div className="text-center py-8">
-            <p className="text-red-500 mb-4">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-            >
-              Retry
-            </button>
+            <div className="mx-auto w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-4">
+              <AlertCircle className="w-8 h-8 text-red-500" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Unable to Load Baskets</h3>
+            <p className="text-red-500 mb-6 text-sm">{error}</p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                onClick={() => {
+                  setError(null);
+                  // Force re-fetch by updating the dependency
+                  window.location.reload();
+                }}
+                className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+              >
+                Retry Loading
+              </button>
+              <button
+                onClick={() => navigate('/')}
+                className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              >
+                Go to Home
+              </button>
+            </div>
           </div>
         ) : baskets.length > 0 ? (
           baskets.map((basket, index) => (
@@ -300,7 +415,7 @@ export const MyBaskets = () => {
             title={activeTab === 'joined' ? "No Baskets Joined" : "No Baskets Created"} 
             description={activeTab === 'joined' ? "Join your first basket by browsing public baskets on the home screen" : "Create your first private basket to start collecting funds for your goal"} 
             actionLabel={activeTab === 'joined' ? "Browse Public Baskets" : "Create Private Basket"} 
-            onAction={() => navigate(activeTab === 'joined' ? '/' : '/create/step/1')} 
+            onAction={() => navigate(activeTab === 'joined' ? '/' : '/baskets/new')} 
             icon={<Plus className="w-8 h-8" />} 
           />
         )}

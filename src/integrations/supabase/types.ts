@@ -157,6 +157,45 @@ export type Database = {
           },
         ]
       }
+      basket_members: {
+        Row: {
+          id: string
+          basket_id: string
+          user_id: string
+          joined_at: string | null
+          is_creator: boolean | null
+        }
+        Insert: {
+          id?: string
+          basket_id: string
+          user_id: string
+          joined_at?: string | null
+          is_creator?: boolean | null
+        }
+        Update: {
+          id?: string
+          basket_id?: string
+          user_id?: string
+          joined_at?: string | null
+          is_creator?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "basket_members_basket_id_fkey"
+            columns: ["basket_id"]
+            isOneToOne: false
+            referencedRelation: "baskets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "basket_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       code_analysis_sessions: {
         Row: {
           analysis_type: string
@@ -381,6 +420,7 @@ export type Database = {
           mobile_money_number: string | null
           phone_number: string | null
           whatsapp_number: string | null
+          role: string | null
         }
         Insert: {
           auth_method?: string | null
@@ -394,6 +434,7 @@ export type Database = {
           mobile_money_number?: string | null
           phone_number?: string | null
           whatsapp_number?: string | null
+          role?: string | null
         }
         Update: {
           auth_method?: string | null
@@ -407,6 +448,7 @@ export type Database = {
           mobile_money_number?: string | null
           phone_number?: string | null
           whatsapp_number?: string | null
+          role?: string | null
         }
         Relationships: []
       }

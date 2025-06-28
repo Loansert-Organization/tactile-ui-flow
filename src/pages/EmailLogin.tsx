@@ -66,7 +66,7 @@ const EmailLogin = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          
+
           <div className="w-20 h-20 mx-auto bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-6">
             <Mail className="w-10 h-10 text-white" />
           </div>

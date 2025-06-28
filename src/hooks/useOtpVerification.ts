@@ -22,7 +22,7 @@ export const useOtpVerification = () => {
       
       if (error) throw error;
       
-      return { success: true };
+    return { success: true };
     } catch (err: any) {
       setError(err.message);
       return { success: false, error: err.message };
@@ -45,7 +45,7 @@ export const useOtpVerification = () => {
       
       if (error) throw error;
       
-      return { success: true };
+    return { success: true };
     } catch (err: any) {
       setError(err.message);
       return { success: false, error: err.message };
