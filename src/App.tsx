@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,6 +21,7 @@ import { Phone } from "@/pages/auth/Phone";
 import { WhatsApp } from "@/pages/auth/WhatsApp";
 import { Otp } from "@/pages/auth/Otp";
 import { Profile } from "@/pages/profile";
+import { NotificationsSettings } from "@/pages/NotificationsSettings";
 import NotFound from "./pages/NotFound";
 import SplashScreen from "@/pages/Splash";
 import WelcomeExperience from "@/pages/Welcome";
