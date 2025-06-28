@@ -87,6 +87,20 @@ export const Profile = () => {
     }
   };
 
+  // Convert the context AuthUser to the format expected by ProfileHeader
+  const profileUser = {
+    ...user,
+    phone: user.phone || '', // Ensure phone is always a string
+    avatar: user.avatar,
+    displayName: user.displayName,
+    id: user.id,
+    email: user.email,
+    country: user.country,
+    language: user.language,
+    createdAt: user.createdAt,
+    lastLogin: user.lastLogin
+  };
+
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-md mx-auto">
@@ -103,7 +117,7 @@ export const Profile = () => {
 
         <div className="space-y-6">
           <ProfileHeader 
-            user={user}
+            user={profileUser}
             userUniqueCode={userUniqueCode}
             isEditing={isEditing}
             onEditToggle={handleEditToggle}

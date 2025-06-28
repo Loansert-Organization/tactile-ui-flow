@@ -3,9 +3,10 @@
 const mockPromise = <T>(data: T, delay = 1000): Promise<T> => 
   new Promise(resolve => setTimeout(() => resolve(data), delay));
 
+// Use the same AuthUser interface as the context to avoid type conflicts
 export interface AuthUser {
   id: string;
-  phone: string;
+  phone?: string;
   displayName: string;
   email?: string;
   avatar?: string;
@@ -13,6 +14,11 @@ export interface AuthUser {
   language: 'en' | 'rw';
   createdAt: string;
   lastLogin: string;
+  // Add Supabase User properties for compatibility
+  app_metadata?: any;
+  user_metadata?: any;
+  aud?: string;
+  created_at?: string;
 }
 
 export interface SessionData {
@@ -64,7 +70,11 @@ export const verifyOtp = async (sessionId: string, code: string): Promise<AuthRe
         country: 'RW',
         language: 'en' as const,
         createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString()
+        lastLogin: new Date().toISOString(),
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString()
       }
     });
   }
