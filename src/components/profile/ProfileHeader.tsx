@@ -9,10 +9,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { AuthUser } from '@/services/auth';
+import { toast } from '@/hooks/use-toast';
 
 interface ProfileFormData {
   displayName: string;
-  email: string;
   momoNumber: string;
 }
 
@@ -36,7 +36,6 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   const form = useForm<ProfileFormData>({
     defaultValues: {
       displayName: user?.displayName || '',
-      email: user?.email || '',
       momoNumber: user?.phone || ''
     }
   });
@@ -49,18 +48,36 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     if (isEditing) {
       form.reset({
         displayName: user.displayName,
-        email: user.email || '',
         momoNumber: user.phone || ''
       });
     }
     onEditToggle();
   };
 
+  const handleFormSubmit = async (data: ProfileFormData) => {
+    // Check if mobile money number has changed
+    const currentMomoNumber = user.phone || '';
+    const newMomoNumber = data.momoNumber;
+    
+    if (currentMomoNumber !== newMomoNumber) {
+      toast({
+        title: "Mobile Money Change",
+        description: "You will receive a WhatsApp OTP to verify your new mobile money number",
+      });
+      
+      // TODO: Trigger WhatsApp OTP verification flow
+      // This would redirect to /auth/phone with the new number for verification
+      console.log('Mobile money number change requires OTP verification:', newMomoNumber);
+    }
+    
+    await onSubmit(data);
+  };
+
   return (
     <Card>
       <CardContent className="p-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Avatar className="w-20 h-20">
@@ -79,22 +96,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                       name="displayName" 
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm">{t('profile.personalDetails')}</FormLabel>
+                          <FormLabel className="text-sm">Display Name</FormLabel>
                           <FormControl>
                             <Input {...field} className="text-lg font-semibold" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )} 
-                    />
-                    <FormField 
-                      control={form.control} 
-                      name="email" 
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm">{t('profile.email')}</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="email" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -110,6 +114,9 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                             <Input {...field} type="tel" placeholder="+250780123456" />
                           </FormControl>
                           <FormMessage />
+                          <p className="text-xs text-amber-600">
+                            Changing this number will require WhatsApp verification
+                          </p>
                         </FormItem>
                       )} 
                     />
@@ -117,15 +124,17 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 ) : (
                   <>
                     <h2 className="text-xl font-semibold">{user.displayName}</h2>
-                    <p className="text-sm text-muted-foreground font-mono">{userUniqueCode}</p>
-                    <div className="space-y-1 mt-2">
+                    <p className="text-sm text-muted-foreground font-mono mb-2">{userUniqueCode}</p>
+                    <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <MessageCircle className="w-4 h-4 text-green-600" />
                         <p className="text-sm text-muted-foreground">{user.phone}</p>
+                        <span className="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">WhatsApp Login</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Wallet className="w-4 h-4 text-blue-600" />
                         <p className="text-sm text-muted-foreground">{user.phone}</p>
+                        <span className="text-xs bg-blue-100 px-2 py-1 rounded text-blue-600">Mobile Money</span>
                       </div>
                     </div>
                   </>
