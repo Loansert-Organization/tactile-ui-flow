@@ -128,6 +128,26 @@ const BasketWizard = () => {
           >
             <ArrowLeft className="w-5 h-5 text-white" />
           </button>
+
+          {/* Next/Create Button */}
+          <button
+            onClick={(e) => {
+              handlePress(e);
+              handleNext();
+            }}
+            className="p-3 rounded-full hover:bg-white/10 transition-all neuro-button focus-gradient"
+            style={{ minWidth: '44px', minHeight: '44px' }}
+            disabled={!canProceed() || isCreating}
+            aria-label={currentStep === 1 ? "Next Step" : "Create Basket"}
+          >
+            {isCreating ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : currentStep === 1 ? (
+              <ArrowRight className="w-5 h-5 text-white" />
+            ) : (
+              <Plus className="w-5 h-5 text-white" />
+            )}
+          </button>
         </div>
 
         <StepperBar currentStep={currentStep} totalSteps={2} />
@@ -135,8 +155,7 @@ const BasketWizard = () => {
 
       {/* Content */}
       <div className="relative z-10 px-6 pb-32">
-        <div className="max-w-md mx-auto">
-          {currentStep === 1 && <div className="wizard-step space-y-6">
+        {currentStep === 1 && <div className="wizard-step space-y-6">
               
 
               <GlassCard className="p-6 space-y-6">
@@ -195,35 +214,6 @@ const BasketWizard = () => {
                 </div>
               </GlassCard>
             </div>}
-        </div>
-      </div>
-
-      {/* Fixed Bottom Button - Make sure it's always visible */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/50 to-transparent backdrop-blur-sm z-50">
-        <div className="max-w-md mx-auto">
-          <GradientButton
-            variant="primary"
-            className="w-full h-14 text-lg font-semibold neuro-button flex items-center justify-center gap-2"
-            onClick={handleNext}
-            disabled={!canProceed() || isCreating}
-          >
-            {isCreating ? (
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Creating...
-              </div>
-            ) : currentStep === 1 ? (
-              <>
-                Next Step
-                <ArrowRight className="w-5 h-5" />
-              </>
-            ) : (
-              <>
-                <Plus className="w-5 h-5" />
-                Create Basket
-              </>
-            )}
-          </GradientButton>
         </div>
       </div>
     </div>
