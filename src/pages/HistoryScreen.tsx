@@ -199,7 +199,7 @@ export const HistoryScreen = () => {
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex items-start justify-between">
-                <div className="flex-1 w-2/3 pr-4">
+                <div className="flex-1 w-3/5 pr-4">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-mono font-semibold text-gray-900">
                       {generateUniqueCode(transaction.recipientId || transaction.recipient)}
@@ -215,7 +215,7 @@ export const HistoryScreen = () => {
                   </p>
                 </div>
                 
-                <div className="text-right w-1/3 flex-shrink-0">
+                <div className="text-right w-2/5 flex-shrink-0">
                   <p className={`font-semibold ${
                     transaction.type === 'sent' ? 'text-red-600' : 'text-green-600'
                   }`}>
