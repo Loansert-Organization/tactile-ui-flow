@@ -12,37 +12,38 @@ import { useRenderPerformance } from '@/hooks/usePerformanceMonitor';
 import { QRScannerOverlay } from '@/components/QRScannerOverlay';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-
 export const Feed = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const navigate = useNavigate();
-  const { isLoading, error, executeWithLoading, retry } = useLoadingState({
+  const {
+    isLoading,
+    error,
+    executeWithLoading,
+    retry
+  } = useLoadingState({
     minimumDuration: 800
   });
-  
-  const { getPublicBaskets } = useBaskets();
-  
+  const {
+    getPublicBaskets
+  } = useBaskets();
   useRenderPerformance('Feed');
-
-  const { handleTouchStart, handleTouchEnd } = useSwipeGesture(
-    undefined,
-    () => handleRefresh()
-  );
+  const {
+    handleTouchStart,
+    handleTouchEnd
+  } = useSwipeGesture(undefined, () => handleRefresh());
 
   // Get all public baskets (admin-created only)
   const publicBaskets = getPublicBaskets();
-
   const loadBaskets = async () => {
     // Simulate API call with realistic timing
     await new Promise(resolve => setTimeout(resolve, 1200));
-    
+
     // Simulate occasional failures for testing
     if (Math.random() < 0.1) {
       throw new Error('Network error occurred');
     }
   };
-
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
@@ -53,7 +54,6 @@ export const Feed = () => {
       setRefreshing(false);
     }
   };
-
   const handleRetry = async () => {
     try {
       await retry(loadBaskets);
@@ -61,27 +61,24 @@ export const Feed = () => {
       console.error('Retry failed:', err);
     }
   };
-
   const handleJoinSuccess = () => {
     // Trigger a refresh animation
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 500);
   };
-
   const handleQRCodeScanned = (url: string) => {
     setShowScanner(false);
-    
+
     // Extract basket ID from URL
     const basketIdMatch = url.match(/\/basket\/([^/?]+)/);
     if (basketIdMatch) {
       const basketId = basketIdMatch[1];
-      
+
       // Simulate joining the basket
       toast({
         title: "Basket Found!",
-        description: "You've successfully joined this basket",
+        description: "You've successfully joined this basket"
       });
-      
       navigate(`/basket/${basketId}`);
     } else {
       toast({
@@ -91,14 +88,11 @@ export const Feed = () => {
       });
     }
   };
-
   useEffect(() => {
     executeWithLoading(loadBaskets);
   }, []);
-
   if (isLoading) {
-    return (
-      <div className="space-y-6 p-4">
+    return <div className="space-y-6 p-4">
         {/* Skeleton for header */}
         <div className="text-center py-4 space-y-2">
           <div className="h-8 w-48 bg-gray-700/50 rounded-lg shimmer mx-auto"></div>
@@ -107,17 +101,12 @@ export const Feed = () => {
 
         {/* Skeleton for baskets */}
         <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <BasketCardSkeleton key={i} />
-          ))}
+          {[...Array(3)].map((_, i) => <BasketCardSkeleton key={i} />)}
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (error) {
-    return (
-      <div className="p-4">
+    return <div className="p-4">
         <GlassCard className="p-6 text-center">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">Failed to load baskets</h3>
@@ -129,47 +118,25 @@ export const Feed = () => {
             Retry
           </GradientButton>
         </GlassCard>
-      </div>
-    );
+      </div>;
   }
-
   if (publicBaskets.length === 0) {
-    return (
-      <>
+    return <>
         <div className="p-4">
-          <EmptyState
-            title="No Public Baskets Available"
-            description="There are no public baskets available to join at the moment. Try scanning a QR code or check back later!"
-            actionLabel="Scan QR Code"
-            onAction={() => setShowScanner(true)}
-            icon={<QrCode className="w-10 h-10 text-purple-400" />}
-          />
+          <EmptyState title="No Public Baskets Available" description="There are no public baskets available to join at the moment. Try scanning a QR code or check back later!" actionLabel="Scan QR Code" onAction={() => setShowScanner(true)} icon={<QrCode className="w-10 h-10 text-purple-400" />} />
         </div>
-        <QRScannerOverlay
-          isOpen={showScanner}
-          onClose={() => setShowScanner(false)}
-          onQRCodeScanned={handleQRCodeScanned}
-        />
-      </>
-    );
+        <QRScannerOverlay isOpen={showScanner} onClose={() => setShowScanner(false)} onQRCodeScanned={handleQRCodeScanned} />
+      </>;
   }
-
-  return (
-    <>
-      <div 
-        className="space-y-6 p-4"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
+  return <>
+      <div className="space-y-6 p-4" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         {/* Pull to refresh indicator */}
-        {refreshing && (
-          <div className="flex items-center justify-center py-4">
+        {refreshing && <div className="flex items-center justify-center py-4">
             <div className="flex items-center gap-2 text-purple-400">
               <RefreshCw className="w-5 h-5 animate-spin" />
               <span className="text-sm">Refreshing...</span>
             </div>
-          </div>
-        )}
+          </div>}
 
         {/* Feed header */}
         <div className="text-center py-4">
@@ -177,14 +144,7 @@ export const Feed = () => {
           <p className="text-gray-400 mb-4">Join official community funding initiatives</p>
           
           {/* QR Scanner Button */}
-          <GradientButton 
-            variant="secondary" 
-            onClick={() => setShowScanner(true)}
-            className="inline-flex items-center gap-2"
-          >
-            <QrCode className="w-4 h-4" />
-            Scan QR to Join
-          </GradientButton>
+          
         </div>
 
         {/* ARIA live region for announcements */}
@@ -192,15 +152,11 @@ export const Feed = () => {
 
         {/* Baskets list */}
         <div className="space-y-4">
-          {publicBaskets.map((basket, index) => (
-            <div 
-              key={basket.id}
-              className="animate-slide-up"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
+          {publicBaskets.map((basket, index) => <div key={basket.id} className="animate-slide-up" style={{
+          animationDelay: `${index * 100}ms`
+        }}>
               <BasketCard {...basket} onJoinSuccess={handleJoinSuccess} showOnHomeScreen={true} />
-            </div>
-          ))}
+            </div>)}
         </div>
 
         {/* Load more placeholder */}
@@ -209,11 +165,6 @@ export const Feed = () => {
         </div>
       </div>
 
-      <QRScannerOverlay
-        isOpen={showScanner}
-        onClose={() => setShowScanner(false)}
-        onQRCodeScanned={handleQRCodeScanned}
-      />
-    </>
-  );
+      <QRScannerOverlay isOpen={showScanner} onClose={() => setShowScanner(false)} onQRCodeScanned={handleQRCodeScanned} />
+    </>;
 };
