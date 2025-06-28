@@ -17,13 +17,25 @@
     "filter": "Filtrer",
     "sort": "Trier",
     "refresh": "Actualiser",
-    "optional": "optionnel"
+    "optional": "optionnel",
+    "skip": "Ignorer"
   },
   "navigation": {
     "home": "Accueil",
     "create": "Créer",
     "myBaskets": "Mes Paniers",
     "profile": "Profil"
+  },
+  "welcome": {
+    "title1": "La Communauté d'Abord",
+    "desc1": "Rejoignez des communautés d'épargne puissantes, contribuez facilement et soutenez ce qui compte.",
+    "title2": "Donner et Recevoir",
+    "desc2": "Envoyez des cadeaux, des offrandes ou des promesses d'un simple clic. Demandez de l'aide et obtenez un soutien rapide.",
+    "title3": "Gagner et Investir",
+    "desc3": "Accédez à des prêts intelligents soutenus par vos économies de groupe. Investissez dans la véritable croissance africaine.",
+    "title4": "Commençons",
+    "desc4": "Vous êtes prêt à explorer IKANISA.",
+    "getStarted": "Commencer"
   },
   "auth": {
     "phoneTitle": "Entrez votre numéro de téléphone",

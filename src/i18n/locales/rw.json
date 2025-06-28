@@ -17,13 +17,25 @@
     "filter": "Gushyungura",
     "sort": "Gutondeka",
     "refresh": "Kongera",
-    "optional": "bitari ngombwa"
+    "optional": "bitari ngombwa",
+    "skip": "Simbuka"
   },
   "navigation": {
     "home": "Ahabanza",
     "create": "Kurema",
     "myBaskets": "Udusabune Twanjye",
     "profile": "Umwirondoro"
+  },
+  "welcome": {
+    "title1": "Umuryango Mbere",
+    "desc1": "Injira mu miryango ikomeye y'ubigega, tanga uburyo bworoshye, kandi ushyigikire ibikenewe.",
+    "title2": "Gutanga no Kwakira",
+    "desc2": "Ohereza impano, ituro, cyangwa imihigo ukanda gusa. Saba ubufasha hanyuma ubufashe byihuse.",
+    "title3": "Kwinjiza no Gushora Imari",
+    "desc3": "Ubore inguzanyo zubaka ku bigega by'itsinda ryawe. Shora imari mu ikurura rya Afurika ryukuri.",
+    "title4": "Reka Dutangire",
+    "desc4": "Witeguye gukoresha IKANISA.",
+    "getStarted": "Tangira"
   },
   "auth": {
     "phoneTitle": "Shyiramo Numero ya Telefoni",

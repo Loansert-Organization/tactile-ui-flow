@@ -17,13 +17,25 @@
     "filter": "Filter",
     "sort": "Sort",
     "refresh": "Refresh",
-    "optional": "optional"
+    "optional": "optional",
+    "skip": "Skip"
   },
   "navigation": {
     "home": "Home",
     "create": "Create",
     "myBaskets": "My Baskets",
     "profile": "Profile"
+  },
+  "welcome": {
+    "title1": "Community First",
+    "desc1": "Join powerful savings communities, contribute with ease, and support what matters.",
+    "title2": "Give & Receive",
+    "desc2": "Send gifts, offerings, or pledges with a tap. Request help and get support fast.",
+    "title3": "Earn & Invest",
+    "desc3": "Access smart loans backed by your group savings. Invest in real African growth.",
+    "title4": "Let's Begin",
+    "desc4": "You're ready to explore IKANISA.",
+    "getStarted": "Get Started"
   },
   "auth": {
     "phoneTitle": "Enter Your Phone Number",

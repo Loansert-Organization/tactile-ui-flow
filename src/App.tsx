@@ -1,4 +1,5 @@
 
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,12 +23,14 @@ import { WhatsApp } from "@/pages/auth/WhatsApp";
 import { Otp } from "@/pages/auth/Otp";
 import { Profile } from "@/pages/profile";
 import NotFound from "./pages/NotFound";
+import SplashScreen from "@/pages/Splash";
+import WelcomeExperience from "@/pages/Welcome";
 import { BasketProvider } from "@/contexts/BasketContext";
 import { MyBasketsProvider } from "@/contexts/MyBasketsContext";
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import ErrorBoundary from "@/components/ui/error-boundary";
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { HeaderSkeleton } from "@/components/ui/enhanced-skeleton";
 import './i18n';
 
@@ -52,6 +55,7 @@ const queryClient = new QueryClient({
 
 const AppContent = () => {
   const { measureTiming, getNetworkInfo } = usePerformanceMonitor();
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     const networkInfo = getNetworkInfo();
@@ -63,12 +67,27 @@ const AppContent = () => {
       import('@/pages/Feed');
       import('@/pages/MyBaskets');
     });
+
+    // Hide splash screen after initial load
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [measureTiming, getNetworkInfo]);
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
       <ErrorBoundary>
         <Routes>
+          {/* Splash and Welcome Routes */}
+          <Route path="/splash" element={<SplashScreen />} />
+          <Route path="/welcome" element={<WelcomeExperience />} />
+          
           {/* Authentication routes */}
           <Route path="/auth/phone" element={<Phone />} />
           <Route path="/auth/whatsapp" element={<WhatsApp />} />
@@ -145,3 +164,4 @@ const App = () => (
 );
 
 export default App;
+

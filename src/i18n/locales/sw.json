@@ -17,13 +17,25 @@
     "filter": "Chuja",
     "sort": "Panga",
     "refresh": "Onyesha upya",
-    "optional": "si lazima"
+    "optional": "si lazima",
+    "skip": "Ruka"
   },
   "navigation": {
     "home": "Nyumbani",
     "create": "Unda",
     "myBaskets": "Vikapu Vyangu",
     "profile": "Wasifu"
+  },
+  "welcome": {
+    "title1": "Jamii Kwanza",
+    "desc1": "Jiunge na jamii za akiba zenye nguvu, changia kwa urahisi, na uunge mkono yale yanayohitaji.",
+    "title2": "Toa na Pokea",
+    "desc2": "Tuma zawadi, michango, au ahadi kwa gusa tu. Omba msaada na upate msaada haraka.",
+    "title3": "Pata na Wekezea",
+    "desc3": "Pata mikopo ya akili inayotumia akiba za kikundi chako. Wekeza katika ukuzi wa kweli wa Kiafrika.",
+    "title4": "Hebu Tuanze",
+    "desc4": "Uko tayari kujua IKANISA.",
+    "getStarted": "Anza"
   },
   "auth": {
     "phoneTitle": "Ingiza Nambari ya Simu Yako",
