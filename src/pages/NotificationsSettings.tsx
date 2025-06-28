@@ -1,11 +1,9 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
-import { GlassCard } from '@/components/ui/glass-card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationSetting, defaultNotifications } from '@/components/profile/notifications/NotificationData';
 import { NotificationCategorySection } from '@/components/profile/notifications/NotificationCategorySection';
@@ -59,60 +57,57 @@ export const NotificationsSettings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-50 backdrop-blur-lg border-b border-white/10">
-        <GlassCard variant="subtle" className="m-2 px-4 py-3 rounded-xl">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <EnhancedButton 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleBack}
-                className="hover:bg-white/10"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </EnhancedButton>
-              <div className="flex items-center gap-2">
-                <Bell className="w-5 h-5 text-accent" />
-                <h1 className="text-xl font-semibold gradient-text">Notification Settings</h1>
-              </div>
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleBack}
+              className="hover:bg-accent touch-manipulation"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div className="flex items-center gap-2">
+              <Bell className="w-5 h-5" />
+              <h1 className="text-xl font-semibold">Notification Settings</h1>
             </div>
           </div>
-        </GlassCard>
+        </div>
       </div>
 
       {/* Content */}
       <div className="max-w-md mx-auto p-4">
-        <div className="space-y-6 pb-24">
+        <div className="space-y-6 pb-20">
           {categories.map((category, index) => (
-            <GlassCard key={category} variant="default" className="animate-slide-up" style={{ animationDelay: `${index * 100}ms` }}>
-              <NotificationCategorySection
-                category={category}
-                notifications={groupedNotifications[category]}
-                onToggleNotification={toggleNotification}
-                onToggleCategory={toggleCategory}
-                isLastCategory={index === categories.length - 1}
-              />
-            </GlassCard>
+            <NotificationCategorySection
+              key={category}
+              category={category}
+              notifications={groupedNotifications[category]}
+              onToggleNotification={toggleNotification}
+              onToggleCategory={toggleCategory}
+              isLastCategory={index === categories.length - 1}
+            />
           ))}
         </div>
       </div>
 
       {/* Fixed Save Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 backdrop-blur-lg border-t border-white/10">
-        <GlassCard variant="subtle" className="max-w-md mx-auto p-4">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t">
+        <div className="max-w-md mx-auto">
           <EnhancedButton 
             onClick={handleSave}
             loading={isSaving}
-            variant="gradient"
+            variant="primary"
             size="lg"
             fullWidth
-            className="shadow-glass-lg"
+            className="shadow-lg"
           >
             Save Preferences
           </EnhancedButton>
-        </GlassCard>
+        </div>
       </div>
     </div>
   );

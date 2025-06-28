@@ -12,8 +12,6 @@ import { QuickActions } from '@/components/profile/QuickActions';
 import { PreferencesCard } from '@/components/profile/PreferencesCard';
 import { LegalSupport } from '@/components/profile/LegalSupport';
 import { DangerZone } from '@/components/profile/DangerZone';
-import { GlassCard } from '@/components/ui/glass-card';
-import { EnhancedButton } from '@/components/ui/enhanced-button';
 
 interface ProfileFormData {
   displayName: string;
@@ -90,70 +88,42 @@ export const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-md mx-auto">
         {/* Header */}
-        <div className="sticky top-0 z-50 backdrop-blur-lg border-b border-white/10">
-          <GlassCard variant="subtle" className="m-2 px-4 py-3 rounded-xl">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <EnhancedButton 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => navigate(-1)}
-                  className="hover:bg-white/10"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </EnhancedButton>
-                <h1 className="text-xl font-semibold gradient-text">{t('profile.title')}</h1>
-              </div>
-              <EnhancedButton 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleEditToggle}
-                className="hover:bg-white/10"
-              >
-                {isEditing ? <X className="w-5 h-5" /> : <Edit3 className="w-5 h-5" />}
-              </EnhancedButton>
-            </div>
-          </GlassCard>
+        <div className="flex items-center justify-between mb-6 pt-4">
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="p-2">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h1 className="text-xl font-semibold">{t('profile.title')}</h1>
+          <Button variant="ghost" size="sm" onClick={handleEditToggle} className="p-2">
+            {isEditing ? <X className="w-5 h-5" /> : <Edit3 className="w-5 h-5" />}
+          </Button>
         </div>
 
-        <div className="p-4 space-y-6 pb-24">
-          <div className="animate-slide-up" style={{ animationDelay: '100ms' }}>
-            <ProfileHeader 
-              user={user}
-              userUniqueCode={userUniqueCode}
-              isEditing={isEditing}
-              onEditToggle={handleEditToggle}
-              onSubmit={onSubmit}
-            />
-          </div>
+        <div className="space-y-6">
+          <ProfileHeader 
+            user={user}
+            userUniqueCode={userUniqueCode}
+            isEditing={isEditing}
+            onEditToggle={handleEditToggle}
+            onSubmit={onSubmit}
+          />
 
-          <div className="animate-slide-up" style={{ animationDelay: '200ms' }}>
-            <WalletSummary />
-          </div>
+          <WalletSummary />
 
-          <div className="animate-slide-up" style={{ animationDelay: '300ms' }}>
-            <QuickActions />
-          </div>
+          <QuickActions />
 
-          <div className="animate-slide-up" style={{ animationDelay: '400ms' }}>
-            <PreferencesCard 
-              notifications={notifications}
-              onNotificationsChange={setNotifications}
-              isDarkMode={isDarkMode}
-              onDarkModeChange={setIsDarkMode}
-            />
-          </div>
+          <PreferencesCard 
+            notifications={notifications}
+            onNotificationsChange={setNotifications}
+            isDarkMode={isDarkMode}
+            onDarkModeChange={setIsDarkMode}
+          />
 
-          <div className="animate-slide-up" style={{ animationDelay: '500ms' }}>
-            <LegalSupport />
-          </div>
+          <LegalSupport />
 
-          <div className="animate-slide-up" style={{ animationDelay: '600ms' }}>
-            <DangerZone onLogout={handleLogout} />
-          </div>
+          <DangerZone onLogout={handleLogout} />
         </div>
       </div>
     </div>
