@@ -4,6 +4,7 @@ import { ArrowLeft, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
+import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { NotificationSetting, defaultNotifications } from '@/components/profile/notifications/NotificationData';
 import { NotificationCategorySection } from '@/components/profile/notifications/NotificationCategorySection';
@@ -12,6 +13,7 @@ export const NotificationsSettings = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<NotificationSetting[]>(defaultNotifications);
+  const [isSaving, setIsSaving] = useState(false);
 
   const toggleNotification = (id: string) => {
     setNotifications(prev =>
@@ -39,10 +41,16 @@ export const NotificationsSettings = () => {
 
   const categories = Object.keys(groupedNotifications);
 
-  const handleSave = () => {
-    // Here you would typically save to backend or local storage
-    console.log('Saving notification preferences:', notifications);
-    navigate(-1);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Saving notification preferences:', notifications);
+      navigate(-1);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -81,9 +89,16 @@ export const NotificationsSettings = () => {
       {/* Fixed Save Button */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t">
         <div className="max-w-md mx-auto">
-          <Button onClick={handleSave} className="w-full">
+          <EnhancedButton 
+            onClick={handleSave}
+            loading={isSaving}
+            variant="primary"
+            size="lg"
+            fullWidth
+            className="shadow-lg"
+          >
             Save Preferences
-          </Button>
+          </EnhancedButton>
         </div>
       </div>
     </div>
