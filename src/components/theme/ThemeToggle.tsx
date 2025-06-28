@@ -24,26 +24,55 @@ export function ThemeToggle({
     navigate('/profile');
   };
 
-  return <div className={`flex items-center gap-2 ${className}`}>
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  return (
+    <div className={`flex items-center gap-2 ${className}`}>
       {/* QR Code Scanner Button */}
-      <button onClick={onQRScanClick} className="p-3 rounded-full bg-card hover:bg-muted/50 transition-colors duration-200 shadow-sm" aria-label="Open QR Scanner">
+      <button 
+        onClick={onQRScanClick} 
+        className="p-3 rounded-full bg-card hover:bg-muted/50 transition-colors duration-200 shadow-sm" 
+        aria-label="Open QR Scanner"
+      >
         <QrCode className="h-5 w-5 text-purple-400" />
         <span className="sr-only">Scan QR Code</span>
       </button>
 
       {/* My Baskets Button */}
-      <button onClick={handleMyBasketsClick} className="p-3 rounded-full bg-card hover:bg-muted/50 transition-colors duration-200 shadow-sm" aria-label="My Baskets">
+      <button 
+        onClick={handleMyBasketsClick} 
+        className="p-3 rounded-full bg-card hover:bg-muted/50 transition-colors duration-200 shadow-sm" 
+        aria-label="My Baskets"
+      >
         <Heart className="h-5 w-5 text-red-400" />
         <span className="sr-only">My Baskets</span>
       </button>
 
       {/* Profile Button */}
-      <button onClick={handleProfileClick} className="p-3 rounded-full bg-card hover:bg-muted/50 transition-colors duration-200 shadow-sm" aria-label="Profile">
+      <button 
+        onClick={handleProfileClick} 
+        className="p-3 rounded-full bg-card hover:bg-muted/50 transition-colors duration-200 shadow-sm" 
+        aria-label="Profile"
+      >
         <User className="h-5 w-5 text-blue-400" />
         <span className="sr-only">Profile</span>
       </button>
 
       {/* Theme Toggle Button */}
-      
-    </div>;
+      <button
+        onClick={toggleTheme}
+        className="p-3 rounded-full bg-card hover:bg-muted/50 transition-colors duration-200 shadow-sm"
+        aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      >
+        {theme === 'dark' ? (
+          <Sun className="h-5 w-5 text-yellow-500" />
+        ) : (
+          <Moon className="h-5 w-5 text-blue-500" />
+        )}
+        <span className="sr-only">Toggle theme</span>
+      </button>
+    </div>
+  );
 }

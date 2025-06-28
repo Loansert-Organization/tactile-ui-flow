@@ -26,6 +26,7 @@ import { BasketProvider } from "@/contexts/BasketContext";
 import { MyBasketsProvider } from "@/contexts/MyBasketsContext";
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import ErrorBoundary from "@/components/ui/error-boundary";
 import React, { Suspense, useEffect } from "react";
 import { HeaderSkeleton } from "@/components/ui/enhanced-skeleton";
 import './i18n';
@@ -66,54 +67,58 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Routes>
-        {/* Authentication routes */}
-        <Route path="/auth/phone" element={<Phone />} />
-        <Route path="/auth/whatsapp" element={<WhatsApp />} />
-        <Route path="/auth/otp" element={<Otp />} />
-        
-        {/* Redirect old routes to new ones */}
-        <Route path="/whatsapp-login" element={<Navigate to="/auth/whatsapp" replace />} />
-        <Route path="/whatsapp-otp" element={<Navigate to="/auth/otp" replace />} />
-        
-        {/* Standalone routes */}
-        <Route path="/history" element={<HistoryScreen />} />
-        
-        {/* Main app routes */}
-        <Route path="/*" element={
-          <>
-            <GuestBanner />
-            <Suspense fallback={<HeaderSkeleton />}>
-              <AppHeader />
-            </Suspense>
-            <main className="flex-1 pt-2 pb-20">
-              <Suspense fallback={
-                <div className="flex justify-center items-center py-16">
-                  <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-                </div>
-              }>
-                <Routes>
-                  <Route path="/" element={<Feed />} />
-                  <Route path="/baskets/mine" element={<MyBaskets />} />
-                  <Route path="/baskets/new" element={
-                    <Suspense fallback={<div>Loading...</div>}>
-                      <BasketWizard />
-                    </Suspense>
-                  } />
-                  <Route path="/basket/:id" element={<BasketOverview />} />
-                  <Route path="/basket/:id/join" element={<BasketDetailNonMember />} />
-                  <Route path="/basket/:id/participants" element={<BasketParticipants />} />
-                  <Route path="/basket/:id/settings" element={<BasketSettings />} />
-                  <Route path="/basket/:id/contribute" element={<ContributionPage />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+      <ErrorBoundary>
+        <Routes>
+          {/* Authentication routes */}
+          <Route path="/auth/phone" element={<Phone />} />
+          <Route path="/auth/whatsapp" element={<WhatsApp />} />
+          <Route path="/auth/otp" element={<Otp />} />
+          
+          {/* Redirect old routes to new ones */}
+          <Route path="/whatsapp-login" element={<Navigate to="/auth/whatsapp" replace />} />
+          <Route path="/whatsapp-otp" element={<Navigate to="/auth/otp" replace />} />
+          
+          {/* Standalone routes */}
+          <Route path="/history" element={<HistoryScreen />} />
+          
+          {/* Main app routes */}
+          <Route path="/*" element={
+            <>
+              <GuestBanner />
+              <Suspense fallback={<HeaderSkeleton />}>
+                <AppHeader />
               </Suspense>
-            </main>
-            <BottomNav />
-          </>
-        } />
-      </Routes>
+              <main className="flex-1 pt-2 pb-20">
+                <ErrorBoundary>
+                  <Suspense fallback={
+                    <div className="flex justify-center items-center py-16">
+                      <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                    </div>
+                  }>
+                    <Routes>
+                      <Route path="/" element={<Feed />} />
+                      <Route path="/baskets/mine" element={<MyBaskets />} />
+                      <Route path="/baskets/new" element={
+                        <Suspense fallback={<div>Loading...</div>}>
+                          <BasketWizard />
+                        </Suspense>
+                      } />
+                      <Route path="/basket/:id" element={<BasketOverview />} />
+                      <Route path="/basket/:id/join" element={<BasketDetailNonMember />} />
+                      <Route path="/basket/:id/participants" element={<BasketParticipants />} />
+                      <Route path="/basket/:id/settings" element={<BasketSettings />} />
+                      <Route path="/basket/:id/contribute" element={<ContributionPage />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
+                </ErrorBoundary>
+              </main>
+              <BottomNav />
+            </>
+          } />
+        </Routes>
+      </ErrorBoundary>
       <PWAInstallPrompt />
     </div>
   );
