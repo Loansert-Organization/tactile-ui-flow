@@ -4,27 +4,35 @@ import { useNavigate } from 'react-router-dom';
 import { WizardStyles } from '@/components/wizard/WizardStyles';
 import { usePressFeedback } from '@/hooks/useInteractions';
 import { useMyBasketsContext } from '@/contexts/MyBasketsContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { BasketWizardHeader } from '@/components/wizard/BasketWizardHeader';
 import { BasketWizardBackground } from '@/components/wizard/BasketWizardBackground';
 import { BasketNameForm } from '@/components/wizard/BasketNameForm';
 import { BasketGoalForm } from '@/components/wizard/BasketGoalForm';
+import { CountrySelector } from '@/components/wizard/CountrySelector';
+import { CategorySelector } from '@/components/wizard/CategorySelector';
+import { AuthPromptModal } from '@/components/wizard/AuthPromptModal';
 import { toast } from 'sonner';
 
 const BasketWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isCreating, setIsCreating] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const navigate = useNavigate();
   const { handlePress } = usePressFeedback();
   const { createBasket } = useMyBasketsContext();
+  const { user } = useAuthContext();
 
   // Form state
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     goal: '',
-    duration: '30'
+    duration: '30',
+    category: 'personal',
+    country: 'RW'
   });
   const [errors, setErrors] = useState({
     name: false,
@@ -69,7 +77,16 @@ const BasketWizard = () => {
     if (currentStep === 1 && validateStep1()) {
       setCurrentStep(2);
     } else if (currentStep === 2 && validateStep2()) {
-      handleCreateBasket();
+      setCurrentStep(3);
+    } else if (currentStep === 3) {
+      setCurrentStep(4);
+    } else if (currentStep === 4) {
+      // Check authentication before final submission
+      if (!user) {
+        setShowAuthPrompt(true);
+      } else {
+        handleCreateBasket();
+      }
     }
   };
 
@@ -97,31 +114,51 @@ const BasketWizard = () => {
         name: formData.name,
         description: formData.description || `Private basket for ${formData.name}`,
         goal: parseInt(formData.goal),
-        currentAmount: 0,
-        progress: 0,
-        participants: 1,
-        daysLeft: parseInt(formData.duration),
-        status: 'private',
+        duration: parseInt(formData.duration),
+        category: formData.category,
+        country: formData.country,
         isPrivate: true
       });
-      toast.success('Private basket created successfully!', {
+      
+      toast.success('Basket created successfully!', {
         description: 'Your basket is ready to receive contributions.'
       });
       navigate('/baskets/mine');
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Basket creation error:', error);
       toast.error('Failed to create basket', {
-        description: 'Please try again or contact support if the issue persists.'
+        description: error.message || 'Please try again or contact support if the issue persists.'
       });
     } finally {
       setIsCreating(false);
     }
   };
 
+  const handleProceedAsGuest = () => {
+    setShowAuthPrompt(false);
+    toast.info('Demo basket created', {
+      description: 'This is a demo basket. Sign up to create real baskets!'
+    });
+    navigate('/baskets/mine');
+  };
+
   const canProceed = () => {
     if (currentStep === 1) {
       return formData.name.trim() && formData.name.length <= 50 && formData.description.length <= 200;
+    } else if (currentStep === 2) {
+      return formData.goal && parseInt(formData.goal) > 0 && parseInt(formData.goal) <= 10000000;
     }
-    return formData.goal && parseInt(formData.goal) > 0 && parseInt(formData.goal) <= 10000000;
+    return true;
+  };
+
+  const getStepTitle = () => {
+    switch (currentStep) {
+      case 1: return 'Name Your Basket';
+      case 2: return 'Set Your Goal';
+      case 3: return 'Choose Category';
+      case 4: return 'Select Country';
+      default: return 'Create Basket';
+    }
   };
 
   return (
@@ -132,6 +169,8 @@ const BasketWizard = () => {
 
       <BasketWizardHeader
         currentStep={currentStep}
+        totalSteps={4}
+        stepTitle={getStepTitle()}
         canProceed={canProceed()}
         isCreating={isCreating}
         onBack={handleBack}
@@ -157,8 +196,30 @@ const BasketWizard = () => {
               onInputChange={handleInputChange}
             />
           )}
+
+          {currentStep === 3 && (
+            <CategorySelector
+              selectedCategory={formData.category}
+              onCategorySelect={(category) => handleInputChange('category', category)}
+            />
+          )}
+
+          {currentStep === 4 && (
+            <CountrySelector
+              selectedCountry={formData.country}
+              onCountrySelect={(country) => handleInputChange('country', country)}
+            />
+          )}
         </div>
       </div>
+
+      {/* Auth Prompt Modal */}
+      <AuthPromptModal
+        isOpen={showAuthPrompt}
+        onClose={() => setShowAuthPrompt(false)}
+        basketName={formData.name}
+        onProceedAsGuest={handleProceedAsGuest}
+      />
 
       {/* Exit Confirmation Dialog */}
       <ConfirmationDialog

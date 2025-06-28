@@ -94,33 +94,57 @@ export type Database = {
       }
       baskets: {
         Row: {
+          category: string | null
           country: string | null
           created_at: string | null
           creator_id: string | null
           currency: string | null
+          current_amount: number | null
           description: string | null
+          duration_days: number | null
+          goal_amount: number | null
           id: string
+          is_private: boolean | null
+          momo_code: string | null
+          participants_count: number | null
           status: string | null
+          tags: Json | null
           title: string | null
         }
         Insert: {
+          category?: string | null
           country?: string | null
           created_at?: string | null
           creator_id?: string | null
           currency?: string | null
+          current_amount?: number | null
           description?: string | null
+          duration_days?: number | null
+          goal_amount?: number | null
           id?: string
+          is_private?: boolean | null
+          momo_code?: string | null
+          participants_count?: number | null
           status?: string | null
+          tags?: Json | null
           title?: string | null
         }
         Update: {
+          category?: string | null
           country?: string | null
           created_at?: string | null
           creator_id?: string | null
           currency?: string | null
+          current_amount?: number | null
           description?: string | null
+          duration_days?: number | null
+          goal_amount?: number | null
           id?: string
+          is_private?: boolean | null
+          momo_code?: string | null
+          participants_count?: number | null
           status?: string | null
+          tags?: Json | null
           title?: string | null
         }
         Relationships: [
@@ -376,7 +400,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_momo_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

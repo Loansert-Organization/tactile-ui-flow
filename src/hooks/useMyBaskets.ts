@@ -1,6 +1,8 @@
 
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 export interface MyBasket {
   id: string;
@@ -16,6 +18,9 @@ export interface MyBasket {
   isMember: boolean;
   myContribution: number;
   createdAt: Date;
+  category?: string;
+  country?: string;
+  momoCode?: string;
 }
 
 // Updated dummy data with more variety including public baskets user has joined
@@ -87,6 +92,7 @@ const initialBaskets: MyBasket[] = [
 export const useMyBaskets = () => {
   const [myBaskets, setMyBaskets] = useState<MyBasket[]>(initialBaskets);
   const [isJoining, setIsJoining] = useState<string | null>(null);
+  const { user } = useAuthContext();
 
   const joinBasket = useCallback(async (basketData: Partial<MyBasket> & { id: string; name: string }) => {
     setIsJoining(basketData.id);
@@ -121,32 +127,90 @@ export const useMyBaskets = () => {
     return newBasket;
   }, []);
 
-  const createBasket = useCallback(async (basketData: Omit<MyBasket, 'id' | 'createdAt' | 'isMember' | 'myContribution'>) => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 800));
+  const createBasket = useCallback(async (basketData: {
+    name: string;
+    description: string;
+    goal: number;
+    duration?: number;
+    category?: string;
+    country?: string;
+    isPrivate?: boolean;
+  }) => {
+    console.log('🔄 Creating basket with Supabase integration...');
     
-    const newBasket: MyBasket = {
-      ...basketData,
-      id: `basket-${Date.now()}`,
-      status: 'private', // All user-created baskets are private and live immediately
-      isPrivate: true, // Ensure this is set to true for user-created baskets
-      isMember: true,
-      myContribution: 0,
-      participants: 1, // Creator is the first participant
-      currentAmount: 0, // Start with 0 contribution
-      progress: 0, // Start with 0% progress
-      createdAt: new Date()
-    };
+    // Check if user is authenticated
+    if (!user) {
+      throw new Error('Authentication required. Please log in to create a basket.');
+    }
 
-    setMyBaskets(prev => [newBasket, ...prev]);
-    
-    toast.success(`Your basket '${basketData.name}' has been created!`, {
-      description: 'Your private basket is ready and live',
-      duration: 3000,
-    });
+    try {
+      // Calculate days left based on duration
+      const durationDays = basketData.duration || 30;
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + durationDays);
+      
+      // Insert basket into Supabase
+      const { data, error } = await supabase
+        .from('baskets')
+        .insert({
+          creator_id: user.id,
+          title: basketData.name,
+          description: basketData.description,
+          goal_amount: basketData.goal,
+          duration_days: durationDays,
+          category: basketData.category || 'General',
+          country: basketData.country || 'RW',
+          currency: 'RWF', // Default to Rwanda Francs
+          is_private: basketData.isPrivate || false,
+          current_amount: 0,
+          participants_count: 1,
+          status: 'active',
+          tags: []
+        })
+        .select()
+        .single();
 
-    return newBasket;
-  }, []);
+      if (error) {
+        console.error('❌ Supabase basket creation error:', error);
+        throw new Error(`Failed to create basket: ${error.message}`);
+      }
+
+      console.log('✅ Basket created successfully:', data);
+
+      // Transform Supabase response to MyBasket format
+      const newBasket: MyBasket = {
+        id: data.id,
+        name: data.title || basketData.name,
+        description: data.description || basketData.description,
+        status: basketData.isPrivate ? 'private' : 'approved',
+        isPrivate: data.is_private || false,
+        goal: data.goal_amount || basketData.goal,
+        currentAmount: data.current_amount || 0,
+        participants: data.participants_count || 1,
+        daysLeft: durationDays,
+        progress: 0,
+        isMember: true,
+        myContribution: 0,
+        createdAt: new Date(data.created_at || new Date()),
+        category: data.category,
+        country: data.country,
+        momoCode: data.momo_code
+      };
+
+      // Add to local state
+      setMyBaskets(prev => [newBasket, ...prev]);
+      
+      toast.success(`Basket '${basketData.name}' created successfully!`, {
+        description: data.momo_code ? `Payment code: ${data.momo_code}` : 'Your basket is ready to receive contributions',
+        duration: 5000,
+      });
+
+      return newBasket;
+    } catch (error) {
+      console.error('❌ Basket creation failed:', error);
+      throw error;
+    }
+  }, [user]);
 
   const updateBasketStatus = useCallback((basketId: string, status: 'pending' | 'approved' | 'private') => {
     setMyBaskets(prev => 
