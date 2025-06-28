@@ -1,22 +1,18 @@
-
 import React from 'react';
 import { Banknote, Coins } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
 import { formatCurrency } from '@/lib/formatters';
-
 interface FinancialSummaryProps {
   totalContributions: number;
   bankBalance: number;
   myContribution: number;
 }
-
-export const FinancialSummary = ({ 
-  totalContributions, 
-  bankBalance, 
-  myContribution 
+export const FinancialSummary = ({
+  totalContributions,
+  bankBalance,
+  myContribution
 }: FinancialSummaryProps) => {
-  return (
-    <>
+  return <>
       <h2 className="text-lg font-semibold mb-4">Financial Summary</h2>
       <div className="grid grid-cols-2 gap-4 mb-6">
         <GlassCard className="p-4 text-center">
@@ -28,15 +24,7 @@ export const FinancialSummary = ({
           </div>
           <div className="text-sm text-gray-400">Total Contributions</div>
         </GlassCard>
-        <GlassCard className="p-4 text-center">
-          <div className="flex items-center justify-center mb-2">
-            <Banknote className="w-6 h-6 text-green-400" />
-          </div>
-          <div className="text-xl font-bold gradient-text mb-1">
-            {formatCurrency(bankBalance)}
-          </div>
-          <div className="text-sm text-gray-400">Bank Balance</div>
-        </GlassCard>
+        
       </div>
 
       {/* My Contribution */}
@@ -46,6 +34,5 @@ export const FinancialSummary = ({
         </div>
         <div className="text-sm text-gray-400">My Contribution</div>
       </GlassCard>
-    </>
-  );
+    </>;
 };
