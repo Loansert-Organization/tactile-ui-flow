@@ -115,7 +115,8 @@ export const Profile = () => {
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
-  return <div className="min-h-screen bg-background p-4">
+  return (
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 pt-4">
@@ -148,35 +149,38 @@ export const Profile = () => {
                     </div>
                     
                     <div className="flex-1">
-                      {isEditing ? <div className="space-y-3">
-                          <FormField control={form.control} name="displayName" render={({
-                        field
-                      }) => <FormItem>
-                                <FormLabel className="text-sm">{t('profile.personalDetails')}</FormLabel>
-                                <FormControl>
-                                  <Input {...field} className="text-lg font-semibold" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>} />
-                          <FormField control={form.control} name="email" render={({
-                        field
-                      }) => <FormItem>
-                                <FormLabel className="text-sm">{t('profile.email')}</FormLabel>
-                                <FormControl>
-                                  <Input {...field} type="email" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>} />
-                          <FormField control={form.control} name="momoNumber" render={({
-                        field
-                      }) => <FormItem>
-                                <FormLabel className="text-sm">Mobile Money Number</FormLabel>
-                                <FormControl>
-                                  <Input {...field} type="tel" placeholder="+250780123456" />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>} />
-                        </div> : <>
+                      {isEditing ? (
+                        <div className="space-y-3">
+                          <FormField control={form.control} name="displayName" render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm">{t('profile.personalDetails')}</FormLabel>
+                              <FormControl>
+                                <Input {...field} className="text-lg font-semibold" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )} />
+                          <FormField control={form.control} name="email" render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm">{t('profile.email')}</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="email" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )} />
+                          <FormField control={form.control} name="momoNumber" render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm">Mobile Money Number</FormLabel>
+                              <FormControl>
+                                <Input {...field} type="tel" placeholder="+250780123456" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )} />
+                        </div>
+                      ) : (
+                        <>
                           <h2 className="text-xl font-semibold">{user.displayName}</h2>
                           <p className="text-sm text-muted-foreground font-mono">{userUniqueCode}</p>
                           <div className="space-y-1 mt-2">
@@ -189,12 +193,13 @@ export const Profile = () => {
                               <p className="text-sm text-muted-foreground">{user.phone}</p>
                             </div>
                           </div>
-                          
                         </>
+                      )}
                     </div>
                   </div>
 
-                  {isEditing && <div className="flex gap-2 pt-4">
+                  {isEditing && (
+                    <div className="flex gap-2 pt-4">
                       <Button type="submit" size="sm" className="flex-1">
                         <Check className="w-4 h-4 mr-2" />
                         {t('common.save')}
@@ -202,7 +207,8 @@ export const Profile = () => {
                       <Button type="button" variant="outline" size="sm" onClick={handleEditToggle}>
                         {t('common.cancel')}
                       </Button>
-                    </div>}
+                    </div>
+                  )}
                 </form>
               </Form>
             </CardContent>
@@ -266,12 +272,6 @@ export const Profile = () => {
               </Button>
             </CardContent>
           </Card>
-
-          {/* Personal Details */}
-          
-
-          {/* Security */}
-          
 
           {/* Preferences */}
           <Card>
@@ -340,5 +340,6 @@ export const Profile = () => {
           </Card>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
