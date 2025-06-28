@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, Heart, Plus, User } from 'lucide-react';
+import { Home, Heart, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { usePressFeedback } from '@/hooks/useInteractions';
@@ -11,11 +11,6 @@ const navItems = [
     icon: Home,
     label: 'Home',
     path: '/'
-  },
-  {
-    icon: Plus,
-    label: 'Create',
-    path: '/baskets/new'
   },
   {
     icon: Heart,
