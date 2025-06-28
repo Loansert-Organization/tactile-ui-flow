@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Camera, MessageCircle, Wallet, Check, X, Mail } from 'lucide-react';
+import { Camera, MessageCircle, Wallet, Check, X, Mail, Edit2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -167,7 +167,18 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                   </div>
                 ) : (
                   <>
-                    <h2 className="text-xl font-semibold">{displayName}</h2>
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-xl font-semibold">{displayName}</h2>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleEditToggle}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       {isAnonymousUser && (
                         <span className="flex items-center gap-1 bg-gray-100 text-gray-700 px-2 py-1 rounded">
