@@ -26,7 +26,7 @@ export const FinancialSummary = ({
           <div className="text-sm text-gray-400">Total Contributions</div>
         </GlassCard>
         
-        <GlassCard variant="strong" className="p-4 text-center w-full">
+        <GlassCard variant="subtle" className="p-4 text-center w-full bg-blue-500/10 border-blue-500/30">
           <div className="text-xl font-bold gradient-text mb-1">
             {formatCurrency(myContribution)}
           </div>
