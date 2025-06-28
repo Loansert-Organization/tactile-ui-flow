@@ -9,6 +9,7 @@ import { WizardStyles } from '@/components/wizard/WizardStyles';
 import { usePressFeedback } from '@/hooks/useInteractions';
 import { useMyBasketsContext } from '@/contexts/MyBasketsContext';
 import { toast } from 'sonner';
+
 const BasketWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isCreating, setIsCreating] = useState(false);
@@ -104,7 +105,8 @@ const BasketWizard = () => {
     }
     return formData.goal && parseInt(formData.goal) > 0 && parseInt(formData.goal) <= 10000000;
   };
-  return <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
       <WizardStyles />
       
       {/* Background Effects */}
@@ -115,13 +117,15 @@ const BasketWizard = () => {
       {/* Header */}
       <div className="relative z-10 p-6">
         <div className="flex items-center justify-between mb-8">
-          <button onClick={e => {
-          handlePress(e);
-          handleBack();
-        }} className="p-3 rounded-full hover:bg-white/10 transition-all neuro-button focus-gradient" style={{
-          minWidth: '44px',
-          minHeight: '44px'
-        }} aria-label="Go back">
+          <button
+            onClick={(e) => {
+              handlePress(e);
+              handleBack();
+            }}
+            className="p-3 rounded-full hover:bg-white/10 transition-all neuro-button focus-gradient"
+            style={{ minWidth: '44px', minHeight: '44px' }}
+            aria-label="Go back"
+          >
             <ArrowLeft className="w-5 h-5 text-white" />
           </button>
         </div>
@@ -194,23 +198,36 @@ const BasketWizard = () => {
         </div>
       </div>
 
-      {/* Fixed Bottom Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/50 to-transparent backdrop-blur-sm">
+      {/* Fixed Bottom Button - Make sure it's always visible */}
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/50 to-transparent backdrop-blur-sm z-50">
         <div className="max-w-md mx-auto">
-          <GradientButton variant="primary" className="w-full h-14 text-lg font-semibold neuro-button" onClick={handleNext} disabled={!canProceed() || isCreating}>
-            {isCreating ? <div className="flex items-center gap-2">
+          <GradientButton
+            variant="primary"
+            className="w-full h-14 text-lg font-semibold neuro-button flex items-center justify-center gap-2"
+            onClick={handleNext}
+            disabled={!canProceed() || isCreating}
+          >
+            {isCreating ? (
+              <div className="flex items-center gap-2">
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Creating...
-              </div> : currentStep === 1 ? <>
+              </div>
+            ) : currentStep === 1 ? (
+              <>
                 Next Step
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </> : <>
-                <Plus className="w-5 h-5 mr-2" />
+                <ArrowRight className="w-5 h-5" />
+              </>
+            ) : (
+              <>
+                <Plus className="w-5 h-5" />
                 Create Basket
-              </>}
+              </>
+            )}
           </GradientButton>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default BasketWizard;
