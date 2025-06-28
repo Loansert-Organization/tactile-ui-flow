@@ -14,14 +14,14 @@ export const BasketStats = ({ totalContributions, participants, goal }: BasketSt
     <>
       <h2 className="text-lg font-semibold mb-4">Statistics</h2>
       <div className="grid grid-cols-2 gap-4">
-        <GlassCard className="p-4 text-center">
-          <div className="text-lg font-bold gradient-text mb-1">
+        <GlassCard className="p-3 text-center">
+          <div className="text-base font-bold gradient-text mb-1">
             {formatCurrency(Math.round(totalContributions / participants))}
           </div>
           <div className="text-xs text-gray-400">Avg per member</div>
         </GlassCard>
-        <GlassCard className="p-4 text-center">
-          <div className="text-lg font-bold gradient-text mb-1">
+        <GlassCard className="p-3 text-center">
+          <div className="text-base font-bold gradient-text mb-1">
             {formatCurrency(goal - totalContributions)}
           </div>
           <div className="text-xs text-gray-400">Remaining</div>
