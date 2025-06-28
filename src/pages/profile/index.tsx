@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Edit3, Settings, Shield, Globe, Trash2, LogOut, Upload, Camera, Check, X, MessageCircle, Wallet } from 'lucide-react';
+import { ArrowLeft, Edit3, Settings, Shield, Globe, Trash2, LogOut, Upload, Camera, Check, X, MessageCircle, Wallet, Send } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
@@ -201,22 +201,37 @@ export const Profile = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <span>💰</span>
+                <Wallet className="w-5 h-5" />
                 {t('profile.walletBalance')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-muted rounded-lg p-3 text-center">
-                  <p className="text-sm text-muted-foreground">{t('currency.rwf')} {t('currency.balance')}</p>
-                  <p className="text-lg font-semibold">{formatCurrencyLocale(25000, i18n.language)}</p>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="bg-muted rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <Wallet className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t('currency.rwf')} {t('currency.balance')}</p>
+                        <p className="text-xl font-semibold">{formatCurrencyLocale(25000, i18n.language)}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                
               </div>
-              <Button variant="outline" className="w-full">
-                <Upload className="w-4 h-4 mr-2" />
-                {t('profile.topUpWallet')}
-              </Button>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <Button variant="outline" className="flex-1">
+                  <Upload className="w-4 h-4 mr-2" />
+                  {t('profile.topUpWallet')}
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  <Send className="w-4 h-4 mr-2" />
+                  Transfer
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
