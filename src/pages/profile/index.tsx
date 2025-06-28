@@ -16,13 +16,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { formatCurrencyLocale, formatDateTimeLocale, formatDateLocale } from '@/lib/i18n-formatters';
-
 interface ProfileFormData {
   displayName: string;
   email: string;
   momoNumber: string;
 }
-
 export const Profile = () => {
   const navigate = useNavigate();
   const {
@@ -49,20 +47,17 @@ export const Profile = () => {
   const generateUniqueCode = (userId: string) => {
     const prefix = 'USR';
     const hash = userId.split('').reduce((a, b) => {
-      a = ((a << 5) - a) + b.charCodeAt(0);
+      a = (a << 5) - a + b.charCodeAt(0);
       return a & a;
     }, 0);
     const code = Math.abs(hash).toString().padStart(6, '0').slice(-6);
     return `${prefix}${code}`;
   };
-
   if (!user) {
     navigate('/auth/phone');
     return null;
   }
-
   const userUniqueCode = generateUniqueCode(user.id);
-
   const handleLogout = async () => {
     try {
       await logout();
@@ -79,14 +74,12 @@ export const Profile = () => {
       });
     }
   };
-
   const handleAvatarUpload = () => {
     toast({
       title: t('profile.avatarUpload'),
       description: t('profile.photoUploadSoon')
     });
   };
-
   const handleEditToggle = () => {
     if (isEditing) {
       // Reset form when canceling
@@ -98,7 +91,6 @@ export const Profile = () => {
     }
     setIsEditing(!isEditing);
   };
-
   const onSubmit = async (data: ProfileFormData) => {
     try {
       updateUser({
@@ -119,11 +111,9 @@ export const Profile = () => {
       });
     }
   };
-
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
-
   return <div className="min-h-screen bg-background p-4">
       <div className="max-w-md mx-auto">
         {/* Header */}
@@ -254,58 +244,10 @@ export const Profile = () => {
           </Card>
 
           {/* Personal Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
-                {t('profile.personalDetails')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-muted-foreground">{t('profile.email')}</p>
-                  <p className="font-medium">{user.email || t('profile.notProvided')}</p>
-                </div>
-                <Separator />
-                <div>
-                  <p className="text-sm text-muted-foreground">{t('profile.language')}</p>
-                  <div className="mt-2">
-                    <LanguageSwitcher />
-                  </div>
-                </div>
-                <Separator />
-                <div>
-                  <p className="text-sm text-muted-foreground">{t('profile.memberSince')}</p>
-                  <p className="font-medium">
-                    {formatDateLocale(user.createdAt, i18n.language)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          
 
           {/* Security */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                {t('profile.security')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm text-muted-foreground">{t('profile.lastLogin')}</p>
-                <p className="font-medium">
-                  {formatDateTimeLocale(user.lastLogin, i18n.language)}
-                </p>
-              </div>
-              <Button variant="outline" className="w-full justify-start">
-                <LogOut className="w-4 h-4 mr-2" />
-                {t('profile.logOut')}
-              </Button>
-            </CardContent>
-          </Card>
+          
 
           {/* Preferences */}
           <Card>
