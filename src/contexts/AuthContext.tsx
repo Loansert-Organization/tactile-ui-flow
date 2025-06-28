@@ -54,20 +54,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('users')
         .select('display_name, mobile_money_number, whatsapp_number, country, role')
         .eq('id', supabaseUser.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
-        console.log('[AUTH_FETCH] User data fetch failed:', error);
-        
-        if (error.code === '42501') {
-          console.log('[AUTH_FETCH] RLS permission denied - using defaults');
-        } else if (error.code === 'PGRST116') {
-          console.log('[AUTH_FETCH] No user profile found - using defaults');
-        } else {
-          console.warn('[AUTH_FETCH] Unexpected error:', error);
-        }
-        
-        // Return user with defaults if fetch fails
+        console.error('[AUTH_FETCH] User data fetch failed:', error);
+        // Even with maybeSingle, other errors can occur (e.g., RLS)
+        return convertToAuthUser(supabaseUser);
+      }
+      
+      if (!userData) {
+        console.log('[AUTH_FETCH] No user profile found, using defaults.');
         return convertToAuthUser(supabaseUser);
       }
 

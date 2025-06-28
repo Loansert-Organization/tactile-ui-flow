@@ -42,26 +42,28 @@ export const BasketOverview = () => {
   // Fetch basket data
   useEffect(() => {
     const fetchBasketData = async () => {
-      if (!id || !user?.id) return;
+      if (!id) return;
 
       setLoading(true);
       setError(null);
 
       try {
-        // Fetch basket details
+        // Fetch basket details, contributions, and members in parallel
         const { data: basketData, error: basketError } = await supabase
           .from('baskets')
           .select(`
             *,
-            contributions!inner(amount_usd),
-            basket_members!inner(user_id)
+            contributions ( amount_usd ),
+            basket_members ( user_id )
           `)
           .eq('id', id)
-          .single();
+          .maybeSingle();
 
-        if (basketError) {
-          if (import.meta.env.DEV) console.error('Error fetching basket:', basketError);
-          setError('Failed to load basket details');
+        if (basketError) throw basketError;
+        
+        if (!basketData) {
+          setError('This basket is no longer available or you do not have access.');
+          setLoading(false);
           return;
         }
 
@@ -75,16 +77,18 @@ export const BasketOverview = () => {
         const daysLeft = Math.max(0, 30 - Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24)));
 
         // Check if user is owner
-        const isOwner = basketData.creator_id === user.id;
+        const isOwner = user ? basketData.creator_id === user.id : false;
 
-        // Fetch user's contribution
-        const { data: userContribution } = await supabase
-          .from('contributions')
-          .select('amount_usd')
-          .eq('basket_id', id)
-          .eq('user_id', user.id);
-
-        const myContribution = userContribution?.reduce((sum: number, c: any) => sum + c.amount_usd, 0) || 0;
+        // Fetch user's contribution (only if logged in)
+        let myContribution = 0;
+        if (user) {
+          const { data: userContribution } = await supabase
+            .from('contributions')
+            .select('amount_usd')
+            .eq('basket_id', id)
+            .eq('user_id', user.id);
+          myContribution = userContribution?.reduce((sum: number, c: any) => sum + c.amount_usd, 0) || 0;
+        }
 
         setBasket({
           ...basketData,
