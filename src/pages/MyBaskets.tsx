@@ -66,6 +66,19 @@ export const MyBaskets = () => {
             </button>
             <h1 className="text-2xl font-bold gradient-text">My Baskets</h1>
           </div>
+          
+          {/* Plus Icon Button */}
+          <button
+            onClick={(e) => {
+              handlePress(e);
+              navigate('/baskets/new');
+            }}
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors focus-gradient"
+            style={{ minWidth: '44px', minHeight: '44px' }}
+            aria-label="Create New Basket"
+          >
+            <Plus className="w-6 h-6" />
+          </button>
         </div>
 
         {/* Tabs */}
