@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Banknote, Coins } from 'lucide-react';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -28,11 +29,13 @@ export const FinancialSummary = ({
       </div>
 
       {/* My Contribution */}
-      <GlassCard className="p-4 text-center">
-        <div className="text-xl font-bold gradient-text mb-1">
-          {formatCurrency(myContribution)}
-        </div>
-        <div className="text-sm text-gray-400">My Contribution</div>
-      </GlassCard>
+      <div className="flex justify-end">
+        <GlassCard className="p-4 text-center">
+          <div className="text-xl font-bold gradient-text mb-1">
+            {formatCurrency(myContribution)}
+          </div>
+          <div className="text-sm text-gray-400">My Contribution</div>
+        </GlassCard>
+      </div>
     </>;
 };
