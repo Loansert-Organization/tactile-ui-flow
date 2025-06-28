@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { LanguageSwitcher } from '@/components/language/LanguageSwitcher';
 import { formatCurrencyLocale, formatDateTimeLocale, formatDateLocale } from '@/lib/i18n-formatters';
+
 interface ProfileFormData {
   displayName: string;
   email: string;
@@ -189,7 +190,7 @@ export const Profile = () => {
                             </div>
                           </div>
                           
-                        </>}
+                        </>
                     </div>
                   </div>
 
@@ -233,11 +234,13 @@ export const Profile = () => {
               </div>
               
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" className="flex-1" size="icon">
+                <Button variant="outline" className="flex-1 gap-2">
                   <Upload className="w-4 h-4" />
+                  Top Up
                 </Button>
-                <Button variant="outline" className="flex-1" size="icon">
+                <Button variant="outline" className="flex-1 gap-2">
                   <Send className="w-4 h-4" />
+                  Send
                 </Button>
               </div>
             </CardContent>
