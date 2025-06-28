@@ -73,20 +73,7 @@ export const MyBaskets = () => {
         </div>
 
         {/* Tabs */}
-        <GlassCard className="p-1 mb-6">
-          <div className="grid grid-cols-2 gap-1">
-            <button onClick={() => setActiveTab('joined')} className={`py-3 px-4 rounded-lg font-medium transition-all ${activeTab === 'joined' ? 'bg-gradient-magenta-orange text-white shadow-lg' : 'text-gray-400 hover:text-white'}`} style={{
-            minHeight: '44px'
-          }}>
-              Joined ({joinedBaskets.length})
-            </button>
-            <button onClick={() => setActiveTab('created')} className={`py-3 px-4 rounded-lg font-medium transition-all ${activeTab === 'created' ? 'bg-gradient-magenta-orange text-white shadow-lg' : 'text-gray-400 hover:text-white'}`} style={{
-            minHeight: '44px'
-          }}>
-              Created ({createdBaskets.length})
-            </button>
-          </div>
-        </GlassCard>
+        
 
         {/* Create New Basket Button */}
         
