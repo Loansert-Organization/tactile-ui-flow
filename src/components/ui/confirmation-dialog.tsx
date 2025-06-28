@@ -62,16 +62,16 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
     }
   };
 
-  const getConfirmButtonVariant = () => {
+  const getConfirmButtonClass = () => {
     switch (variant) {
       case 'destructive':
-        return 'destructive';
+        return 'bg-destructive hover:bg-destructive/90 text-destructive-foreground';
       case 'success':
-        return 'default';
+        return 'btn-gradient-primary';
       case 'warning':
-        return 'default';
+        return 'btn-gradient-primary';
       default:
-        return 'default';
+        return 'btn-gradient-primary';
     }
   };
 
@@ -100,10 +100,9 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            variant={getConfirmButtonVariant()}
             className={cn(
               "w-full sm:w-auto order-1 sm:order-2",
-              variant === 'destructive' ? 'bg-destructive hover:bg-destructive/90' : 'btn-gradient-primary',
+              getConfirmButtonClass(),
               loading && 'pointer-events-none opacity-75'
             )}
             disabled={loading}
