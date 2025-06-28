@@ -63,3 +63,6 @@ export const useAuthContext = () => {
   }
   return context;
 };
+
+// Add backward compatibility alias
+export const useAuth = useAuthContext;
