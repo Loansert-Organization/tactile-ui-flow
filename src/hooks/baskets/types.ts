@@ -34,3 +34,38 @@ export interface CreateBasketData {
   isPublic: boolean;
   tags?: string[];
 }
+
+export interface BasketMember {
+  id: string;
+  basket_id: string;
+  user_id: string;
+  joined_at: string;
+  is_creator: boolean;
+  users: {
+    id: string;
+    display_name: string;
+    avatar_url?: string;
+    country: string;
+    phone_number?: string;
+    role: 'user' | 'admin';
+  };
+  contributions: {
+    count: number;
+    total_amount_local: number;
+    total_amount_usd: number;
+    latest_contribution_at?: string;
+  };
+}
+
+export interface MemberInvitation {
+  phone_number: string;
+  message?: string;
+}
+
+export interface MemberStats {
+  total_members: number;
+  total_contributions: number;
+  average_contribution: number;
+  top_contributor: BasketMember | null;
+  recent_members: BasketMember[];
+}

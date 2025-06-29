@@ -1,141 +1,255 @@
-
-import React from 'react';
-import { Copy, Phone, Eye, EyeOff } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { toast } from '@/hooks/use-toast';
-import { usePressFeedback, useLongPress } from '@/hooks/useInteractions';
-
-interface Member {
-  id: string;
-  code: string;
-  phone: string;
-  hidePhone: boolean;
-  isCurrentUser?: boolean;
-}
+import React, { useState } from 'react';
+import { Crown, UserMinus, MoreVertical, Calendar, CreditCard, Shield } from 'lucide-react';
+import { GlassCard } from '@/components/ui/glass-card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { BasketMember } from '@/hooks/baskets/types';
+import { formatCurrency } from '@/lib/formatters';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 interface MemberCardProps {
-  member: Member;
-  basketType: 'private' | 'public';
-  basketPrivacy: 'private' | 'public';
-  isCreator: boolean;
-  isCurrentUserCreator: boolean;
-  hideMyPhone: boolean;
-  onTogglePhoneVisibility: (value: boolean) => void;
-  onCopyCode: (code: string) => void;
+  member: BasketMember;
+  isCreator?: boolean;
+  canManageMembers?: boolean;
+  rank?: number;
+  onRemoveMember?: (userId: string) => void;
+  loading?: boolean;
 }
 
-export const MemberCard = ({ 
-  member, 
-  basketType, 
-  basketPrivacy,
-  isCreator, 
-  isCurrentUserCreator,
-  hideMyPhone, 
-  onTogglePhoneVisibility, 
-  onCopyCode 
-}: MemberCardProps) => {
-  const { handlePress } = usePressFeedback();
-  
-  const longPressProps = useLongPress(() => {
-    if (basketType === 'private' && member.phone && shouldShowPhone) {
-      toast({
-        title: "Phone Number",
-        description: member.phone,
-      });
-    }
-  });
+export const MemberCard: React.FC<MemberCardProps> = ({
+  member,
+  isCreator,
+  canManageMembers,
+  rank,
+  onRemoveMember,
+  loading = false
+}) => {
+  const { user } = useAuthContext();
+  const [showDetails, setShowDetails] = useState(false);
+  const [removing, setRemoving] = useState(false);
 
-  const handleCopyCode = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    handlePress(e);
-    onCopyCode(member.code);
+  const isCurrentUser = user?.id === member.user_id;
+  const canRemove = canManageMembers && !member.is_creator && (isCreator || user?.role === 'admin');
+
+  const handleRemoveMember = async () => {
+    if (!onRemoveMember) return;
+    
+    try {
+      setRemoving(true);
+      await onRemoveMember(member.user_id);
+    } catch (error) {
+      console.error('Error removing member:', error);
+    } finally {
+      setRemoving(false);
+    }
   };
 
-  // Business Rule 3: Phone visibility logic
-  const shouldShowPhone = basketPrivacy === 'private' && member.phone;
-  const canSeePhoneNumbers = isCurrentUserCreator; // Only creator can see phone numbers in private baskets
-  const shouldHidePhone = member.hidePhone && !isCreator && !member.isCurrentUser;
-  
-  // For public baskets, never show phone numbers
-  // For private baskets, only show if user is creator or it's their own phone
-  let displayPhone = '';
-  if (basketPrivacy === 'public') {
-    displayPhone = ''; // Never show for public baskets
-  } else if (basketPrivacy === 'private') {
-    if (canSeePhoneNumbers || member.isCurrentUser) {
-      displayPhone = shouldHidePhone ? '••••••••••' : member.phone;
-    } else {
-      displayPhone = ''; // Hide completely for non-creators
-    }
-  }
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const getRankBadge = () => {
+    if (rank === 1) return { text: 'TOP', color: 'bg-gradient-to-r from-yellow-400 to-orange-500' };
+    if (rank === 2) return { text: '2ND', color: 'bg-gradient-to-r from-gray-400 to-gray-600' };
+    if (rank === 3) return { text: '3RD', color: 'bg-gradient-to-r from-amber-600 to-amber-800' };
+    return null;
+  };
+
+  const rankBadge = getRankBadge();
 
   return (
-    <div className="p-4 rounded-xl bg-gradient-to-r from-white/5 to-white/10 border border-white/10 hover:border-white/20 transition-all">
+    <GlassCard className="p-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-purple-pink flex items-center justify-center">
-            <span className="text-sm font-bold text-white">
-              {member.code.slice(-2)}
-            </span>
+        <div className="flex items-center gap-3 flex-1">
+          {/* Avatar */}
+          <div className="relative">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
+              {member.users.avatar_url ? (
+                <img 
+                  src={member.users.avatar_url} 
+                  alt={member.users.display_name}
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                <span className="text-lg font-bold text-white">
+                  {getInitials(member.users.display_name)}
+                </span>
+              )}
+            </div>
+            {member.users.role === 'admin' && (
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                <Shield className="w-2 h-2 text-white" />
+              </div>
+            )}
           </div>
-          
-          <div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleCopyCode}
-                className="font-mono text-sm font-semibold hover:gradient-text transition-all"
-              >
-                {member.code}
-              </button>
-              <button onClick={handleCopyCode} className="p-1 rounded hover:bg-white/10">
-                <Copy className="w-3 h-3 text-gray-400" />
-              </button>
-              {member.isCurrentUser && (
-                <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 text-xs">
-                  You
+
+          {/* Member Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="font-semibold text-sm truncate">
+                {member.users.display_name}
+                {isCurrentUser && <span className="text-xs text-muted-foreground ml-1">(You)</span>}
+              </h3>
+              
+              {member.is_creator && (
+                <Crown className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+              )}
+              
+              {rankBadge && (
+                <span className={`text-xs text-white px-2 py-1 rounded-full font-bold flex-shrink-0 ${rankBadge.color}`}>
+                  {rankBadge.text}
                 </span>
               )}
             </div>
             
-            {/* Business Rule 3: Conditional phone display */}
-            {shouldShowPhone && displayPhone && (
-              <div className="flex items-center gap-2 mt-1">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span 
-                      className="text-xs text-gray-400 cursor-pointer"
-                      {...longPressProps}
-                    >
-                      <Phone className="w-3 h-3 inline mr-1" />
-                      {displayPhone}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Long press to view</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            )}
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <span>{member.users.country}</span>
+              <span className="flex items-center gap-1">
+                <CreditCard className="w-3 h-3" />
+                {member.contributions.count} contributions
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Phone visibility toggle for current user in private baskets */}
-        {member.isCurrentUser && basketType === 'private' && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400">Hide phone</span>
-            <Switch
-              checked={hideMyPhone}
-              onCheckedChange={onTogglePhoneVisibility}
-            />
-            {hideMyPhone ? (
-              <EyeOff className="w-4 h-4 text-gray-400" />
-            ) : (
-              <Eye className="w-4 h-4 text-gray-400" />
+        {/* Amount & Actions */}
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <div className="text-lg font-bold text-primary">
+              {formatCurrency(member.contributions.total_amount_usd)}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {formatCurrency(member.contributions.total_amount_local)} RWF
+            </div>
+          </div>
+
+          {/* Actions Menu */}
+          {(canRemove || !isCurrentUser) && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="p-1">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowDetails(true)}>
+                  View Details
+                </DropdownMenuItem>
+                {canRemove && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <DropdownMenuItem 
+                        className="text-destructive focus:text-destructive"
+                        onSelect={(e) => e.preventDefault()}
+                      >
+                        <UserMinus className="w-4 h-4 mr-2" />
+                        Remove Member
+                      </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Remove Member</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to remove {member.users.display_name} from this basket? 
+                          This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                          onClick={handleRemoveMember}
+                          disabled={removing}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {removing ? 'Removing...' : 'Remove Member'}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </div>
+
+      {/* Member Details Dialog */}
+      <Dialog open={showDetails} onOpenChange={setShowDetails}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Member Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
+                {member.users.avatar_url ? (
+                  <img 
+                    src={member.users.avatar_url} 
+                    alt={member.users.display_name}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xl font-bold text-white">
+                    {getInitials(member.users.display_name)}
+                  </span>
+                )}
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">{member.users.display_name}</h3>
+                <div className="flex items-center gap-2">
+                  {member.is_creator && <Badge variant="default">Creator</Badge>}
+                  {member.users.role === 'admin' && <Badge variant="secondary">Admin</Badge>}
+                  <span className="text-sm text-muted-foreground">{member.users.country}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium">Total Contributions</p>
+                <p className="text-lg font-bold">{member.contributions.count}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Total Amount</p>
+                <p className="text-lg font-bold">{formatCurrency(member.contributions.total_amount_usd)}</p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-sm font-medium mb-2">Member Since</p>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Calendar className="w-4 h-4" />
+                {new Date(member.joined_at).toLocaleDateString()}
+              </div>
+            </div>
+
+            {member.contributions.latest_contribution_at && (
+              <div>
+                <p className="text-sm font-medium mb-2">Latest Contribution</p>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <CreditCard className="w-4 h-4" />
+                  {new Date(member.contributions.latest_contribution_at).toLocaleDateString()}
+                </div>
+              </div>
+            )}
+
+            {member.users.phone_number && (
+              <div>
+                <p className="text-sm font-medium mb-2">Contact</p>
+                <p className="text-sm text-muted-foreground">{member.users.phone_number}</p>
+              </div>
             )}
           </div>
-        )}
-      </div>
-    </div>
+        </DialogContent>
+      </Dialog>
+    </GlassCard>
   );
 };
