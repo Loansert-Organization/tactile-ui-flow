@@ -1,120 +1,64 @@
-import React, { useState } from 'react';
-import { Share } from 'lucide-react';
+
+import React from 'react';
+import { Share2 } from 'lucide-react';
+import { Button } from './button';
 import { toast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 
 interface ShareButtonProps {
-  basketName: string;
-  basketURL: string;
+  title?: string;
+  text?: string;
+  url?: string;
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
-  variant?: 'icon' | 'button';
-  children?: React.ReactNode;
 }
 
-export const ShareButton = ({ 
-  basketName, 
-  basketURL, 
-  className,
-  size = 'md',
-  variant = 'icon',
-  children
-}: ShareButtonProps) => {
-  const [isPressed, setIsPressed] = useState(false);
-
-  const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6'
-  };
-
-  const buttonSizeClasses = {
-    sm: 'p-1.5',
-    md: 'p-2',
-    lg: 'p-3'
-  };
-
+export const ShareButton: React.FC<ShareButtonProps> = ({
+  title = "Check this out!",
+  text = "Sharing something awesome",
+  url = window.location.href,
+  className = ""
+}) => {
   const handleShare = async () => {
-    if (import.meta.env.DEV) {
-      console.log('Share button clicked');
-      console.log('Basket name:', basketName);
-      console.log('Basket URL:', basketURL);
-    }
-
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-      `Join my basket "${basketName}" on IKANISA: ${basketURL}`
-    )}`;
-
-    if (import.meta.env.DEV) {
-      console.log('WhatsApp URL:', whatsappUrl);
-      console.log('Opening WhatsApp...');
-    }
-
+    // Check if device supports native sharing (mobile)
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
     try {
-      if (isMobile) {
-        if (import.meta.env.DEV) console.log('Mobile device detected, using location.href');
-        window.location.href = whatsappUrl;
+      if (navigator.share && isMobileDevice) {
+        await navigator.share({
+          title,
+          text,
+          url
+        });
       } else {
-        if (import.meta.env.DEV) console.log('Desktop device detected, using window.open');
-        const newWindow = window.open(whatsappUrl, '_blank');
-        if (!newWindow) {
-          if (import.meta.env.DEV) console.log('Window.open failed, falling back to location.href');
-          window.location.href = whatsappUrl;
-        }
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Link Copied",
+          description: "Link has been copied to clipboard"
+        });
       }
     } catch (error) {
-      if (import.meta.env.DEV) console.error('Error opening WhatsApp:', error);
+      console.log('Share cancelled or failed:', error);
+      // Fallback to clipboard if native sharing fails
+      try {
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Link Copied",
+          description: "Link has been copied to clipboard"
+        });
+      } catch (clipboardError) {
+        toast({
+          title: "Share Failed",
+          description: "Unable to share or copy link",
+          variant: "destructive"
+        });
+      }
     }
   };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleShare();
-    }
-  };
-
-  const handleMouseDown = () => setIsPressed(true);
-  const handleMouseUp = () => setIsPressed(false);
-  const handleMouseLeave = () => setIsPressed(false);
-
-  if (variant === 'button') {
-    return (
-      <button
-        onClick={handleShare}
-        onKeyDown={handleKeyDown}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        aria-label="Share via WhatsApp"
-        className={cn(
-          "flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2",
-          isPressed && "scale-95",
-          className
-        )}
-      >
-        <Share className={sizeClasses[size]} />
-        {children || "Share on WhatsApp"}
-      </button>
-    );
-  }
 
   return (
-    <button
-      onClick={handleShare}
-      onKeyDown={handleKeyDown}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
-      aria-label="Share via WhatsApp"
-      className={cn(
-        buttonSizeClasses[size],
-        "rounded-lg hover:bg-white/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2",
-        isPressed && "scale-95",
-        className
-      )}
-    >
-      <Share className={cn(sizeClasses[size], "text-green-400")} />
-    </button>
+    <Button onClick={handleShare} variant="outline" size="sm" className={className}>
+      <Share2 className="w-4 h-4 mr-2" />
+      Share
+    </Button>
   );
 };

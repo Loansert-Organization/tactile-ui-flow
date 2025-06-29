@@ -1,355 +1,211 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Camera, Flashlight, Upload, Phone } from 'lucide-react';
+import { Camera, ArrowLeft, Flashlight, FlashlightOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import easyMomoService from '@/services/easyMomoService';
+import { toast } from '@/hooks/use-toast';
+import QrScanner from 'qr-scanner';
 
 const PayScreen = () => {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const qrScannerRef = useRef<QrScanner | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [flashlightOn, setFlashlightOn] = useState(false);
-  const [scanResult, setScanResult] = useState<any>(null);
-  const [showResultModal, setShowResultModal] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [torchEnabled, setTorchEnabled] = useState(false);
+  const [torchSupported, setTorchSupported] = useState(false);
 
   useEffect(() => {
+    initializeScanner();
     return () => {
-      // Cleanup on unmount
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+      if (qrScannerRef.current) {
+        qrScannerRef.current.destroy();
       }
     };
-  }, [stream]);
+  }, []);
 
-  const startCamera = async () => {
+  const initializeScanner = async () => {
+    if (!videoRef.current) return;
+
     try {
-      setError(null);
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          facingMode: 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+      const qrScanner = new QrScanner(
+        videoRef.current,
+        (result) => handleScanSuccess(result.data),
+        {
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
+          preferredCamera: 'environment'
         }
-      });
+      );
+
+      qrScannerRef.current = qrScanner;
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        setStream(mediaStream);
-        setIsScanning(true);
-      }
-    } catch (err) {
-      setError('Camera access denied. Please allow camera access to scan QR codes.');
-      console.error('Camera error:', err);
-    }
-  };
-
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-    setIsScanning(false);
-  };
-
-  const toggleFlashlight = async () => {
-    if (stream) {
-      const track = stream.getVideoTracks()[0];
-      const capabilities = track.getCapabilities();
+      // Check torch support
+      const hasFlash = await QrScanner.hasCamera() && await qrScanner.hasFlash();
+      setTorchSupported(hasFlash);
       
-      if (capabilities.torch) {
-        try {
-          await track.applyConstraints({
-            advanced: [{ torch: !flashlightOn }]
-          });
-          setFlashlightOn(!flashlightOn);
-        } catch (err) {
-          console.error('Flashlight error:', err);
-          toast({
-            title: "Flashlight Error",
-            description: "Unable to control flashlight",
-            variant: "destructive"
-          });
-        }
-      } else {
-        toast({
-          title: "Not Supported",
-          description: "Flashlight not available on this device",
-          variant: "destructive"
-        });
-      }
-    }
-  };
-
-  const captureAndProcess = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-
-    if (!context) return;
-
-    // Set canvas size to match video
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    // Draw current video frame to canvas
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    // Get image data as base64
-    const imageData = canvas.toDataURL('image/jpeg', 0.8);
-
-    // Mock QR code detection (in production, use a real QR library like jsQR)
-    await processQRData('*182*1*1*0781234567*5000#'); // Mock USSD for demo
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const imageData = e.target?.result as string;
-      // Mock QR processing from uploaded image
-      await processQRData('*182*1*1*0782345678*3000#'); // Mock USSD
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const processQRData = async (qrData: string) => {
-    try {
-      const result = await easyMomoService.processScannedQR(qrData);
-      
-      if (result.success) {
-        setScanResult(result);
-        setShowResultModal(true);
-        stopCamera();
-        
-        toast({
-          title: "QR Code Scanned",
-          description: "Payment information detected!"
-        });
-      } else {
-        toast({
-          title: "Scan Error",
-          description: result.error || "Invalid QR code",
-          variant: "destructive"
-        });
-      }
     } catch (error) {
+      console.error('Failed to initialize QR scanner:', error);
       toast({
-        title: "Processing Error",
-        description: "Failed to process QR code",
+        title: "Camera Error",
+        description: "Unable to access camera. Please check permissions.",
         variant: "destructive"
       });
     }
   };
 
-  const dialUSSD = () => {
-    if (scanResult?.ussdString) {
-      easyMomoService.dialUSSD(scanResult.ussdString);
-      setShowResultModal(false);
+  const handleScanSuccess = (data: string) => {
+    console.log('QR Code detected:', data);
+    toast({
+      title: "QR Code Scanned",
+      description: `Scanned: ${data}`
+    });
+    
+    // Process the QR code data here
+    // Navigate to payment confirmation or process payment
+  };
+
+  const startScanning = async () => {
+    if (!qrScannerRef.current) return;
+    
+    try {
+      await qrScannerRef.current.start();
+      setIsScanning(true);
+      toast({
+        title: "Scanner Started",
+        description: "Point your camera at a QR code"
+      });
+    } catch (error) {
+      console.error('Failed to start scanner:', error);
+      toast({
+        title: "Scanner Error",
+        description: "Failed to start camera scanner",
+        variant: "destructive"
+      });
     }
   };
 
-  const handleManualUSSD = () => {
-    const ussd = prompt('Enter USSD code manually:');
-    if (ussd && ussd.includes('*') && ussd.includes('#')) {
-      processQRData(ussd);
+  const stopScanning = () => {
+    if (qrScannerRef.current) {
+      qrScannerRef.current.stop();
+      setIsScanning(false);
+      setTorchEnabled(false);
+    }
+  };
+
+  const toggleTorch = async () => {
+    if (!qrScannerRef.current || !torchSupported) return;
+    
+    try {
+      const newTorchState = !torchEnabled;
+      await qrScannerRef.current.turnFlashlight(newTorchState);
+      setTorchEnabled(newTorchState);
+    } catch (error) {
+      console.error('Failed to toggle torch:', error);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black z-50">
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-4 bg-gradient-to-b from-black/50 to-transparent">
-        <div className="flex items-center justify-between text-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900 p-4">
+      <div className="max-w-md mx-auto pt-8">
+        {/* Back Button */}
+        <div className="mb-4">
           <Button
-            onClick={() => {
-              stopCamera();
-              navigate('/easy-momo');
-            }}
+            onClick={() => navigate('/easy-momo')}
             variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/20"
+            size="sm"
+            className="flex items-center gap-2"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-4 h-4" />
+            Back
           </Button>
-          <h1 className="text-lg font-semibold">Scan QR Code</h1>
-          <div className="w-10" /> {/* Spacer */}
         </div>
-      </div>
 
-      {/* Camera View */}
-      <div className="relative w-full h-full">
-        {isScanning ? (
-          <>
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-full object-cover"
-            />
-            {/* Scanning Overlay */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative">
-                <div className="w-64 h-64 border-2 border-white rounded-2xl relative">
-                  <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-blue-500 rounded-tl-lg"></div>
-                  <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-blue-500 rounded-tr-lg"></div>
-                  <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-blue-500 rounded-bl-lg"></div>
-                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-blue-500 rounded-br-lg"></div>
-                </div>
-                <p className="text-white text-center mt-4 bg-black/50 px-4 py-2 rounded-lg">
-                  Position QR code within the frame
-                </p>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="flex items-center justify-center h-full bg-gray-900">
-            {error ? (
-              <Card className="mx-4 max-w-sm">
-                <CardContent className="p-6 text-center space-y-4">
-                  <Camera className="w-16 h-16 mx-auto text-gray-400" />
-                  <div>
-                    <h3 className="font-semibold text-gray-800 mb-2">Camera Access Required</h3>
-                    <p className="text-sm text-gray-600 mb-4">{error}</p>
-                    <Button onClick={startCamera} className="w-full">
-                      Try Again
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card className="mx-4 max-w-sm">
-                <CardContent className="p-6 text-center space-y-4">
-                  <Camera className="w-16 h-16 mx-auto text-blue-500" />
-                  <div>
-                    <h3 className="font-semibold text-gray-800 mb-2">Ready to Scan</h3>
-                    <p className="text-sm text-gray-600 mb-4">
-                      Start camera to scan QR codes for payments
-                    </p>
-                    <Button onClick={startCamera} className="w-full">
-                      <Camera className="w-4 h-4 mr-2" />
-                      Start Camera
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
-      </div>
+        {/* Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            Scan & Pay
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            Scan a QR code to make a payment
+          </p>
+        </div>
 
-      {/* Bottom Controls */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 p-4 bg-gradient-to-t from-black/50 to-transparent">
-        <div className="flex justify-center space-x-4">
-          {isScanning && (
-            <>
-              <Button
-                onClick={toggleFlashlight}
-                variant="ghost"
-                size="icon"
-                className={`text-white hover:bg-white/20 w-12 h-12 rounded-full ${flashlightOn ? 'bg-yellow-500/30' : ''}`}
-              >
-                <Flashlight className="w-6 h-6" />
-              </Button>
+        {/* Camera Container */}
+        <Card className="glass-card backdrop-blur-md border-0 shadow-2xl mb-6">
+          <CardContent className="p-6">
+            <div className="relative">
+              <video 
+                ref={videoRef}
+                className="w-full h-64 object-cover rounded-lg bg-gray-900"
+                style={{ display: isScanning ? 'block' : 'none' }}
+              />
               
-              <Button
-                onClick={captureAndProcess}
-                className="bg-blue-500 hover:bg-blue-600 text-white w-16 h-16 rounded-full"
-              >
-                <Camera className="w-8 h-8" />
-              </Button>
-            </>
-          )}
-          
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/20 w-12 h-12 rounded-full"
-          >
-            <Upload className="w-6 h-6" />
-          </Button>
-          
-          <Button
-            onClick={handleManualUSSD}
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/20 w-12 h-12 rounded-full"
-          >
-            <Phone className="w-6 h-6" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Hidden file input */}
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileInputRef}
-        onChange={handleFileUpload}
-        className="hidden"
-      />
-
-      {/* Hidden canvas for image processing */}
-      <canvas ref={canvasRef} className="hidden" />
-
-      {/* Result Modal */}
-      <Dialog open={showResultModal} onOpenChange={setShowResultModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-center">Payment Detected</DialogTitle>
-          </DialogHeader>
-          {scanResult && (
-            <div className="flex flex-col items-center space-y-4 p-4">
-              <div className="text-center space-y-2">
-                <p className="text-lg font-semibold text-green-600">
-                  ✓ QR Code Scanned Successfully
-                </p>
-                {scanResult.transactionId && (
-                  <p className="text-sm text-gray-600">
-                    Transaction ID: {scanResult.transactionId}
-                  </p>
-                )}
-                {scanResult.ussdString && (
-                  <div className="bg-gray-100 p-3 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-1">USSD Code:</p>
-                    <p className="font-mono text-sm">{scanResult.ussdString}</p>
+              {!isScanning && (
+                <div className="w-full h-64 bg-gray-200 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <Camera className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                    <p className="text-gray-600 dark:text-gray-300">
+                      Camera ready to scan
+                    </p>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
-              <div className="flex space-x-3 w-full">
+              {/* Torch Button */}
+              {isScanning && torchSupported && (
                 <Button
-                  onClick={dialUSSD}
-                  className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600"
+                  onClick={toggleTorch}
+                  size="sm"
+                  variant="secondary"
+                  className="absolute top-4 right-4"
                 >
-                  <Phone className="w-4 h-4 mr-2" />
-                  Dial Now
+                  {torchEnabled ? (
+                    <FlashlightOff className="w-4 h-4" />
+                  ) : (
+                    <Flashlight className="w-4 h-4" />
+                  )}
                 </Button>
-                <Button
-                  onClick={() => setShowResultModal(false)}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  Close
-                </Button>
-              </div>
+              )}
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
+
+            {/* Scanner Controls */}
+            <div className="mt-4 flex justify-center">
+              {!isScanning ? (
+                <Button 
+                  onClick={startScanning}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                >
+                  <Camera className="w-4 h-4 mr-2" />
+                  Start Scanning
+                </Button>
+              ) : (
+                <Button 
+                  onClick={stopScanning}
+                  variant="destructive"
+                >
+                  Stop Scanning
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Instructions */}
+        <Card className="glass-card backdrop-blur-md border-0 shadow-lg">
+          <CardContent className="p-4">
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">
+              How to Scan
+            </h3>
+            <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+              <li>• Point your camera at the QR code</li>
+              <li>• Keep the code within the camera frame</li>
+              <li>• Hold steady until the code is detected</li>
+              <li>• Use the flashlight if needed in dark areas</li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

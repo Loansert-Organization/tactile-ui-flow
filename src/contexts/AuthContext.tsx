@@ -1,321 +1,87 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
 
-// Simplified AuthUser type for anonymous auth only
-export interface AuthUser extends User {
-  displayName: string;
-  country: string;
-  language: 'en' | 'rw';
-  createdAt: string;
-  lastLogin: string;
-  avatar?: string;
-  mobileMoneyNumber?: string;
-  whatsappNumber?: string;
-  role: 'user' | 'admin';
-  // Make Supabase properties required for compatibility
-  app_metadata: any;
-  user_metadata: any;
-  aud: string;
-  created_at: string;
-}
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import type { UserRole } from '@/types/database';
 
 interface AuthContextType {
-  user: AuthUser | null;
-  session: Session | null;
+  user: User | null;
+  userRole: UserRole | null;
   loading: boolean;
-  isLoading: boolean;
-  isLoggedIn: boolean;
   signOut: () => Promise<void>;
-  logout: () => Promise<void>;
-  updateUser: (userData: Partial<AuthUser>) => void;
-  ensureAnonymousAuth: () => Promise<void>;
-  refreshUserData: () => Promise<void>;
-  // New authentication methods
-  signInAnonymous: () => Promise<void>;
-  signInEmail: (email: string, password?: string) => Promise<void>;
-  signInGoogle: () => Promise<void>;
-  signInWhatsApp: (phoneNumber: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch additional user data from users table
-  const fetchUserData = async (supabaseUser: User): Promise<AuthUser> => {
-    try {
-      console.log('[AUTH_FETCH] Fetching user data for:', supabaseUser.id);
-      
-      const { data: userData, error } = await supabase
-        .from('users')
-        .select('display_name, mobile_money_number, whatsapp_number, country, role')
-        .eq('id', supabaseUser.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error('[AUTH_FETCH] User data fetch failed:', error);
-        // Even with maybeSingle, other errors can occur (e.g., RLS)
-        return convertToAuthUser(supabaseUser);
-      }
-      
-      if (!userData) {
-        console.log('[AUTH_FETCH] No user profile found, using defaults.');
-        return convertToAuthUser(supabaseUser);
-      }
-
-      console.log('[AUTH_FETCH] User data loaded successfully');
-      
-      return {
-        ...supabaseUser,
-        displayName: userData?.display_name || supabaseUser.email || 'Anonymous User',
-        country: userData?.country || 'RW',
-        language: 'en' as 'en' | 'rw',
-        createdAt: supabaseUser.created_at,
-        lastLogin: supabaseUser.last_sign_in_at || supabaseUser.created_at,
-        mobileMoneyNumber: userData?.mobile_money_number,
-        whatsappNumber: userData?.whatsapp_number,
-        role: userData?.role || 'user',
-        app_metadata: supabaseUser.app_metadata || { provider: 'anonymous' },
-        user_metadata: supabaseUser.user_metadata || {},
-        aud: supabaseUser.aud || 'authenticated',
-        created_at: supabaseUser.created_at
-      };
-    } catch (error) {
-      console.error('[AUTH_FETCH] Exception fetching user data:', error);
-      return convertToAuthUser(supabaseUser);
-    }
-  };
-
-  // Convert Supabase User to AuthUser
-  const convertToAuthUser = (supabaseUser: User): AuthUser => {
-    return {
-      ...supabaseUser,
-      displayName: supabaseUser.email || 'Anonymous User',
-      country: 'RW',
-      language: 'en' as 'en' | 'rw',
-      createdAt: supabaseUser.created_at,
-      lastLogin: supabaseUser.last_sign_in_at || supabaseUser.created_at,
-      role: 'user',
-      app_metadata: supabaseUser.app_metadata || { provider: 'anonymous' },
-      user_metadata: supabaseUser.user_metadata || {},
-      aud: supabaseUser.aud || 'authenticated',
-      created_at: supabaseUser.created_at
-    };
-  };
-
-  // Refresh user data from database
-  const refreshUserData = async () => {
-    try {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      if (currentSession?.user) {
-        const updatedUser = await fetchUserData(currentSession.user);
-        setUser(updatedUser);
-      }
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Error refreshing user data:', error);
-    }
-  };
-
-  // Ensure anonymous authentication - only when explicitly called
-  const ensureAnonymousAuth = async () => {
-    try {
-      // Check if we already have a valid session
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      
-      if (currentSession?.user) {
-        if (import.meta.env.DEV) console.log('Using existing session:', currentSession.user.id);
-        return;
-      }
-
-      // Only create new anonymous session if we don't have one
-      const { data, error } = await supabase.auth.signInAnonymously();
-      if (error) {
-        if (import.meta.env.DEV) console.error('Failed to create anonymous session:', error);
-      } else {
-        if (import.meta.env.DEV) console.log('New anonymous session created:', data.session?.user?.id);
-      }
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Anonymous auth error:', error);
-    }
-  };
-
-  // New authentication methods
-  const signInAnonymous = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInAnonymously();
-      if (error) {
-        if (import.meta.env.DEV) console.error('Anonymous sign in error:', error);
-        throw error;
-      }
-      if (import.meta.env.DEV) console.log('Anonymous sign in successful:', data.session?.user?.id);
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Anonymous sign in exception:', error);
-      throw error;
-    }
-  };
-
-  const signInEmail = async (email: string, password?: string) => {
-    try {
-      if (password) {
-        // Sign in with password
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-        if (error) throw error;
-      } else {
-        // Send magic link
-        const { error } = await supabase.auth.signInWithOtp({
-          email,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`
-          }
-        });
-        if (error) throw error;
-      }
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Email sign in error:', error);
-      throw error;
-    }
-  };
-
-  const signInGoogle = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`
-        }
-      });
-      if (error) throw error;
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('Google sign in error:', error);
-      throw error;
-    }
-  };
-
-  const signInWhatsApp = async (phoneNumber: string) => {
-    try {
-      // Format phone number (ensure it starts with +)
-      let formattedPhone = phoneNumber.trim();
-      if (!formattedPhone.startsWith('+')) {
-        formattedPhone = '+' + formattedPhone.replace(/^\+/, '');
-      }
-
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
-        options: {
-          channel: 'whatsapp'
-        }
-      });
-      
-      if (error) throw error;
-    } catch (error) {
-      if (import.meta.env.DEV) console.error('WhatsApp sign in error:', error);
-      throw error;
-    }
-  };
-
   useEffect(() => {
-    // Set up auth state listener
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchUserRole(session.user.id);
+      }
+      setLoading(false);
+    });
+
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (import.meta.env.DEV) console.log('Auth state changed:', event, session?.user?.id);
-        setSession(session);
-        
+        setUser(session?.user ?? null);
         if (session?.user) {
-          // Defer user data fetching to prevent auth state change deadlocks
-          setTimeout(async () => {
-            try {
-              const authUser = await fetchUserData(session.user);
-              setUser(authUser);
-            } catch (error) {
-              if (import.meta.env.DEV) console.error('Error setting user data:', error);
-              setUser(convertToAuthUser(session.user));
-            }
-          }, 0);
+          await fetchUserRole(session.user.id);
         } else {
-          setUser(null);
+          setUserRole(null);
         }
         setLoading(false);
       }
     );
 
-    // Get initial session - don't auto-create anonymous session
-    const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          setSession(session);
-          const authUser = await fetchUserData(session.user);
-          setUser(authUser);
-        }
-      } catch (error) {
-        if (import.meta.env.DEV) console.error('Auth initialization error:', error);
-      }
-      setLoading(false);
-    };
-
-    initializeAuth();
-
     return () => subscription.unsubscribe();
   }, []);
 
-  const signOut = async () => {
+  const fetchUserRole = async (userId: string) => {
     try {
-      await supabase.auth.signOut();
+      const { data, error } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user role:', error);
+        return;
+      }
+
+      // Ensure role is one of the valid types
+      const validRoles: UserRole[] = ['user', 'admin', 'owner'];
+      const role = data?.role as string;
+      setUserRole(validRoles.includes(role as UserRole) ? (role as UserRole) : 'user');
     } catch (error) {
-      if (import.meta.env.DEV) console.error('Sign out error:', error);
+      console.error('Error fetching user role:', error);
+      setUserRole('user'); // Default to user role
     }
   };
 
-  const logout = async () => {
-    await signOut();
+  const signOut = async () => {
+    await supabase.auth.signOut();
   };
-
-  const updateUser = (userData: Partial<AuthUser>) => {
-    if (user) {
-      setUser({ ...user, ...userData });
-    }
-  };
-
-  const isLoggedIn = !!session && !!user;
 
   return (
-    <AuthContext.Provider 
-      value={{ 
-        user, 
-        session, 
-        loading,
-        isLoading: loading,
-        isLoggedIn,
-        signOut,
-        logout,
-        updateUser,
-        ensureAnonymousAuth,
-        refreshUserData,
-        signInAnonymous,
-        signInEmail,
-        signInGoogle,
-        signInWhatsApp
-      }}
-    >
+    <AuthContext.Provider value={{ user, userRole, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuthContext = () => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
-
-// Add backward compatibility alias
-export const useAuth = useAuthContext;

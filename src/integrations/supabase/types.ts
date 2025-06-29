@@ -145,10 +145,11 @@ export type Database = {
           id: string
           is_private: boolean | null
           momo_code: string | null
+          name: string
           participants_count: number | null
           status: string | null
           tags: Json | null
-          title: string | null
+          title: string
         }
         Insert: {
           category?: string | null
@@ -163,10 +164,11 @@ export type Database = {
           id?: string
           is_private?: boolean | null
           momo_code?: string | null
+          name: string
           participants_count?: number | null
           status?: string | null
           tags?: Json | null
-          title?: string | null
+          title: string
         }
         Update: {
           category?: string | null
@@ -181,10 +183,11 @@ export type Database = {
           id?: string
           is_private?: boolean | null
           momo_code?: string | null
+          name?: string
           participants_count?: number | null
           status?: string | null
           tags?: Json | null
-          title?: string | null
+          title?: string
         }
         Relationships: [
           {
