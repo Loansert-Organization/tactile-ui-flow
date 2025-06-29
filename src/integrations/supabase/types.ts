@@ -336,6 +336,161 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          basket_id: string
+          content: string
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          basket_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          basket_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_basket_id_fkey"
+            columns: ["basket_id"]
+            isOneToOne: false
+            referencedRelation: "baskets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      momo_events: {
+        Row: {
+          event_data: Json | null
+          event_type: string
+          id: string
+          session_id: string | null
+          timestamp: string | null
+        }
+        Insert: {
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          session_id?: string | null
+          timestamp?: string | null
+        }
+        Update: {
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          session_id?: string | null
+          timestamp?: string | null
+        }
+        Relationships: []
+      }
+      momo_qr_history: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          phone: string
+          qr_data: string | null
+          reference: string
+          session_id: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+          ussd_string: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          phone: string
+          qr_data?: string | null
+          reference: string
+          session_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          ussd_string?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          phone?: string
+          qr_data?: string | null
+          reference?: string
+          session_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          ussd_string?: string | null
+        }
+        Relationships: []
+      }
+      momo_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          phone: string
+          reference: string | null
+          scanned_at: string | null
+          session_id: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          phone: string
+          reference?: string | null
+          scanned_at?: string | null
+          session_id?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          phone?: string
+          reference?: string | null
+          scanned_at?: string | null
+          session_id?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          enabled: boolean | null
+          setting_id: string
+          user_id: string
+        }
+        Insert: {
+          enabled?: boolean | null
+          setting_id: string
+          user_id: string
+        }
+        Update: {
+          enabled?: boolean | null
+          setting_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount_usd: number | null
@@ -419,6 +574,7 @@ export type Database = {
           is_anonymous: boolean | null
           mobile_money_number: string | null
           phone_number: string | null
+          role: string | null
           whatsapp_number: string | null
         }
         Insert: {
@@ -432,6 +588,7 @@ export type Database = {
           is_anonymous?: boolean | null
           mobile_money_number?: string | null
           phone_number?: string | null
+          role?: string | null
           whatsapp_number?: string | null
         }
         Update: {
@@ -445,6 +602,7 @@ export type Database = {
           is_anonymous?: boolean | null
           mobile_money_number?: string | null
           phone_number?: string | null
+          role?: string | null
           whatsapp_number?: string | null
         }
         Relationships: []
