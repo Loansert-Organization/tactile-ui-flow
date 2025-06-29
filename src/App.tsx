@@ -52,6 +52,10 @@ const EasyMomoPayScreen = lazy(() => import('./components/easy-momo/PayScreen'))
 const EasyMomoGetPaidScreen = lazy(() => import('./components/easy-momo/GetPaidScreen'));
 const EasyMomoPaymentHistory = lazy(() => import('./components/easy-momo/PaymentHistory'));
 
+// Analysis components for development
+const AnalysisPage = lazy(() => import('@/pages/Analysis'));
+const BasketAuditPage = lazy(() => import('@/pages/BasketAudit'));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -112,14 +116,14 @@ const AppContent = () => {
           {import.meta.env.DEV && (
             <Route path="/analysis" element={
               <Suspense fallback={<div>Loading Analysis...</div>}>
-                {React.createElement(React.lazy(() => import('@/pages/Analysis')))}
+                <AnalysisPage />
               </Suspense>
             } />
           )}
           {import.meta.env.DEV && (
             <Route path="/basket-audit" element={
               <Suspense fallback={<div>Loading Basket Audit...</div>}>
-                {React.createElement(React.lazy(() => import('@/pages/BasketAudit')))}
+                <BasketAuditPage />
               </Suspense>
             } />
           )}

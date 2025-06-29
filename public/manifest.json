@@ -42,7 +42,7 @@
     },
     {
       "src": "/icons/icon-144x144.png",
-      "sizes": "73x74",
+      "sizes": "144x144",
       "type": "image/png",
       "purpose": "any maskable"
     },
