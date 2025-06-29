@@ -7,6 +7,8 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { AdminGuard } from "@/guards/AdminGuard";
+import { AdminLayout } from "@/pages/admin/AdminLayout";
 import { Feed } from "@/pages/Feed";
 import { BasketOverview } from "@/pages/BasketOverview";
 import { BasketDetailNonMember } from "@/pages/BasketDetailNonMember";
@@ -27,7 +29,7 @@ import EmailLogin from "@/pages/EmailLogin";
 import WhatsAppLogin from "@/pages/WhatsAppLogin";
 import OtpVerification from "@/pages/OtpVerification";
 import { BasketProvider } from "@/contexts/BasketContext";
-import { MyBasketsProvider } from "@/contexts/MyBasketsContext";
+import { MyBasketsProvider } from "@/contexts/MyBasketsProvider";
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import ErrorBoundary from "@/components/ui/error-boundary";
@@ -35,8 +37,14 @@ import React, { Suspense, useEffect, useState } from "react";
 import { HeaderSkeleton } from "@/components/ui/enhanced-skeleton";
 import './i18n';
 
-// Lazy load BasketWizard
+// Lazy load components
 const BasketWizard = React.lazy(() => import('@/pages/BasketWizard'));
+const AdminDashboard = React.lazy(() => import('@/pages/admin/Dashboard'));
+const AdminBaskets = React.lazy(() => import('@/pages/admin/Baskets'));
+const AdminContributions = React.lazy(() => import('@/pages/admin/Contributions'));
+const AdminUsers = React.lazy(() => import('@/pages/admin/Users'));
+const AdminWallets = React.lazy(() => import('@/pages/admin/Wallets'));
+const AdminCountries = React.lazy(() => import('@/pages/admin/Countries'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -115,6 +123,44 @@ const AppContent = () => {
           <Route path="/notifications" element={<NotificationsSettings />} />
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          
+          {/* Admin routes - Protected by AdminGuard */}
+          <Route path="/admin/*" element={
+            <AdminGuard>
+              <AdminLayout />
+            </AdminGuard>
+          }>
+            <Route index element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <AdminDashboard />
+              </Suspense>
+            } />
+            <Route path="baskets" element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <AdminBaskets />
+              </Suspense>
+            } />
+            <Route path="contributions" element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <AdminContributions />
+              </Suspense>
+            } />
+            <Route path="users" element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <AdminUsers />
+              </Suspense>
+            } />
+            <Route path="wallets" element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <AdminWallets />
+              </Suspense>
+            } />
+            <Route path="countries" element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <AdminCountries />
+              </Suspense>
+            } />
+          </Route>
           
           {/* Main app routes - With headers/nav */}
           <Route path="/*" element={
