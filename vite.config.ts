@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
+import fs from "fs";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -40,8 +41,19 @@ export default defineConfig(({ mode }) => ({
             return path.resolve(__dirname, 'src', relativePath);
           }
           
-          // For all other easy-momo specific imports, resolve to easy-momo src
-          // This includes services, utils, hooks that are specific to easy-momo
+          // Try to find in easy-momo adapters first
+          const adapterPath = path.resolve(__dirname, 'features/easy-momo/adapters', relativePath);
+          const adapterTsPath = adapterPath + '.ts';
+          const adapterTsxPath = adapterPath + '.tsx';
+          
+          if (fs.existsSync(adapterTsPath)) {
+            return adapterTsPath;
+          }
+          if (fs.existsSync(adapterTsxPath)) {
+            return adapterTsxPath;
+          }
+          
+          // If not found in adapters, try the original easy-momo src
           return path.resolve(__dirname, 'features/easy-momo/src', relativePath);
         }
         return null;
