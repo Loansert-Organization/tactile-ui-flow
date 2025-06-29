@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { BasketCard } from '@/components/BasketCard';
 import { Button } from '@/components/ui/button';
 import { GlassCard } from '@/components/ui/glass-card';
-import { Plus, QrCode, Smartphone, Zap } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Plus, QrCode, Smartphone, Zap, Shield, Settings } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export const Feed = () => {
-  const { user, ensureAnonymousAuth } = useAuthContext();
+  const { user, userRole, ensureAnonymousAuth } = useAuth();
+  const navigate = useNavigate();
 
   // Ensure anonymous auth when accessing main app
   useEffect(() => {
@@ -62,7 +63,7 @@ export const Feed = () => {
         </div>
 
         {/* Featured Tools Section */}
-        <div className="grid gap-4 sm:grid-cols-2 mb-8">
+        <div className={`grid gap-4 mb-8 ${userRole === 'admin' ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2'}`}>
           {/* Easy Momo Feature Card */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -129,6 +130,45 @@ export const Feed = () => {
               </Link>
             </GlassCard>
           </motion.div>
+
+          {/* Admin Panel Card - Only show for admin users */}
+          {userRole === 'admin' && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <GlassCard className="p-6 hover:scale-105 transition-transform cursor-pointer">
+                <button 
+                  onClick={() => navigate('/admin')}
+                  className="block w-full text-left"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-500 rounded-xl flex items-center justify-center">
+                      <Shield className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        Admin Panel
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        System Management
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <Settings className="w-4 h-4" />
+                    <span>Manage • Monitor • Control</span>
+                    <Shield className="w-4 h-4 ml-2" />
+                    <span>Admin</span>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Access administrative tools to manage users, baskets, transactions, and system settings.
+                  </p>
+                </button>
+              </GlassCard>
+            </motion.div>
+          )}
         </div>
       </motion.div>
 
