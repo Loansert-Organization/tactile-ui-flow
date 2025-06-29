@@ -45,6 +45,7 @@ const AdminContributions = React.lazy(() => import('@/pages/admin/Contributions'
 const AdminUsers = React.lazy(() => import('@/pages/admin/Users'));
 const AdminWallets = React.lazy(() => import('@/pages/admin/Wallets'));
 const AdminCountries = React.lazy(() => import('@/pages/admin/Countries'));
+const AdminActivityLog = React.lazy(() => import('@/pages/admin/ActivityLog'));
 
 // Easy MoMo Components (Direct Integration)
 const EasyMomoHome = lazy(() => import('./components/easy-momo/HomeScreen'));
@@ -186,6 +187,11 @@ const AppContent = () => {
             <Route path="countries" element={
               <Suspense fallback={<div>Loading...</div>}>
                 <AdminCountries />
+              </Suspense>
+            } />
+            <Route path="activity" element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <AdminActivityLog />
               </Suspense>
             } />
           </Route>
