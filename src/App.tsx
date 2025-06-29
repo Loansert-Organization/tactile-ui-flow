@@ -29,7 +29,7 @@ import EmailLogin from "@/pages/EmailLogin";
 import WhatsAppLogin from "@/pages/WhatsAppLogin";
 import OtpVerification from "@/pages/OtpVerification";
 import { BasketProvider } from "@/contexts/BasketContext";
-import { MyBasketsProvider } from "@/contexts/MyBasketsProvider";
+import { MyBasketsProvider } from "@/contexts/MyBasketsContext";
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import ErrorBoundary from "@/components/ui/error-boundary";
