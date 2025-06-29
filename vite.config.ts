@@ -21,8 +21,8 @@ export default defineConfig(({ mode }) => ({
         if (id.startsWith('@/') && importer && importer.includes('features/easy-momo/')) {
           const relativePath = id.replace('@/', '');
           
-          // Map specific easy-momo imports to main project equivalents
-          const exactMappings = {
+          // Map shared components/services to main project
+          const mainProjectMappings = {
             'hooks/use-toast': 'src/hooks/use-toast.ts',
             'hooks/use-mobile': 'src/hooks/use-mobile.tsx', 
             'lib/utils': 'src/lib/utils.ts',
@@ -30,17 +30,18 @@ export default defineConfig(({ mode }) => ({
             'integrations/supabase/types': 'src/integrations/supabase/types.ts',
           };
           
-          // Check exact mappings first
-          if (exactMappings[relativePath]) {
-            return path.resolve(__dirname, exactMappings[relativePath]);
+          // Check main project mappings first
+          if (mainProjectMappings[relativePath]) {
+            return path.resolve(__dirname, mainProjectMappings[relativePath]);
           }
           
-          // Handle UI component mappings
+          // Handle UI component mappings (use main project UI)
           if (relativePath.startsWith('components/ui/')) {
             return path.resolve(__dirname, 'src', relativePath);
           }
           
-          // For other easy-momo specific imports, resolve to easy-momo src
+          // For all other easy-momo specific imports, resolve to easy-momo src
+          // This includes services, utils, hooks that are specific to easy-momo
           return path.resolve(__dirname, 'features/easy-momo/src', relativePath);
         }
         return null;

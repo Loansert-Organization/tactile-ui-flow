@@ -1,59 +1,40 @@
-
-export const productionConfig = {
-  // Feature flags
+// Simple production configuration utility for easy-momo
+interface Config {
   features: {
-    analytics: true,
-    errorMonitoring: true,
-    rateLimit: true,
-    performanceTracking: true,
-    debugMode: import.meta.env.DEV || false
-  },
-
-  // Performance thresholds
-  performance: {
-    maxComponentLoadTime: 3000, // 3 seconds
-    maxAPIResponseTime: 10000, // 10 seconds
-    maxQRGenerationTime: 15000 // 15 seconds
-  },
-
-  // Rate limiting configuration
-  rateLimits: {
-    qrGeneration: { requests: 10, windowMs: 60000 },
-    paymentCreation: { requests: 5, windowMs: 60000 },
-    shareActions: { requests: 20, windowMs: 60000 }
-  },
-
-  // Error reporting
+    debugMode: boolean;
+    analyticsEnabled: boolean;
+    errorReporting: boolean;
+  };
   errorReporting: {
-    maxErrorsPerSession: 50,
+    maxErrorsPerSession: number;
+    includeUserAgent: boolean;
+    includeUrl: boolean;
+  };
+  analytics: {
+    enabled: boolean;
+    sessionTimeout: number;
+  };
+}
+
+const defaultConfig: Config = {
+  features: {
+    debugMode: import.meta.env.DEV || false,
+    analyticsEnabled: true,
+    errorReporting: true,
+  },
+  errorReporting: {
+    maxErrorsPerSession: 10,
     includeUserAgent: true,
     includeUrl: true,
-    includeTimestamp: true
   },
-
-  // App metadata
-  app: {
-    version: '1.0.0',
-    name: 'Easy MOMO',
-    description: 'Mobile Money Payment Platform',
-    author: 'Easy MOMO Team'
-  }
+  analytics: {
+    enabled: true,
+    sessionTimeout: 30 * 60 * 1000, // 30 minutes
+  },
 };
 
-export const isProduction = import.meta.env.PROD;
-export const isDevelopment = import.meta.env.DEV;
-
-// Environment-specific configurations
-export const getConfig = () => {
-  if (isProduction) {
-    return {
-      ...productionConfig,
-      features: {
-        ...productionConfig.features,
-        debugMode: false
-      }
-    };
-  }
-  
-  return productionConfig;
+export const getConfig = (): Config => {
+  return defaultConfig;
 };
+
+export default defaultConfig;
