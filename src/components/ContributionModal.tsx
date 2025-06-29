@@ -58,33 +58,51 @@ export const ContributionModal = ({
     console.log(`[CONTRIBUTE] Processing amount: ${numericAmount} for basket: ${basketId}`);
 
     try {
-      const amountUsd = numericAmount / 1300; // Approximate RWF to USD conversion
-      const rpcParams = {
+      // 1️⃣ Generate the Mobile-Money USSD code via RPC
+      console.log('[CONTRIBUTE] Generating momo code...');
+      const { data: momoCode, error: momoError } = await supabase.rpc('generate_momo_code', {
         p_basket_id: basketId,
-        p_amount_local: numericAmount,
-        p_amount_usd: amountUsd
-      };
+        p_amount: numericAmount
+      });
 
-      console.log('[CONTRIBUTE] Calling RPC `create_contribution_and_get_momo_code` with params:', rpcParams);
-      const { data: momoCode, error } = await supabase.rpc('create_contribution_and_get_momo_code', rpcParams);
-
-      if (error) {
-        console.error('[CONTRIBUTE_ERROR] RPC call failed:', error);
-        throw new Error(`Contribution failed: ${error.message}`);
+      if (momoError) {
+        console.error('[CONTRIBUTE_ERROR] Failed to generate momo code:', momoError);
+        throw new Error(`Failed to generate payment code: ${momoError.message}`);
       }
-      
+
       if (!momoCode) {
         console.error('[CONTRIBUTE_ERROR] RPC returned no momoCode.');
         throw new Error('Could not generate payment code. Please try again.');
       }
 
-      console.log(`[CONTRIBUTE] RPC success, received momoCode: ${momoCode}`);
+      console.log(`[CONTRIBUTE] momoCode generated: ${momoCode}`);
 
-      // Launch phone dialer with USSD code
+      // 2️⃣ Persist the contribution (optimistically) – respect RLS
+      const { data: userResponse } = await supabase.auth.getUser();
+      const userId = userResponse.user?.id;
+
+      const { error: insertError } = await supabase.from('contributions').insert([
+        {
+          basket_id: basketId,
+          user_id: userId,
+          amount_local: numericAmount,
+          currency: 'RWF',
+          payment_method: 'ussd',
+          momo_code: momoCode,
+          confirmed: false
+        }
+      ]);
+
+      if (insertError) {
+        console.error('[CONTRIBUTE_ERROR] Failed to insert contribution:', insertError);
+        throw new Error('Failed to log contribution. Please try again.');
+      }
+
+      // 3️⃣ Launch phone dialer with encoded USSD string
       console.log('[CONTRIBUTE] Launching phone dialer...');
-      window.location.href = `tel:${momoCode.replace(/#/g, '%23')}`;
+      window.location.href = `tel:${encodeURIComponent(momoCode)}`;
 
-      // Show success message immediately
+      // 4️⃣ Show success UI
       console.log('[CONTRIBUTE] Showing success modal...');
       setContributedAmount(numericAmount);
       onSuccess(numericAmount);

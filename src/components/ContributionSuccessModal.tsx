@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
@@ -57,22 +56,22 @@ export const ContributionSuccessModal = ({
         </div>
 
         <div className="space-y-3">
-          <ShareButton
-            basketName={basketName}
-            basketURL={basketURL}
-            variant="button"
-            size="md"
-            className="w-full bg-green-600 hover:bg-green-700"
+          {/* Share via WhatsApp */}
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`I just contributed to ${basketName}! Join me in supporting this basket here: ${basketURL}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex w-full justify-center items-center px-4 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors"
           >
-            <span className="truncate">Share Achievement</span>
-          </ShareButton>
+            Share on WhatsApp
+          </a>
 
           <GradientButton
             variant="primary"
             className="w-full"
             onClick={handleContinue}
           >
-            <span className="truncate">Continue</span>
+            <span className="truncate">Close</span>
           </GradientButton>
         </div>
       </GlassCard>
