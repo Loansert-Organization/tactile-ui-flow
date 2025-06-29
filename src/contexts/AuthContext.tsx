@@ -9,6 +9,12 @@ interface AuthContextType {
   userRole: UserRole | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  // Additional auth functions (stubs for compatibility)
+  ensureAnonymousAuth?: () => Promise<any>;
+  signInEmail?: (email: string, password: string) => Promise<any>;
+  signInWhatsApp?: (phone: string) => Promise<any>;
+  signInAnonymous?: () => Promise<any>;
+  signInGoogle?: () => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -71,8 +77,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await supabase.auth.signOut();
   };
 
+  // Stub implementations for compatibility
+  const ensureAnonymousAuth = async () => {
+    console.log('ensureAnonymousAuth stub called');
+    if (!user) {
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+      return data;
+    }
+    return { user };
+  };
+
+  const signInEmail = async (email: string, password: string) => {
+    console.log('signInEmail stub called');
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    if (error) throw error;
+    return data;
+  };
+
+  const signInWhatsApp = async (phone: string) => {
+    console.log('signInWhatsApp stub called');
+    const { data, error } = await supabase.auth.signInWithOtp({
+      phone,
+      options: { channel: 'sms' }
+    });
+    if (error) throw error;
+    return data;
+  };
+
+  const signInAnonymous = async () => {
+    console.log('signInAnonymous stub called');
+    const { data, error } = await supabase.auth.signInAnonymously();
+    if (error) throw error;
+    return data;
+  };
+
+  const signInGoogle = async () => {
+    console.log('signInGoogle stub called');
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google'
+    });
+    if (error) throw error;
+    return data;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, userRole, loading, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      userRole, 
+      loading, 
+      signOut,
+      ensureAnonymousAuth,
+      signInEmail,
+      signInWhatsApp,
+      signInAnonymous,
+      signInGoogle
+    }}>
       {children}
     </AuthContext.Provider>
   );
@@ -85,3 +148,6 @@ export const useAuth = () => {
   }
   return context;
 };
+
+// Alias for compatibility
+export const useAuthContext = useAuth;
