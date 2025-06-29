@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { QrCode, Link, Clock, Share2 } from 'lucide-react';
+import { QrCode, Link, Clock, Share2, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -43,6 +44,19 @@ const HomeScreen = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900 p-4">
       <div className="max-w-md mx-auto pt-8">
+        {/* Back Button */}
+        <div className="mb-4">
+          <Button
+            onClick={() => navigate('/')}
+            variant="ghost"
+            size="sm"
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Button>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-8 animate-fade-in">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
