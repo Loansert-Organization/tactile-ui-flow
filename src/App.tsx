@@ -33,7 +33,7 @@ import { MyBasketsProvider } from "@/contexts/MyBasketsContext";
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import ErrorBoundary from "@/components/ui/error-boundary";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState, lazy } from "react";
 import { HeaderSkeleton } from "@/components/ui/enhanced-skeleton";
 import './i18n';
 
@@ -45,7 +45,12 @@ const AdminContributions = React.lazy(() => import('@/pages/admin/Contributions'
 const AdminUsers = React.lazy(() => import('@/pages/admin/Users'));
 const AdminWallets = React.lazy(() => import('@/pages/admin/Wallets'));
 const AdminCountries = React.lazy(() => import('@/pages/admin/Countries'));
-const EasyMomoWrapper = React.lazy(() => import('@/components/EasyMomoWrapper'));
+
+// Easy MoMo Components (Direct Integration)
+const EasyMomoHome = lazy(() => import('./components/easy-momo/HomeScreen'));
+const EasyMomoPayScreen = lazy(() => import('./components/easy-momo/PayScreen'));
+const EasyMomoGetPaidScreen = lazy(() => import('./components/easy-momo/GetPaidScreen'));
+const EasyMomoPaymentHistory = lazy(() => import('./components/easy-momo/PaymentHistory'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -119,18 +124,25 @@ const AppContent = () => {
             } />
           )}
           
-          {/* Easy-Momo Feature - Standalone with no headers/nav for immersive experience */}
-          <Route path="/easy-momo/*" element={
-            <Suspense fallback={
-              <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
-                <div className="text-center text-white">
-                  <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-lg font-semibold">Loading Easy Momo...</p>
-                  <p className="text-sm opacity-75">Mobile Money Made Simple</p>
-                </div>
-              </div>
-            }>
-              <EasyMomoWrapper />
+          {/* Easy MoMo Routes - Direct Integration */}
+          <Route path="/easy-momo" element={
+            <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-purple-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>}>
+              <EasyMomoHome />
+            </Suspense>
+          } />
+          <Route path="/easy-momo/pay" element={
+            <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black text-white">Loading Scanner...</div>}>
+              <EasyMomoPayScreen />
+            </Suspense>
+          } />
+          <Route path="/easy-momo/get-paid" element={
+            <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-50 to-blue-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div></div>}>
+              <EasyMomoGetPaidScreen />
+            </Suspense>
+          } />
+          <Route path="/easy-momo/history" element={
+            <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-blue-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div></div>}>
+              <EasyMomoPaymentHistory />
             </Suspense>
           } />
           
