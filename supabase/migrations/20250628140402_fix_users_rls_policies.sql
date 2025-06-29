@@ -1,22 +1,30 @@
--- Fix RLS policies for users table to allow self-read access
--- This resolves the 400 error when fetching user profile data
+-- Fix Users RLS Policies Migration
+-- This migration ensures proper RLS policies for the users table
+
+-- Drop existing policies to avoid conflicts
+DROP POLICY IF EXISTS "Users can view public profiles" ON public.users;
+DROP POLICY IF EXISTS "Users can view own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.users;
+DROP POLICY IF EXISTS "admin_read_all_users" ON public.users;
+DROP POLICY IF EXISTS "admin_update_all_users" ON public.users;
+DROP POLICY IF EXISTS "self_read_users" ON public.users;
+DROP POLICY IF EXISTS "self_update_users" ON public.users;
 
 -- Ensure RLS is enabled on users table
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
--- Drop existing conflicting policies if they exist
-DROP POLICY IF EXISTS "Users can view own profile" ON public.users;
-DROP POLICY IF EXISTS "self_read_users" ON public.users;
-DROP POLICY IF EXISTS "Users can read own data" ON public.users;
+-- Policy: Users can view profiles
+CREATE POLICY "Users can view profiles" ON public.users
+FOR SELECT USING (true);
 
--- Create comprehensive self-read policy for users
-CREATE POLICY "self_read_users" ON public.users
-  FOR SELECT USING (id = auth.uid());
+-- Policy: Users can update their own profile
+CREATE POLICY "Users can update own profile" ON public.users
+FOR UPDATE USING (auth.uid() = id);
 
--- Allow users to update their own profile
-DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
-CREATE POLICY "self_update_users" ON public.users
-  FOR UPDATE USING (id = auth.uid());
+-- Policy: Users can insert their own profile
+CREATE POLICY "Users can insert own profile" ON public.users
+FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- Admin users can read all user profiles
 CREATE POLICY "admin_read_all_users" ON public.users

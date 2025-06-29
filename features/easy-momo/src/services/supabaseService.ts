@@ -89,7 +89,7 @@ export const supabaseService = {
     try {
       await setSessionContext(sessionId);
       const { error } = await supabase
-        .from('events')
+        .from('momo_events')
         .insert({
           session_id: sessionId,
           event_type: 'share_event',
@@ -110,7 +110,7 @@ export const supabaseService = {
     try {
       await setSessionContext(sessionId);
       const { data, error } = await supabase
-        .from('qr_history')
+        .from('momo_qr_history')
         .select('*')
         .eq('session_id', sessionId)
         .order('created_at', { ascending: false })
@@ -131,7 +131,7 @@ export const supabaseService = {
     try {
       await setSessionContext(sessionId);
       const { data, error } = await supabase
-        .from('payments')
+        .from('momo_payments')
         .select('*')
         .eq('session_id', sessionId)
         .order('created_at', { ascending: false })
@@ -150,7 +150,7 @@ export const supabaseService = {
   async getSharedLink(linkToken: string) {
     try {
       const { data, error } = await supabase
-        .from('shared_links')
+        .from('momo_shared_links')
         .select('*')
         .eq('link_token', linkToken)
         .gt('expires_at', new Date().toISOString())
@@ -163,6 +163,43 @@ export const supabaseService = {
     } catch (error) {
       errorMonitoringService.logSupabaseError('getSharedLink', error);
       throw error;
+    }
+  },
+
+  async linkPaymentToUser(paymentId: string, userId: string) {
+    try {
+      const { error } = await supabase
+        .from('momo_payments')
+        .update({ user_id: userId })
+        .eq('id', paymentId);
+      
+      if (error) {
+        errorMonitoringService.logSupabaseError('linkPaymentToUser', error);
+        throw error;
+      }
+    } catch (error) {
+      errorMonitoringService.logSupabaseError('linkPaymentToUser', error);
+      throw error;
+    }
+  },
+
+  async getUserPaymentHistory(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('momo_payments')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      
+      if (error) {
+        errorMonitoringService.logSupabaseError('getUserPaymentHistory', error);
+        throw error;
+      }
+      return data || [];
+    } catch (error) {
+      errorMonitoringService.logSupabaseError('getUserPaymentHistory', error);
+      return [];
     }
   }
 };

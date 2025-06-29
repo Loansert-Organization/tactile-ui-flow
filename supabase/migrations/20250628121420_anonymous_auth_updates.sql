@@ -1,45 +1,44 @@
+-- Anonymous Authentication and Basket Enhancements Migration
+-- This migration adds missing basket columns and updates RLS policies
 
--- Add missing fields to baskets table for basket creation flow
-ALTER TABLE public.baskets 
-ADD COLUMN IF NOT EXISTS goal_amount DECIMAL(12,2),
-ADD COLUMN IF NOT EXISTS duration_days INTEGER DEFAULT 30,
-ADD COLUMN IF NOT EXISTS category TEXT,
-ADD COLUMN IF NOT EXISTS tags JSONB DEFAULT '[]'::jsonb,
-ADD COLUMN IF NOT EXISTS momo_code TEXT UNIQUE,
-ADD COLUMN IF NOT EXISTS is_private BOOLEAN DEFAULT false,
-ADD COLUMN IF NOT EXISTS current_amount DECIMAL(12,2) DEFAULT 0.00,
-ADD COLUMN IF NOT EXISTS participants_count INTEGER DEFAULT 1;
+-- Add missing columns to baskets table (safe additions)
+ALTER TABLE public.baskets ADD COLUMN IF NOT EXISTS goal_amount INTEGER;
+ALTER TABLE public.baskets ADD COLUMN IF NOT EXISTS duration_days INTEGER;
+ALTER TABLE public.baskets ADD COLUMN IF NOT EXISTS category TEXT;
+ALTER TABLE public.baskets ADD COLUMN IF NOT EXISTS tags TEXT[];
+ALTER TABLE public.baskets ADD COLUMN IF NOT EXISTS momo_code TEXT;
+ALTER TABLE public.baskets ADD COLUMN IF NOT EXISTS is_private BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.baskets ADD COLUMN IF NOT EXISTS current_amount INTEGER DEFAULT 0;
+ALTER TABLE public.baskets ADD COLUMN IF NOT EXISTS participants_count INTEGER DEFAULT 0;
 
--- Create RLS policies for baskets table
-ALTER TABLE public.baskets ENABLE ROW LEVEL SECURITY;
+-- Drop existing policies to avoid conflicts
+DROP POLICY IF EXISTS "Users can view baskets" ON public.baskets;
+DROP POLICY IF EXISTS "Users can create baskets" ON public.baskets;
+DROP POLICY IF EXISTS "Users can update their own baskets" ON public.baskets;
+DROP POLICY IF EXISTS "Users can delete their own baskets" ON public.baskets;
 
 -- Policy: Users can view public baskets and their own baskets
 CREATE POLICY "Users can view baskets" ON public.baskets
 FOR SELECT USING (
-  NOT is_private OR 
+  NOT is_private OR
   (auth.uid() IS NOT NULL AND creator_id = auth.uid())
 );
 
 -- Policy: Authenticated users can create baskets
-CREATE POLICY "Authenticated users can create baskets" ON public.baskets
-FOR INSERT WITH CHECK (
-  auth.uid() IS NOT NULL AND 
-  creator_id = auth.uid()
-);
+CREATE POLICY "Users can create baskets" ON public.baskets
+FOR INSERT WITH CHECK (auth.uid() IS NOT NULL AND creator_id = auth.uid());
 
--- Policy: Creators can update their own baskets
-CREATE POLICY "Creators can update their baskets" ON public.baskets
-FOR UPDATE USING (
-  auth.uid() IS NOT NULL AND 
-  creator_id = auth.uid()
-);
+-- Policy: Users can update their own baskets
+CREATE POLICY "Users can update their own baskets" ON public.baskets
+FOR UPDATE USING (auth.uid() IS NOT NULL AND creator_id = auth.uid());
 
--- Policy: Creators can delete their own baskets
-CREATE POLICY "Creators can delete their baskets" ON public.baskets
-FOR DELETE USING (
-  auth.uid() IS NOT NULL AND 
-  creator_id = auth.uid()
-);
+-- Policy: Users can delete their own baskets
+CREATE POLICY "Users can delete their own baskets" ON public.baskets
+FOR DELETE USING (auth.uid() IS NOT NULL AND creator_id = auth.uid());
+
+-- Create index for better performance on is_private queries
+CREATE INDEX IF NOT EXISTS idx_baskets_is_private ON public.baskets(is_private);
+CREATE INDEX IF NOT EXISTS idx_baskets_creator_id ON public.baskets(creator_id);
 
 -- Create function to generate unique MOMO codes
 CREATE OR REPLACE FUNCTION generate_momo_code()
