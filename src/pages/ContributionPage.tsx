@@ -1,26 +1,93 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard, Phone } from 'lucide-react';
+import { ArrowLeft, CreditCard, Phone, AlertCircle, RefreshCcw } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ContributionSuccessModal } from '@/components/ContributionSuccessModal';
+import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/formatters';
 
 export const ContributionPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuthContext();
   const [amount, setAmount] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [contributedAmount, setContributedAmount] = useState(0);
 
-  // Mock basket data - in real app this would come from props or API
-  const basketName = 'Lakers Championship Ring Fund';
-  const basketCreatorPhone = '0788787878'; // Set by basket creator
-  const basketProfileImage = 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=400&h=400&fit=crop&crop=center'; // Mock image
+  // Fetch basket data
+  const { data: basketData, isLoading, error, refetch } = useQuery({
+    queryKey: ['basket', id, 'contribute'],
+    queryFn: async () => {
+      if (!id) throw new Error('No basket ID provided');
+
+      const { data, error } = await supabase
+        .from('baskets')
+        .select(`
+          id,
+          title,
+          description,
+          goal_amount,
+          current_amount,
+          currency,
+          country,
+          creator_id,
+          is_private,
+          users!baskets_creator_id_fkey(
+            display_name,
+            avatar_url,
+            mobile_money_number,
+            phone_number
+          )
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      if (!data) throw new Error('Basket not found');
+
+      // Check if current user can contribute
+      if (data.creator_id === user?.id) {
+        throw new Error('You cannot contribute to your own basket');
+      }
+
+      // For private baskets, check if user is a member
+      if (data.is_private) {
+        const { data: membership, error: memberError } = await supabase
+          .from('basket_members')
+          .select('id')
+          .eq('basket_id', id)
+          .eq('user_id', user?.id)
+          .single();
+
+        if (memberError || !membership) {
+          throw new Error('Access denied: You are not a member of this private basket');
+        }
+      }
+
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        goalAmount: data.goal_amount,
+        currentAmount: data.current_amount,
+        currency: data.currency,
+        country: data.country,
+        creatorDisplayName: data.users?.display_name,
+        creatorAvatarUrl: data.users?.avatar_url,
+        creatorMomoNumber: data.users?.mobile_money_number || data.users?.phone_number,
+        isPrivate: data.is_private
+      };
+    },
+    enabled: !!id,
+    retry: 1
+  });
 
   const formatNumber = (value: string) => {
     // Remove all non-digits
@@ -35,24 +102,9 @@ export const ContributionPage = () => {
     setAmount(formattedValue);
   };
 
-  const launchUSSDDialer = (phoneNumber: string, amount: string) => {
-    // Remove commas and format the amount
-    const cleanAmount = amount.replace(/,/g, '');
-    // Clean phone number (remove any non-digits)
-    const cleanPhone = phoneNumber.replace(/\D/g, '');
-    
-    // Create USSD code: *182*1*1*[payment number]*[amount]#
-    const ussdCode = `*182*1*1*${cleanPhone}*${cleanAmount}#`;
-    
-    // Create tel: URL to launch phone dialer
-    const telUrl = `tel:${encodeURIComponent(ussdCode)}`;
-    
-    // Launch the dialer
-    window.location.href = telUrl;
-  };
-
   const handleContribute = async () => {
-    if (!amount) {
+    console.log('[CONTRIBUTE_PAGE] Starting contribution process...');
+    if (!amount || !basketData) {
       toast({
         title: "Missing Information",
         description: "Please enter the amount",
@@ -61,31 +113,152 @@ export const ContributionPage = () => {
       return;
     }
 
-    setIsProcessing(true);
-    
-    // Launch USSD dialer immediately
-    launchUSSDDialer(basketCreatorPhone, amount);
-    
-    // Show toast notification
-    toast({
-      title: "USSD Dialer Launched",
-      description: "Complete the payment on your phone",
-    });
+    const numericAmount = Number(amount.replace(/,/g, ''));
+    if (numericAmount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid amount greater than 0",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    // Simulate payment processing
-    setTimeout(() => {
-      setIsProcessing(false);
-      // Remove commas before converting to number
-      const numericAmount = Number(amount.replace(/,/g, ''));
+    setIsProcessing(true);
+    console.log(`[CONTRIBUTE_PAGE] Processing amount: ${numericAmount} for basket: ${basketData.id}`);
+
+    try {
+      // 1️⃣ Generate the Mobile-Money USSD code via RPC
+      console.log('[CONTRIBUTE_PAGE] Generating momo code...');
+      const { data: momoCode, error: momoError } = await supabase.rpc('generate_momo_code', {
+        p_basket_id: basketData.id,
+        p_amount: numericAmount
+      });
+
+      if (momoError) {
+        console.error('[CONTRIBUTE_PAGE_ERROR] Failed to generate momo code:', momoError);
+        throw new Error(`Failed to generate payment code: ${momoError.message}`);
+      }
+
+      if (!momoCode) {
+        console.error('[CONTRIBUTE_PAGE_ERROR] RPC returned no momoCode.');
+        throw new Error('Could not generate payment code. Please try again.');
+      }
+
+      console.log(`[CONTRIBUTE_PAGE] momoCode generated: ${momoCode}`);
+
+      // 2️⃣ Persist the contribution (optimistically) – respect RLS
+      const { data: userResponse } = await supabase.auth.getUser();
+      const userId = userResponse.user?.id;
+
+      const { error: insertError } = await supabase.from('contributions').insert([
+        {
+          basket_id: basketData.id,
+          user_id: userId,
+          amount_local: numericAmount,
+          currency: basketData.currency || 'RWF',
+          payment_method: 'ussd',
+          momo_code: momoCode,
+          confirmed: false
+        }
+      ]);
+
+      if (insertError) {
+        console.error('[CONTRIBUTE_PAGE_ERROR] Failed to insert contribution:', insertError);
+        throw new Error('Failed to log contribution. Please try again.');
+      }
+
+      // 3️⃣ Launch phone dialer with encoded USSD string
+      console.log('[CONTRIBUTE_PAGE] Launching phone dialer...');
+      window.location.href = `tel:${encodeURIComponent(momoCode)}`;
+
+      // 4️⃣ Show success UI
+      console.log('[CONTRIBUTE_PAGE] Showing success modal...');
       setContributedAmount(numericAmount);
       setShowSuccessModal(true);
       setAmount('');
-    }, 3000);
+
+      // Show toast notification
+      toast({
+        title: "Payment Initiated",
+        description: "Complete the payment on your phone",
+      });
+
+      console.log('[CONTRIBUTE_PAGE] Contribution process complete.');
+
+    } catch (error: any) {
+      console.error('[CONTRIBUTE_PAGE_ERROR] Caught exception:', error);
+      toast({
+        title: "Contribution Failed",
+        description: error.message || 'Failed to initiate contribution. Please try again.',
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+      console.log('[CONTRIBUTE_PAGE] Finished, processing set to false.');
+    }
   };
 
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
+    navigate(`/basket/${id}`);
   };
+
+  const handleRetry = () => {
+    refetch();
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen pb-24">
+        <div className="p-6">
+          <div className="flex items-center mb-6">
+            <Skeleton className="w-8 h-8 rounded-lg mr-4" />
+            <Skeleton className="h-6 w-48" />
+          </div>
+        </div>
+        <div className="px-6 space-y-6">
+          <Skeleton className="h-32 w-full rounded-xl" />
+          <Skeleton className="h-64 w-full rounded-xl" />
+          <Skeleton className="h-16 w-full rounded-xl" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !basketData) {
+    const errorMessage = error instanceof Error ? error.message : 'Something went wrong';
+    const isAccessDenied = errorMessage.includes('Access denied') || errorMessage.includes('cannot contribute');
+    
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <GlassCard className="p-8 text-center max-w-sm">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">
+            {isAccessDenied ? 'Cannot Contribute' : 'Basket Not Found'}
+          </h3>
+          <p className="text-gray-400 mb-6">
+            {errorMessage}
+          </p>
+          <div className="space-y-3">
+            {!isAccessDenied && (
+              <GradientButton onClick={handleRetry} className="w-full">
+                <RefreshCcw className="w-4 h-4 mr-2" />
+                Try Again
+              </GradientButton>
+            )}
+            <button
+              onClick={() => navigate(-1)}
+              className="w-full px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 transition-colors"
+            >
+              Go Back
+            </button>
+          </div>
+        </GlassCard>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-24">
@@ -108,12 +281,22 @@ export const ContributionPage = () => {
         <GlassCard className="p-6 text-center">
           <div className="flex flex-col items-center space-y-4">
             <Avatar className="w-20 h-20">
-              <AvatarImage src={basketProfileImage} alt={basketName} />
+              <AvatarImage src={basketData.creatorAvatarUrl} alt={basketData.title} />
               <AvatarFallback className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-orange-500 text-white">
-                {basketName.charAt(0)}
+                {basketData.title.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <h2 className="text-2xl font-bold gradient-text text-center line-clamp-2">{basketName}</h2>
+            <div>
+              <h2 className="text-2xl font-bold gradient-text text-center line-clamp-2 mb-2">
+                {basketData.title}
+              </h2>
+              <p className="text-sm text-gray-400">
+                by {basketData.creatorDisplayName || 'Anonymous'}
+              </p>
+              <div className="mt-2 text-sm text-gray-300">
+                Goal: {formatCurrency(basketData.goalAmount, basketData.currency)} {basketData.currency}
+              </div>
+            </div>
           </div>
         </GlassCard>
 
@@ -121,7 +304,9 @@ export const ContributionPage = () => {
         <GlassCard className="p-6">
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-3 text-gray-300 truncate">Amount (RWF)</label>
+              <label className="block text-sm font-medium mb-3 text-gray-300 truncate">
+                Amount ({basketData.currency})
+              </label>
               <div className="relative">
                 <CreditCard className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
                 <input
@@ -134,18 +319,22 @@ export const ContributionPage = () => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-3 text-gray-300 truncate">Payment Number</label>
-              <div className="relative">
-                <Phone className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
-                <input
-                  type="tel"
-                  value={basketCreatorPhone}
-                  readOnly
-                  className="w-full pl-14 pr-4 py-4 text-lg rounded-lg bg-gray-100/10 border border-white/10 text-gray-400 cursor-not-allowed"
-                />
+            {basketData.creatorMomoNumber && (
+              <div>
+                <label className="block text-sm font-medium mb-3 text-gray-300 truncate">
+                  Payment Number
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
+                  <input
+                    type="tel"
+                    value={basketData.creatorMomoNumber}
+                    readOnly
+                    className="w-full pl-14 pr-4 py-4 text-lg rounded-lg bg-gray-100/10 border border-white/10 text-gray-400 cursor-not-allowed"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Action Buttons */}
             <div className="space-y-3 pt-4">
@@ -156,7 +345,9 @@ export const ContributionPage = () => {
                 loading={isProcessing}
                 disabled={!amount}
               >
-                <span className="truncate">{isProcessing ? 'Processing Payment...' : 'Pay with Mobile Money'}</span>
+                <span className="truncate">
+                  {isProcessing ? 'Processing Payment...' : 'Pay with Mobile Money'}
+                </span>
               </GradientButton>
               
               <button
@@ -175,6 +366,9 @@ export const ContributionPage = () => {
             <p className="text-sm text-gray-400 truncate">
               Secure payment powered by Mobile Money
             </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Country: {basketData.country} • Currency: {basketData.currency}
+            </p>
           </div>
         </GlassCard>
       </div>
@@ -184,8 +378,8 @@ export const ContributionPage = () => {
         isOpen={showSuccessModal}
         onClose={handleSuccessModalClose}
         amount={contributedAmount}
-        basketName={basketName}
-        basketId={id}
+        basketName={basketData.title}
+        basketId={basketData.id}
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -8,6 +8,9 @@ import {
   RefreshCcw,
   QrCode
 } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/ui/glass-card';
 import { GradientButton } from '@/components/ui/gradient-button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -21,6 +24,7 @@ import { MembersTab } from '@/components/basket/MembersTab';
 import { ContributionsTab } from '@/components/basket/ContributionsTab';
 import { FloatingActionButton } from '@/components/basket/FloatingActionButton';
 import { QRCodeModal } from '@/components/QRCodeModal';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Member {
   id: string;
@@ -28,6 +32,10 @@ interface Member {
   phone: string;
   hidePhone: boolean;
   isCurrentUser?: boolean;
+  user_id: string;
+  display_name?: string;
+  avatar_url?: string;
+  total_contributions?: number;
 }
 
 interface Contribution {
@@ -36,124 +44,208 @@ interface Contribution {
   amount: number;
   timestamp: Date;
   message?: string;
+  user_id: string;
+  display_name?: string;
+  avatar_url?: string;
 }
 
 interface BasketData {
   id: string;
   name: string;
+  title: string;
   description: string;
   type: 'private' | 'public';
   goal: number;
+  goal_amount: number;
   currentAmount: number;
+  current_amount: number;
   progress: number;
   daysLeft: number;
   isCreator: boolean;
   creatorId: string;
+  creator_id: string;
   privacy: 'private' | 'public';
+  is_private: boolean;
   createdByAdmin: boolean;
   members: Member[];
   contributions: Contribution[];
   status: 'pending' | 'approved' | 'private';
+  participants_count: number;
+  created_at: string;
+  country: string;
+  currency: string;
+  category: string;
+  duration_days: number;
 }
-
-// Dummy current user for business logic
-const currentUser = {
-  uid: 'user123',
-  code: '123456'
-};
-
-// Simulate direct link access
-const isDirectLink = true;
-
-// Dummy data with admin flag
-const getDummyBasketData = (type: 'private' | 'public'): BasketData => ({
-  id: '1',
-  name: 'Team Championship Fund',
-  description: 'Supporting our team to get that championship ring!',
-  type,
-  goal: 500000,
-  currentAmount: 325000,
-  progress: 65,
-  daysLeft: 15,
-  isCreator: Math.random() > 0.5,
-  creatorId: Math.random() > 0.5 ? 'user123' : 'creator456',
-  privacy: type,
-  createdByAdmin: type === 'public',
-  status: type === 'private' ? 'private' : Math.random() > 0.5 ? 'pending' : 'approved',
-  members: [
-    { id: '1', code: '123456', phone: '0788123456', hidePhone: false, isCurrentUser: true },
-    { id: '2', code: '789012', phone: '0788654321', hidePhone: true },
-    { id: '3', code: '345678', phone: '0788987654', hidePhone: false },
-    { id: '4', code: '901234', phone: '0788456123', hidePhone: true },
-    { id: '5', code: '567890', phone: '0788321987', hidePhone: false },
-  ],
-  contributions: [
-    { id: '1', memberCode: '123456', amount: 50000, timestamp: new Date(Date.now() - 86400000), message: 'Let\'s do this!' },
-    { id: '2', memberCode: '789012', amount: 75000, timestamp: new Date(Date.now() - 172800000) },
-    { id: '3', memberCode: '345678', amount: 100000, timestamp: new Date(Date.now() - 259200000), message: 'For the team!' },
-    { id: '4', memberCode: '901234', amount: 50000, timestamp: new Date(Date.now() - 345600000) },
-    { id: '5', memberCode: '567890', amount: 50000, timestamp: new Date(Date.now() - 432000000) },
-  ]
-});
 
 const BasketDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { handlePress } = usePressFeedback();
+  const { user } = useAuthContext();
+  const queryClient = useQueryClient();
   
   // State
-  const [basketData, setBasketData] = useState<BasketData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [hideMyPhone, setHideMyPhone] = useState(false);
   const [activeTab, setActiveTab] = useState<'members' | 'contributions'>('members');
   const [showQRModal, setShowQRModal] = useState(false);
 
-  // Load basket data
-  useEffect(() => {
-    const loadBasketData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Determine basket type based on URL or other logic
-        const basketType = Math.random() > 0.5 ? 'private' : 'public';
-        const data = getDummyBasketData(basketType);
-        
-        // Check access for private baskets
-        if (data.privacy === 'private' && !data.createdByAdmin && !isDirectLink) {
-          setError('Basket not found or private');
-          return;
-        }
-        
-        setBasketData(data);
-        setHideMyPhone(data.members.find(m => m.isCurrentUser)?.hidePhone || false);
-      } catch (err) {
-        setError('Failed to load basket details');
-      } finally {
-        setIsLoading(false);
+  // Fetch basket data
+  const { data: basketData, isLoading, error, refetch } = useQuery({
+    queryKey: ['basket', id],
+    queryFn: async () => {
+      if (!id) throw new Error('No basket ID provided');
+
+      const { data, error } = await supabase
+        .from('baskets')
+        .select(`
+          *,
+          basket_members!inner(
+            id,
+            user_id,
+            is_creator,
+            users(display_name, avatar_url, phone_number)
+          ),
+          contributions(
+            id,
+            user_id,
+            amount_usd,
+            amount_local,
+            currency,
+            created_at,
+            message,
+            confirmed,
+            users(display_name, avatar_url)
+          )
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      if (!data) throw new Error('Basket not found');
+
+      // Check if current user is a member or if basket is public
+      const currentUserIsMember = data.basket_members?.some(
+        (member: any) => member.user_id === user?.id
+      );
+      const isPublicBasket = !data.is_private;
+
+      if (!currentUserIsMember && !isPublicBasket) {
+        throw new Error('Access denied: This is a private basket');
       }
-    };
 
-    loadBasketData();
-  }, [id]);
+      // Transform data to match component interface
+      const currentAmount = data.contributions?.reduce(
+        (sum: number, c: any) => sum + (c.confirmed ? c.amount_usd : 0), 0
+      ) || 0;
 
-  // Auto-approve pending baskets after 5 seconds
-  useEffect(() => {
-    if (basketData?.status === 'pending') {
-      const timer = setTimeout(() => {
-        setBasketData(prev => prev ? { ...prev, status: 'approved' } : null);
-      }, 5000);
+      const progress = data.goal_amount > 0 ? Math.round((currentAmount / data.goal_amount) * 100) : 0;
 
-      return () => clearTimeout(timer);
+      // Calculate days left
+      const createdDate = new Date(data.created_at);
+      const daysLeft = Math.max(0, data.duration_days - Math.floor((Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24)));
+
+      // Transform members data
+      const members: Member[] = data.basket_members?.map((member: any) => ({
+        id: member.id,
+        code: member.id.slice(-6).toUpperCase(), // Generate code from member ID
+        phone: member.users?.phone_number || '',
+        hidePhone: false, // This would come from user preferences in real app
+        isCurrentUser: member.user_id === user?.id,
+        user_id: member.user_id,
+        display_name: member.users?.display_name,
+        avatar_url: member.users?.avatar_url,
+        total_contributions: data.contributions?.filter((c: any) => c.user_id === member.user_id && c.confirmed)
+          .reduce((sum: number, c: any) => sum + c.amount_usd, 0) || 0
+      })) || [];
+
+      // Transform contributions data
+      const contributions: Contribution[] = data.contributions?.filter((c: any) => c.confirmed).map((contribution: any) => ({
+        id: contribution.id,
+        memberCode: contribution.user_id.slice(-6).toUpperCase(),
+        amount: contribution.amount_usd,
+        timestamp: new Date(contribution.created_at),
+        message: contribution.message,
+        user_id: contribution.user_id,
+        display_name: contribution.users?.display_name,
+        avatar_url: contribution.users?.avatar_url
+      })).sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()) || [];
+
+      const transformedData: BasketData = {
+        ...data,
+        name: data.title,
+        title: data.title,
+        goal: data.goal_amount,
+        goal_amount: data.goal_amount,
+        currentAmount,
+        current_amount: currentAmount,
+        progress,
+        daysLeft,
+        isCreator: data.creator_id === user?.id,
+        creatorId: data.creator_id,
+        creator_id: data.creator_id,
+        privacy: data.is_private ? 'private' : 'public',
+        type: data.is_private ? 'private' : 'public',
+        createdByAdmin: false, // This would need to be determined based on creator role
+        members,
+        contributions,
+        status: data.is_private ? 'private' : 'approved'
+      };
+
+      return transformedData;
+    },
+    enabled: !!id,
+    retry: 1
+  });
+
+  // Delete basket mutation
+  const deleteBasketMutation = useMutation({
+    mutationFn: async () => {
+      if (!id) throw new Error('No basket ID');
+      
+      const { error } = await supabase
+        .from('baskets')
+        .delete()
+        .eq('id', id)
+        .eq('creator_id', user?.id); // Ensure only creator can delete
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Basket Deleted",
+        description: "Your basket has been permanently deleted",
+      });
+      queryClient.invalidateQueries({ queryKey: ['baskets'] });
+      navigate('/baskets/mine');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete basket",
+        variant: "destructive"
+      });
     }
-  }, [basketData?.status]);
+  });
 
-  // Business Rule 1: Check if current user is creator
-  const isCurrentUserCreator = basketData?.creatorId === currentUser.uid;
+  // Toggle phone visibility mutation
+  const togglePhoneVisibilityMutation = useMutation({
+    mutationFn: async (hidePhone: boolean) => {
+      // In a real app, this would update user preferences
+      // For now, we'll just update local state
+      return hidePhone;
+    },
+    onSuccess: (hidePhone) => {
+      setHideMyPhone(hidePhone);
+      toast({
+        title: hidePhone ? "Phone Hidden" : "Phone Visible",
+        description: hidePhone ? "Your phone number is now hidden from other members" : "Your phone number is now visible to other members",
+      });
+    }
+  });
+
+  // Business Rule: Check if current user is creator
+  const isCurrentUserCreator = basketData?.creator_id === user?.id;
 
   // Handlers
   const handleBack = () => navigate(-1);
@@ -180,11 +272,7 @@ const BasketDetailPage = () => {
   };
 
   const handleTogglePhoneVisibility = (newValue: boolean) => {
-    setHideMyPhone(newValue);
-    toast({
-      title: newValue ? "Phone Hidden" : "Phone Visible",
-      description: newValue ? "Your phone number is now hidden from other members" : "Your phone number is now visible to other members",
-    });
+    togglePhoneVisibilityMutation.mutate(newValue);
   };
 
   const handleContribute = () => {
@@ -199,42 +287,71 @@ const BasketDetailPage = () => {
     navigate(`/basket/${id}/contribute`);
   };
 
+  const handleDeleteBasket = () => {
+    if (window.confirm('Are you sure you want to delete this basket? This action cannot be undone.')) {
+      deleteBasketMutation.mutate();
+    }
+  };
+
   const handleRetry = () => {
-    setError(null);
-    window.location.reload();
+    refetch();
   };
 
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <GlassCard className="p-8 text-center">
-          <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading basket details...</p>
-        </GlassCard>
+      <div className="min-h-screen pb-20">
+        <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-white/10">
+          <div className="flex items-center justify-between p-4">
+            <Skeleton className="w-8 h-8 rounded-lg" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="w-8 h-8 rounded-lg" />
+              <Skeleton className="w-8 h-8 rounded-lg" />
+            </div>
+          </div>
+        </header>
+        
+        <div className="p-4 space-y-6">
+          <Skeleton className="h-32 w-full rounded-xl" />
+          <Skeleton className="h-12 w-full rounded-xl" />
+          <Skeleton className="h-64 w-full rounded-xl" />
+        </div>
       </div>
     );
   }
 
-  // Error state (including private basket access)
+  // Error state
   if (error || !basketData) {
+    const errorMessage = error instanceof Error ? error.message : 'Something went wrong';
+    const isAccessDenied = errorMessage.includes('Access denied') || errorMessage.includes('private basket');
+    
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <GlassCard className="p-8 text-center max-w-sm">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">
-            {error === 'Basket not found or private' ? 'Basket Not Found' : 'Something went wrong'}
+            {isAccessDenied ? 'Access Denied' : 'Basket Not Found'}
           </h3>
-          <p className="text-gray-400 mb-6">
-            {error === 'Basket not found or private' 
-              ? 'This basket is private or does not exist. You need a direct link to access it.'
-              : error
+          <p className="text-gray-400 mb-6"> 
+            {isAccessDenied 
+              ? 'This basket is private. Only members can view it.'
+              : errorMessage
             }
           </p>
-          <GradientButton onClick={handleRetry} className="w-full">
-            <RefreshCcw className="w-4 h-4 mr-2" />
-            {error === 'Basket not found or private' ? 'Go Back' : 'Try Again'}
-          </GradientButton>
+          <div className="space-y-3">
+            {!isAccessDenied && (
+              <GradientButton onClick={handleRetry} className="w-full">
+                <RefreshCcw className="w-4 h-4 mr-2" />
+                Try Again
+              </GradientButton>
+            )}
+            <button
+              onClick={() => navigate('/')}
+              className="w-full px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 transition-colors"
+            >
+              Go to Home
+            </button>
+          </div>
         </GlassCard>
       </div>
     );
@@ -269,7 +386,7 @@ const BasketDetailPage = () => {
                 <Share2 className="w-5 h-5" />
               </button>
               
-              {basketData?.isCreator && (
+              {isCurrentUserCreator && (
                 <Sheet>
                   <SheetTrigger asChild>
                     <button className="p-2 rounded-lg hover:bg-white/10 transition-colors">
@@ -284,7 +401,12 @@ const BasketDetailPage = () => {
                       <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
                         <h4 className="font-semibold text-red-400 mb-2">Danger Zone</h4>
                         <p className="text-sm text-gray-400 mb-4">This action cannot be undone.</p>
-                        <GradientButton variant="secondary" className="w-full bg-red-500/20 hover:bg-red-500/30">
+                        <GradientButton 
+                          variant="secondary" 
+                          className="w-full bg-red-500/20 hover:bg-red-500/30"
+                          onClick={handleDeleteBasket}
+                          loading={deleteBasketMutation.isPending}
+                        >
                           Delete Basket
                         </GradientButton>
                       </div>
@@ -297,11 +419,11 @@ const BasketDetailPage = () => {
         </header>
 
         {/* Status Banner */}
-        <StatusBanner status={basketData?.status || 'pending'} />
+        <StatusBanner status={basketData?.status || 'approved'} />
 
         <div className="p-4 space-y-6">
           {/* Basket Info */}
-          {basketData && <BasketInfoCard basketData={basketData} />}
+          <BasketInfoCard basketData={basketData} />
 
           {/* Tab Navigation */}
           <TabNavigation 
@@ -310,7 +432,7 @@ const BasketDetailPage = () => {
           />
 
           {/* Members Tab */}
-          {activeTab === 'members' && basketData && (
+          {activeTab === 'members' && (
             <MembersTab
               members={basketData.members}
               basketType={basketData.type}
@@ -324,7 +446,7 @@ const BasketDetailPage = () => {
           )}
 
           {/* Contributions Tab */}
-          {activeTab === 'contributions' && basketData && (
+          {activeTab === 'contributions' && (
             <ContributionsTab contributions={basketData.contributions} />
           )}
         </div>
@@ -336,15 +458,13 @@ const BasketDetailPage = () => {
         />
 
         {/* QR Code Modal */}
-        {basketData && (
-          <QRCodeModal
-            isOpen={showQRModal}
-            onClose={() => setShowQRModal(false)}
-            basketId={basketData.id}
-            basketName={basketData.name}
-            basketURL={`${window.location.origin}/basket/${basketData.id}`}
-          />
-        )}
+        <QRCodeModal
+          isOpen={showQRModal}
+          onClose={() => setShowQRModal(false)}
+          basketId={basketData.id}
+          basketName={basketData.name}
+          basketURL={`${window.location.origin}/basket/${basketData.id}`}
+        />
       </div>
     </TooltipProvider>
   );
