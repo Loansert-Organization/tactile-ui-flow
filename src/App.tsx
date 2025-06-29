@@ -45,6 +45,7 @@ const AdminContributions = React.lazy(() => import('@/pages/admin/Contributions'
 const AdminUsers = React.lazy(() => import('@/pages/admin/Users'));
 const AdminWallets = React.lazy(() => import('@/pages/admin/Wallets'));
 const AdminCountries = React.lazy(() => import('@/pages/admin/Countries'));
+const EasyMomoWrapper = React.lazy(() => import('@/components/EasyMomoWrapper'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -117,6 +118,21 @@ const AppContent = () => {
               </Suspense>
             } />
           )}
+          
+          {/* Easy-Momo Feature - Standalone with no headers/nav for immersive experience */}
+          <Route path="/easy-momo/*" element={
+            <Suspense fallback={
+              <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
+                <div className="text-center text-white">
+                  <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-lg font-semibold">Loading Easy Momo...</p>
+                  <p className="text-sm opacity-75">Mobile Money Made Simple</p>
+                </div>
+              </div>
+            }>
+              <EasyMomoWrapper />
+            </Suspense>
+          } />
           
           {/* Standalone routes - No headers/nav */}
           <Route path="/history" element={<HistoryScreen />} />
