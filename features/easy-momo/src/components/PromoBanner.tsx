@@ -1,6 +1,4 @@
-
 import React, { useEffect, useState, useRef } from "react";
-import { fetchAds } from "@/services/firestore";
 import { ArrowLeft, ArrowRight, Minus } from "lucide-react";
 import PromoBannerMinimized from "./PromoBannerMinimized";
 import PromoBannerLoading from "./PromoBannerLoading";
@@ -17,6 +15,13 @@ type Ad = {
 };
 const ROTATE_INTERVAL = 5000;
 const BANNER_LOCAL_KEY = "promo_banner_minimized";
+
+// Mock function to simulate fetching ads (replaces firestore dependency)
+const fetchAds = async (): Promise<Ad[]> => {
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 100));
+  return []; // Return empty array to use DUMMY_ADS
+};
 
 // FOUR NEW BANNERS WITH UPDATED CONTENT
 const DUMMY_ADS: Ad[] = [{
